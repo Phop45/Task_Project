@@ -1,15 +1,16 @@
 const Task = require('../models/Task');
 const multer = require('multer');
-const upload = multer();
 
 module.exports.renderTaskPage = (req, res) => {
     const userName = req.user ? req.user.firstName : 'Guest';
-    res.render('task', { userName, layout: null });
+    const userImage = req.user ? req.user.profileImage : '/default-profile-image.jpg'; // Replace with the default image path
+    res.render('task', { userName, userImage, layout: null });
 };
 
 module.exports.renderAddTaskPage = (req, res) => {
     const userName = req.user ? req.user.firstName : 'Guest';
-    res.render('addTask', { userName });
+    const userImage = req.user ? req.user.profileImage : '/default-profile-image.jpg'; // Replace with the default image path
+    res.render('addTask', { userName, userImage });
 };
 
 module.exports.createTask_post = async (req, res) => {

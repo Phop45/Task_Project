@@ -12,7 +12,7 @@ router.get('/addTask', taskController.renderAddTaskPage);
 router.post('/createTask', taskController.createTask_post);
 
 router.get('/task', (req, res) => {
-    res.render('task', { userName: req.user.firstName, layout: null });
+    res.render('task', { userName: req.user.firstName, userImage: req.user.profileImage , layout: null });
   });
 
 module.exports = router;

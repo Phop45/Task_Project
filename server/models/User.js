@@ -25,11 +25,10 @@ const UserSchema = new Schema({
   },
   lastName: {
     type: String,
-    required: true
   },
   profileImage: {
     type: String,
-    required: true
+    require: true
   },
   createdAt: {
     type: Date,

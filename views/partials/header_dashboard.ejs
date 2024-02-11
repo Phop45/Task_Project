@@ -1,15 +1,21 @@
-<div class="container-fluid">
-  <header class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 dashboard_header">
-    <a href="/task" class="d-flex align-items-center col-md-3 mb-2 mb-md-0 text-primary text-decoration-none fw-bold fs-2">
-      TaskHub
-    </a>
+<div class="top">
+  <!-- searchBox start -->
+  <div class="searchBox">
+      <h2>Task Hub</h2>
+      <div class="inputBox">
+          <i class='bx bx-search'></i>
+          <input type="text" placeholder="ค้นหา...">
+      </div>
+  </div>
+  <!-- searchBox end -->
 
-    <form class="nav col-12 col-md-auto flex-fill mb-2 justify-content-center mb-md-0" role="search" method="POST" action="/dashboard/search">
-      <input type="search" name="searchTerm" class="header_search form-control border-primary" placeholder="ค้นหา..." aria-label="Search">
-    </form>
-
-    <div class="col-md-3 text-end">
-      <a href="/logout" type="button" class="btn btn-outline-primary">ออกจากระบบ</a>
-    </div>
-  </header>
+  <!-- user start -->
+  <div class="user">
+      <div class="userImg">
+          <img src="<%= userImage %>" alt="user">
+      </div>
+      <i class='bx bx-bell' ></i>
+      <a href="/logout" type="button" class="btn-logout"><i class='bx bx-log-out'></i></a>
+  </div>
+  <!-- user end -->
 </div>

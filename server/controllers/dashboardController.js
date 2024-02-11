@@ -6,7 +6,6 @@ const mongoose = require("mongoose");
  * Dashboard
  */
 exports.dashboard = async (req, res) => {
-
   let perPage = 12;
   let page = req.query.page || 1;
 
@@ -32,13 +31,14 @@ exports.dashboard = async (req, res) => {
 
     const count = await Note.count();
 
-    res.render('dashboard/index', {
+    res.render("dashboard/index", {
       userName: req.user.firstName,
+      userImage: req.user.profileImage,
       locals,
       notes,
       layout: "../views/layouts/dashboard",
       current: page,
-      pages: Math.ceil(count / perPage)
+      pages: Math.ceil(count / perPage),
     });
 
   } catch (error) {
@@ -61,6 +61,7 @@ exports.dashboardViewNote = async (req, res) => {
       note,
       layout: "../views/layouts/dashboard",
       userName: req.user.firstName,
+      userImage: req.user.profileImage
     });
   } else {
     res.send("Something went wrong.");
@@ -83,6 +84,7 @@ exports.dashboardUpdateNote = async (req, res) => {
 
     res.redirect(303, "/dashboard", {
       userName: req.user.firstName,
+      userImage: req.user.profileImage
     });
   } catch (error) {
     console.log(error);
@@ -110,6 +112,7 @@ exports.dashboardDeleteNote = async (req, res) => {
 exports.dashboardAddNote = async (req, res) => {
   res.render("dashboard/add", {
     userName: req.user.firstName,
+    userImage: req.user.profileImage,
     layout: "../views/layouts/dashboard",
   });
 };
@@ -138,6 +141,7 @@ exports.dashboardSearch = async (req, res) => {
       searchResults: "",
       layout: "../views/layouts/dashboard",
       userName: req.user.firstName,
+      userImage: req.user.profileImage,
     });
   } catch (error) {}
 };
@@ -162,6 +166,7 @@ exports.dashboardSearchSubmit = async (req, res) => {
       searchResults,
       layout: "../views/layouts/dashboard",
       userName: req.user.firstName,
+      userImage: req.user.profileImage,
     });
   } catch (error) {
     console.log(error);

@@ -60,13 +60,46 @@ router.get(
 
 // Local Login Route
 router.get('/login', (req, res) => {
-  res.render('login', { title: 'Login Page' });
+  res.render('log/login', { title: 'Login Page' });
 });
-router.post('/login', passport.authenticate('local', { failureRedirect: '/login-failure', successRedirect: '/task' }));
+router.post('/login', passport.authenticate('local', { failureRedirect: '/login-failure', successRedirect: '/dashboard' }));
 
-// Local Register Route
-router.post('/register', async (req, res) => {
-  // Implement local registration logic
+// Local Registration Route
+router.get('/register', (req, res) => {
+  res.render('register');
+});
+
+router.post('/register', async (req, res, next) => {
+  const { username, password, confirmPassword } = req.body;
+
+  // Check if passwords match
+  if (password !== confirmPassword) {
+    return res.render('register', { error: 'Passwords do not match' });
+  }
+
+  try {
+    // Check if the user already exists
+    const existingUser = await User.findOne({ username: username });
+    if (existingUser) {
+      return res.render('register', { error: 'Username already exists' });
+    }
+
+    // Create a new user
+    const newUser = new User({ username: username });
+    newUser.setPassword(password);
+
+    // Save the user to the database
+    await newUser.save();
+
+    // Log in the user immediately after registration
+    passport.authenticate('local', {
+      successRedirect: '/dashboard',
+      failureRedirect: '/login-failure',
+    })(req, res, next);
+  } catch (error) {
+    console.error(error);
+    res.render('register', { error: 'Error during registration' });
+  }
 });
 
 // Retrieve user data
@@ -74,7 +107,7 @@ router.get(
   "/google/callback",
   passport.authenticate("google", {
     failureRedirect: "/login-failure",
-    successRedirect: "/task",
+    successRedirect: "/dashboard",
   })
 );
 
