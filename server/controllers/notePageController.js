@@ -1,11 +1,8 @@
 const Note = require("../models/Notes");
 const mongoose = require("mongoose");
 
-/**
- * GET /
- * Dashboard
- */
-exports.dashboard = async (req, res) => {
+// Get Dashboard
+exports.noteDashboard = async (req, res) => {
   let perPage = 12;
   let page = req.query.page || 1;
 
@@ -31,12 +28,12 @@ exports.dashboard = async (req, res) => {
 
     const count = await Note.count();
 
-    res.render("dashboard/index", {
+    res.render("notePage/index", {
       userName: req.user.firstName,
       userImage: req.user.profileImage,
       locals,
       notes,
-      layout: "../views/layouts/dashboard",
+      layout: "../views/layouts/notes",
       current: page,
       pages: Math.ceil(count / perPage),
     });
@@ -46,20 +43,17 @@ exports.dashboard = async (req, res) => {
   }
 };
 
-/**
- * GET /
- * View Specific Note
- */
-exports.dashboardViewNote = async (req, res) => {
+// View Note
+exports.ViewNote = async (req, res) => {
   const note = await Note.findById({ _id: req.params.id })
     .where({ user: req.user.id })
     .lean();
 
   if (note) {
-    res.render("dashboard/view-note", {
+    res.render("notePage/view-note", {
       noteID: req.params.id,
       note,
-      layout: "../views/layouts/dashboard",
+      layout: "../views/layouts/notes",
       userName: req.user.firstName,
       userImage: req.user.profileImage
     });
@@ -68,89 +62,74 @@ exports.dashboardViewNote = async (req, res) => {
   }
 };
 
-/**
- * PUT /
- * Update Specific Note
- */
-exports.dashboardUpdateNote = async (req, res) => {
+// Update Note
+exports.UpdateNote = async (req, res) => {
   try {
     const noteId = req.params.id._id || req.params.id;
+    const ObjectId = require('mongoose').Types.ObjectId;
     const noteObjectId = noteId instanceof Object ? noteId._id : noteId;
 
     await Note.findOneAndUpdate(
       { _id: noteObjectId },
       { title: req.body.title, body: req.body.body, updatedAt: Date.now() }
-    ).where({ user: req.user.id });
+    ).where({ user: ObjectId(req.user.id) });
 
-    res.redirect(303, "/dashboard", {
-      userName: req.user.firstName,
-      userImage: req.user.profileImage
-    });
+    // Set user data in session
+    req.session.userName = req.user.firstName;
+    req.session.userImage = req.user.profileImage;
+
+    // Redirect to the notes page
+    res.redirect("/note");
   } catch (error) {
     console.log(error);
     res.send("Error updating note.");
   }
 };
 
-/**
- * DELETE /
- * Delete Note
- */
-exports.dashboardDeleteNote = async (req, res) => {
+// Delete Note
+exports.DeleteNote = async (req, res) => {
   try {
     await Note.deleteOne({ _id: req.params.id }).where({ user: req.user.id });
-    res.redirect("/dashboard");
+    res.redirect("/note");
   } catch (error) {
     console.log(error);
   }
 };
 
-/**
- * GET /
- * Add Notes
- */
-exports.dashboardAddNote = async (req, res) => {
-  res.render("dashboard/add", {
+// GET / Add Notes
+exports.AddNote = async (req, res) => {
+  res.render("notePage/add", {
     userName: req.user.firstName,
     userImage: req.user.profileImage,
-    layout: "../views/layouts/dashboard",
+    layout: "../views/layouts/notes",
   });
 };
 
-/**
- * POST /
- * Add Notes
- */
-exports.dashboardAddNoteSubmit = async (req, res) => {
+// POST / Add Notes
+exports.AddNoteSubmit = async (req, res) => {
   try {
     req.body.user = req.user.id;
     await Note.create(req.body);
-    res.redirect("/dashboard");
+    res.redirect("/note");
   } catch (error) {
     console.log(error);
   }
 };
 
-/**
- * GET /
- * Search
- */
-exports.dashboardSearch = async (req, res) => {
+// Search Note
+exports.SearchNote = async (req, res) => {
   try {
-    res.render("dashboard/search", {
+    res.render("notePage/search", {
       searchResults: "",
-      layout: "../views/layouts/dashboard",
+      layout: "../views/layouts/notes",
       userName: req.user.firstName,
       userImage: req.user.profileImage,
     });
   } catch (error) {}
 };
 
-/**
- * POST /
- * Search For Notes
- */
-exports.dashboardSearchSubmit = async (req, res) => {
+// POST / Search Notes
+exports.SearchNoteSubmit = async (req, res) => {
   try {
     let searchTerm = req.body.searchTerm;
     const searchNoSpecialChars = searchTerm.replace(/[^\p{L}\p{N}\s]/gu, "");
@@ -162,9 +141,9 @@ exports.dashboardSearchSubmit = async (req, res) => {
       ],
     }).where({ user: req.user.id });
 
-    res.render("dashboard/search", {
+    res.render("notePage/search", {
       searchResults,
-      layout: "../views/layouts/dashboard",
+      layout: "../views/layouts/notes",
       userName: req.user.firstName,
       userImage: req.user.profileImage,
     });

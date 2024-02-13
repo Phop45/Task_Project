@@ -93,7 +93,7 @@ router.post('/register', async (req, res, next) => {
 
     // Log in the user immediately after registration
     passport.authenticate('local', {
-      successRedirect: '/dashboard',
+      successRedirect: '/subject',
       failureRedirect: '/login-failure',
     })(req, res, next);
   } catch (error) {
@@ -107,7 +107,7 @@ router.get(
   "/google/callback",
   passport.authenticate("google", {
     failureRedirect: "/login-failure",
-    successRedirect: "/dashboard",
+    successRedirect: "/subject",
   })
 );
 

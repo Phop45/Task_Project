@@ -3,8 +3,10 @@
   <div class="searchBox">
       <h2>Task Hub</h2>
       <div class="inputBox">
-          <i class='bx bx-search'></i>
-          <input type="text" placeholder="ค้นหา...">
+        <form action="/note/search" role="search" method="POST">
+            <i class='bx bx-search'></i>
+            <input type="search" name="searchTerm" placeholder="ค้นหา...">
+        </form>
       </div>
   </div>
   <!-- searchBox end -->

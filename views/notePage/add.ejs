@@ -4,7 +4,7 @@
     <div class="col">
       <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+          <li class="breadcrumb-item"><a href="/note">Dashboard</a></li>
           <li class="breadcrumb-item" style="text-decoration: underline;">เพิ่มโน็ต</li>
         </ol>
       </nav>
@@ -14,13 +14,15 @@
     </div>
   </div>
 
-  <form action="/dashboard/add" method="POST" class="add_form position-relative">
+  <form action="/note/add" method="POST" class="add_form position-relative">
     <div class="form-group mb-4" style="left:1px; top:1px; right: 1px;">
-      <input type="text" class="note_title form-control border-0" id="title" name="title" placeholder="เพิ่มหัวข้อเลย..." required>
+      <input type="text" class="note_title form-control border-0" id="title" name="title"
+        placeholder="เพิ่มหัวข้อเลย..." required>
     </div>
 
     <div class="form-group mb-4">
-      <textarea required class="note_content form-control" id="body" name="body" placeholder="บันทึกเลย...." rows="12"></textarea>
+      <textarea required class="note_content form-control" id="body" name="body" placeholder="บันทึกเลย...."
+        rows="12"></textarea>
     </div>
 
     <div class="form-group">

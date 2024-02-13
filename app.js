@@ -7,10 +7,8 @@ const connectDB = require('./server/config/db');
 const session = require('express-session');
 const passport = require('passport');
 const MongoStore = require('connect-mongo').default;
-const taskRouter = require('./server/routes/taskRouter');
 const multer = require('multer');
 const upload = multer();
-
 
 const app = express();
 const port = 5001 || process.env.PORT;
@@ -45,8 +43,8 @@ app.set('view engine', 'ejs');
 // Routes
 app.use('/', require('./server/routes/auth'));
 app.use('/', require('./server/routes/index'));
-app.use('/', require('./server/routes/dashboard'));
-app.use(taskRouter)
+app.use('/', require('./server/routes/notesRouter'));
+app.use('/', require('./server/routes/subRouter'))
 app.use(upload.any());
 
 // Handle 404

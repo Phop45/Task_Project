@@ -4,7 +4,7 @@
     <div class="col">
       <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+          <li class="breadcrumb-item"><a href="/note">Dashboard</a></li>
           <li class="breadcrumb-item active"><%= note.title %></li>
         </ol>
       </nav>
@@ -17,7 +17,7 @@
     </div>
   </div>
 
-  <form action="/dashboard/item/<%= noteID %>?_method=PUT" method="POST" class="add_form position-relative">
+  <form action="/note/item/<%= noteID %>?_method=PUT" method="POST" class="add_form position-relative">
     <div class="form-group mb-4" style="left:1px; top:1px; right: 1px;">
       <input type="text" class="note_title form-control fw-bold border-0 fs-4" id="title" name="title" value="<%= note.title %>" placeholder="Title">
     </div>
@@ -29,7 +29,6 @@
     <div class="form-group">
       <button type="submit" class="btn btn-primary btn-lg">แก้ไข</button>
     </div>
-
   </form>
 
 </div>
@@ -53,7 +52,7 @@
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
 
-        <form action="/dashboard/item-delete/<%= noteID %>?_method=DELETE" method="POST" class="position-relative">
+        <form action="/note/item-delete/<%= noteID %>?_method=DELETE" method="POST" class="position-relative">
           <button type="submit" class="btn btn-primary">ฉันต้องการลบโน็ต</button>
         </form>
 

@@ -1,0 +1,155 @@
+:root{
+    --body-color: #e4e9f7;
+    --sidebar-colot: #fff;
+    --primary-color: #7952B3;
+    --primary-color-light: #f6f5f7;
+    --toggle-color: #ddd;
+    --text-color: #707070;
+}
+
+.contant{
+    background-color: white;
+    margin: 30px 20px 20px 130px;
+    border-radius: 20px;
+}
+
+.contant .head{
+    padding-top: 30px;
+    padding-left: 30px;
+    padding-right: 30px;
+    align-items: center;
+}
+
+.head h1{
+    font-size: 26px;
+    margin: 0;
+}
+
+.contant .line{
+    width: 97%;
+    height: 1px;
+    background-color: #707070;
+    margin: -5px 15px;
+}
+
+
+/* popup */
+.popup{
+    background: rgba(0, 0, 0, 0.6);
+    height: 100vh;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    transition: 0.3s;
+}
+.popup-content{
+    height: 50%;
+    width: 40%;
+    background-color: white;
+    position: relative;
+    border-radius: 20px;
+}
+.popup-content h1{
+    font-size: 24px;
+    font-weight: normal;
+    padding-top: 30px;
+    padding-left: 20px;
+    color: black;
+}
+.popup-content span{
+    color: black;
+    font-size: 18px;
+    font-weight: normal;
+}
+.popup-content .input-box{
+    padding-top: 10px;
+    padding-left: 20px;
+    display: flex;
+    flex-direction: column;
+}
+.popup-content .input-box input{
+    width: 95%;
+    margin-top: 10px;
+    height: 40px;
+    padding: 10px;
+    font-size: 18px;
+    border-radius: 5px;
+    border: #707070 1px solid;
+}
+.popup-content .input-box textarea{
+    width: 95%;
+    margin-top: 10px;
+    height: 100px;
+    padding: 10px;
+    font-size: 18px;
+    border-radius: 5px;
+    border: #707070 1px solid;
+}
+
+.form-btn{
+    display: flex;
+    flex-direction: row;
+    justify-content: right;
+    margin-right: 21px;
+}
+.form-btn .btn{
+    margin-top: 20px;
+    transition: 0.4s;
+    border-radius: 0;
+    position: relative;
+}
+.form-btn .btn:hover{
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: 5px;
+    border: none;
+}
+.close-btn{
+    text-decoration: none;
+    color: black;
+    margin-top: 20px;
+    padding: 6px 25.6px;
+    font-weight: normal;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.close-btn:hover{
+    color: red;
+    background-color: #f4f4f4;
+    border-radius: 5px;
+}
+
+/* card */
+.row{
+    margin-top: 20px;
+}
+.card{
+    margin: 20px 30px 0 30px;
+    height: 300px;
+    border: 2px solid var(--toggle-color);
+    border-radius: 20px;
+    /* box-shadow: 8px 8px; */
+}
+.card .theme{
+    border-radius: 18px 18px 0 0;
+    height: 150px;
+    background-color: #707070;
+
+}
+.card .icon{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+}
+.card i{
+    font-size: 30px;
+    padding: 15px;
+}
+.card button{
+    background-color: transparent;
+    border: none;
+}

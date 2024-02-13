@@ -40,7 +40,7 @@
 }
 
 .top .searchBox .inputBox {
-    width: 350px;
+    width: 500px;
     height: 50px;
     background: #f8f2fe;
     border-radius: 10px;
@@ -53,9 +53,16 @@
     overflow: hidden;
 }
 
+.inputBox form{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
 .top .searchBox .inputBox input {
-    width: 100%;
+    width: 440px;
     height: 25px;
+    padding-left: 20px;
     outline: none;
     border: none;
     background: transparent;
