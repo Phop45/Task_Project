@@ -5,30 +5,26 @@ const Schema = mongoose.Schema;
 const UserSchema = new Schema({
   username: {
     type: String,
-    require: true
+    required: true
   },
   password: {
     type: String,
-    require: true
+    required: true
   },
   googleId: {
     type: String,
-    required: true
   },
   displayName: {
     type: String,
-    required: true
   },
   firstName: {
     type: String,
-    required: true
   },
   lastName: {
     type: String,
   },
   profileImage: {
     type: String,
-    require: true
   },
   createdAt: {
     type: Date,
@@ -36,4 +32,5 @@ const UserSchema = new Schema({
   }
 });
 
+UserSchema.plugin(passportLocalMongoose);
 module.exports = mongoose.model('User', UserSchema);

@@ -9,6 +9,8 @@ const passport = require('passport');
 const MongoStore = require('connect-mongo').default;
 const multer = require('multer');
 const upload = multer();
+const path = require('path');
+const cookieParser = require('cookie-parser');
 
 const app = express();
 const port = 5001 || process.env.PORT;
@@ -24,7 +26,7 @@ app.use(session({
 
 app.use(passport.initialize());
 app.use(passport.session());
-
+app.use(cookieParser());
 app.use(express.urlencoded({extended: true}));
 app.use(express.json());
 app.use(methodOverride("_method"));
@@ -38,6 +40,7 @@ app.use(express.static('public'));
 // Templating Engine
 app.use(expressLayouts);
 app.set('layout', './layouts/main');
+app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
 // Routes
@@ -45,6 +48,7 @@ app.use('/', require('./server/routes/auth'));
 app.use('/', require('./server/routes/index'));
 app.use('/', require('./server/routes/notesRouter'));
 app.use('/', require('./server/routes/subRouter'))
+app.use('/', require('./server/routes/taskRouter'));
 app.use(upload.any());
 
 // Handle 404

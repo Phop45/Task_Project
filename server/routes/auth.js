@@ -3,9 +3,11 @@ const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const User = require('../models/User');
-
 const router = express.Router();
 
+passport.use(new LocalStrategy(User.authenticate()));
+
+// Google OAuth 2.0 strategy
 passport.use(
   new GoogleStrategy(
     {
@@ -36,73 +38,10 @@ passport.use(
     }
   )
 );
-
-// Local authentication strategy
-passport.use(
-  new LocalStrategy({ usernameField: 'username' }, async (username, password, done) => {
-    try {
-      const user = await User.findOne({ username: username });
-      if (!user || !user.validPassword(password)) {
-        return done(null, false, { message: 'Incorrect username or password' });
-      }
-      return done(null, user);
-    } catch (error) {
-      return done(error);
-    }
-  })
-);
-
-// Google Login Route
 router.get(
   "/auth/google",
   passport.authenticate("google", { scope: ["email", "profile"] })
 );
-
-// Local Login Route
-router.get('/login', (req, res) => {
-  res.render('log/login', { title: 'Login Page' });
-});
-router.post('/login', passport.authenticate('local', { failureRedirect: '/login-failure', successRedirect: '/dashboard' }));
-
-// Local Registration Route
-router.get('/register', (req, res) => {
-  res.render('register');
-});
-
-router.post('/register', async (req, res, next) => {
-  const { username, password, confirmPassword } = req.body;
-
-  // Check if passwords match
-  if (password !== confirmPassword) {
-    return res.render('register', { error: 'Passwords do not match' });
-  }
-
-  try {
-    // Check if the user already exists
-    const existingUser = await User.findOne({ username: username });
-    if (existingUser) {
-      return res.render('register', { error: 'Username already exists' });
-    }
-
-    // Create a new user
-    const newUser = new User({ username: username });
-    newUser.setPassword(password);
-
-    // Save the user to the database
-    await newUser.save();
-
-    // Log in the user immediately after registration
-    passport.authenticate('local', {
-      successRedirect: '/subject',
-      failureRedirect: '/login-failure',
-    })(req, res, next);
-  } catch (error) {
-    console.error(error);
-    res.render('register', { error: 'Error during registration' });
-  }
-});
-
-// Retrieve user data
 router.get(
   "/google/callback",
   passport.authenticate("google", {
@@ -111,12 +50,67 @@ router.get(
   })
 );
 
+// Login
+router.get('/login', (req, res) => {
+  res.render('log/login');
+});
+router.post('/login', (req, res, next) => {
+  passport.authenticate('local', (err, user, info) => {
+      if (err) { return next(err); }
+      if (!user) {
+          return res.redirect('/login-failure');
+      }
+
+      const rememberMe = req.body.remember === 'on';
+      if (rememberMe) {
+          req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000;
+      }
+
+      if (!user.profileImage) {
+        user.profileImage = '/img/images.jpeg';
+        user.save();
+      }
+
+      req.logIn(user, (err) => {
+          if (err) { return next(err); }
+          return res.redirect('/subject');
+      });
+  })(req, res, next);
+});
+
+// Register
+router.post('/register', async (req, res) => {
+  const { username, password, confirmPassword } = req.body;
+  // Check if passwords match
+  if (password !== confirmPassword) {
+    return res.status(400).send("Passwords do not match");
+  }
+
+  try {
+    const newUser = new User({ username, password });
+    User.register(newUser, password, (err, user) => {
+      if (err) {
+        return res.status(500).send(err.message);
+      }
+      passport.authenticate('local')(req, res, () => {
+        res.redirect('/subject');
+      });
+    });
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
+});
+router.get('/register', (req, res) => {
+  res.render('log/register');
+});
+
 // login-failure
 router.get('/login-failure', (req, res) => {
   res.send('Something went wrong...');
 });
 
-// Logout Route: Destroy user session
+
+// Logout
 router.get('/logout', (req, res) => {
   req.logout((err) => {
     if (err) {
@@ -137,8 +131,6 @@ router.get('/logout', (req, res) => {
 passport.serializeUser(function (user, done) {
   done(null, user.id);
 });
-
-// New
 passport.deserializeUser(async (id, done) => {
   try {
     const user = await User.findById(id);

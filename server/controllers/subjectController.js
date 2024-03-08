@@ -25,8 +25,7 @@ exports.SubDashboard = async (req, res) => {
         locals,
         subjects,
         layout: "../views/layouts/subject",
-      });
-}
+      }); }
      catch (error) {
       console.log(error);
     };
@@ -40,7 +39,6 @@ exports.createSubject = async (req, res) =>{
       SubDescription: req.body.SubDescription,
       user: req.user.id
     });
-
     await newSubject.save();
     res.redirect("/subject");
   } catch (error) {
@@ -53,12 +51,10 @@ exports.createSubject = async (req, res) =>{
 exports.deleteSubject = async (req, res) => {
   const subjectId = req.params.id;
   try {
-      // Ensure only the owner of the subject can delete it
       const subject = await Subject.findOne({ _id: subjectId, user: req.user.id });
       if (!subject) {
           return res.status(404).send('Subject not found or you do not have permission to delete it.');
       }
-
       await Subject.findByIdAndRemove(subjectId);
       res.redirect("/subject");
   } catch (error) {
@@ -67,19 +63,19 @@ exports.deleteSubject = async (req, res) => {
   }
 };
 
-// View Subject
+// View Task
 exports.viewSubject = async (req, res) => {
   const subject = await Subject.findById({ _id: req.params.id })
     .where({ user: req.user.id })
     .lean();
 
   if (subject) {
-    res.render("subject/sub-detail", {
-      subject: subject,
+    res.render("task/task-dashboard", {
+      subjects: subject,
       SubName: req.body.SubName,
       SubDescription: req.body.SubDescription,
       user: req.user.id,
-      layout: "../views/layouts/subject",
+      layout: "../views/layouts/task",
       userName: req.user.firstName,
       userImage: req.user.profileImage
     });

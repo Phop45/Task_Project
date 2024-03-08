@@ -11,8 +11,7 @@ const subjectSchema = new Schema({
         required: true
     },
     SubDescription: {
-        type: String,
-        required: true
+        type: String
     },
     SubPicture: {
         type: String
@@ -27,6 +26,6 @@ const subjectSchema = new Schema({
     }
 });
 
-const Subject = mongoose.model('Subject', subjectSchema);
+const Subject = mongoose.model('Subjects', subjectSchema);
 
 module.exports = Subject;

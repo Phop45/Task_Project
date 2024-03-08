@@ -8,12 +8,11 @@
           <a href="#" class="add-btn btn-primary btn">+ เพิ่มรายวิชาใหม่</a>
         </div>
     </div>
-
     <div class="row sub_all">
         <% for(var i=0; i < subjects.length; i++) { %>
             <div class="col-sm-6 mb-4">
                 <div class="card" style="min-height: 210px">
-                    <div class="theme"></div>
+                    <div class="theme"><img src="img/book-background.jpeg" alt=""></div>
                     <a href="/subject/item/<%= subjects[i]._id %>" class="card-body text-decoration-none">
                         <h5 class="card-title">วิชา: <%= subjects[i].SubName %></h5>
                         <p class="card-text"><%= subjects[i].SubDescription %></p>
@@ -39,10 +38,13 @@
     <div class="popup-content">
         <form action="/createSubject" method="POST">
             <h1>เพิ่มรายวิชาใหม่</h1>
-
             <div class="input-box">
                 <span class="span-text">ชื่อรายวิชา:</span>
-                <input type="text" name="SubName" id="SubName" placeholder="วิชา" required>
+                <div class="form-floating">
+                    <input type="text" class="form-control" name="SubName" id="SubName" placeholder="วิชา" required>
+                    <label for="SubName">วิชา</label>
+                </div>
+
             </div>
 
 

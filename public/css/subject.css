@@ -73,11 +73,14 @@
 .popup-content .input-box input{
     width: 95%;
     margin-top: 10px;
-    height: 40px;
-    padding: 10px;
+    height: 50px;
+    padding: 15px;
     font-size: 18px;
     border-radius: 5px;
     border: #707070 1px solid;
+}
+.input-box label{
+    margin: 5px;
 }
 .popup-content .input-box textarea{
     width: 95%;
@@ -138,7 +141,10 @@
     border-radius: 18px 18px 0 0;
     height: 150px;
     background-color: #707070;
-
+}
+.card img{
+    width: fit-content;
+    height: 150px;
 }
 .card .icon{
     display: flex;
