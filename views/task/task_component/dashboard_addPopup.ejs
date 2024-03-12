@@ -1,0 +1,81 @@
+<div class="sidebar-popup" id="sidebar-popup">
+    <div class="side-top">
+        <i class='bx bxs-chevrons-right' id="close-task-btn"></i>
+        <i class='bx bx-expand'></i>
+    </div>
+
+    <div class="add-task-form">
+        <div class="top-form">
+            <i class='bx bx-task' ></i>
+            <p>เพิ่มงานใหม่</p>
+        </div>
+
+        <form action="/addTask" method="POST" class="form">
+            <table class="add-input">
+                <tr>
+                    <td>
+                        <i class='bx bx-rename' ></i>
+                        ชื่องาน
+                    </td>
+                    <td>
+                        <input type="text" id="taskName" name="taskName" placeholder="กรอกชื่องาน" required>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <i class='bx bxs-calendar' ></i>
+                        วันครบกำหนด
+                    </td>
+                    <td>
+                        <div id="calendar-container">
+                            <input type="text" id="datepicker" name="datepicker" placeholder="Select Date" style="width: 150px; padding-right: 10px;" required>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <i class='bx bxs-purchase-tag-alt' ></i>
+                        แท็กงาน
+                    </td>
+                    <td>
+                        <input type="text" id="taskTag" name="taskTag" placeholder="เพิ่มแท็กงาน">
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <i class='bx bxs-purchase-tag-alt' ></i>
+                        ประเภทงาน
+                    </td>
+                    <td>
+                        <select id="taskType" name="taskType">
+                            <option value="งานทั่วไป">งานทั่วไป</option>
+                            <option value="การบ้าน">การบ้าน</option>
+                            <option value="งานกลุ่ม">งานกลุ่ม</option>
+                            <option value="งานแลป">งานแลป</option>
+                            <option value="สอบ">สอบ</option>
+                        </select>
+                    </td>
+                </tr>
+
+
+                <tr>
+                    <td style="vertical-align: top; padding-top: 5px;">
+                        <i class='bx bxs-receipt'></i>
+                        รายละเอียดงาน
+                    </td>
+                    <td>
+                        <textarea id="detail" name="detail" rows="4" cols="50" placeholder="กรอกรายละเอียดงาน"></textarea>
+                    </td>
+                </tr>
+            </table>
+            <input type="hidden" name="subjectId" id="subjectId" value="<%= subjects._id %>">
+
+            <div class="all-btn">
+                <button type="button" onclick="clearFields()"><i class='bx bx-rotate-right'></i>ล้าง</button>
+                <button type="submit">เสร็จสิ้น</button>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="overlay" id="overlay"></div>

@@ -1,19 +1,12 @@
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/date-fns/2.25.0/date-fns.min.js"></script>
+    <link rel="stylesheet" href="/css/taskCss/task-dashboard.css">
+</head>
+
 <div class="contant">
     <h1 class="SubName"><%= subjects.SubName %></h1>
-
-    <ul class="nav nav-tabs">
-        <li class="nav-item">
-            <a class="nav-link active" href="/task/task-dashboard">
-                <i class='bx bxs-dashboard'></i>
-                แดชบอร์ด</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="/task/task-list">ลิสต์</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="#">บอร์ด</a>
-        </li>
-    </ul>
+    <%- include('../partials/task-navbar.ejs') %>
 
     <div class="task-content">
         <div class="right-bar">
@@ -33,7 +26,6 @@
                 </div>
             </div>
         </div>
-
         <div class="dashboard">
             <div class="top-info">
                 <div class="row">
@@ -49,7 +41,9 @@
                                     <h6 class="card-text">งานทั้งหมด</h6>
                                     <div class="col-9">
                                         <div class="d-flex align-items-center align-self-start">
-                                            <h3 class="mb-0">10 <span>งาน</span></h3>
+                                            <h3 class="mb-0">
+                                                <%= tasks.length %> <span>งาน</span>
+                                            </h3>
                                         </div>
                                     </div>
                                 </div>
@@ -118,13 +112,11 @@
                     </div>
                 </div>
             </div>
-
             <div class="second-table">
                 <div class="donut">
                     <h1>ชาร์ตแสดงปริมาณงาน</h1>
                     <canvas id="myDonutChart" width="300" height="350"></canvas>
                 </div>
-
                 <div class="task-table">
                     <h1>ตารางงาน</h1>
                     <div class="table-responsive">
@@ -138,83 +130,30 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <th>  </th>
-                                    <th>ผู้รับมอบหมาย</th>
-                                    <th>วันครบกำหนด</th>
-                                    <th>สถานะ</th>
-                                </tr>
+                                <% for (let i=taskNames.length - 1; i>= 0; i--) { %>
+                                    <tr>
+                                        <td>
+                                            <%= taskNames[i] %>
+                                        </td>
+                                        <td> <img src="<%= userImage %>">
+                                            <%= userName %>
+                                        </td>
+                                        <td>
+                                            <%= dueDate[i] %>
+                                        </td>
+                                        <td>
+                                            <%= taskStatuses[i] %>
+                                        </td>
+                                    </tr>
+                                    <% } %>
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 </div>
+<%- include('../task/task_component/dashboard_addPopup.ejs') %>
 
-<div class="sidebar-popup" id="sidebar-popup">
-    <div class="side-top">
-        <i class='bx bxs-chevrons-right' id="close-task-btn"></i>
-        <i class='bx bx-expand'></i>
-    </div>
-
-    <div class="add-task-form">
-        <div class="top-form">
-            <i class='bx bx-task' ></i>
-            <p>เพิ่มงานใหม่</p>
-        </div>
-
-        <form action="/addTask" method="POST" class="form">
-            <table class="add-input">
-                <tr>
-                    <td>
-                        <i class='bx bx-rename' ></i>
-                        ชื่องาน
-                    </td>
-                    <td>
-                        <input type="text" id="taskName" name="taskName" placeholder="กรอกชื่องาน">
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <i class='bx bxs-calendar' ></i>
-                        วันครบกำหนด
-                    </td>
-                    <td>
-                        <div id="calendar-container">
-                            <input type="text" id="datepicker" name="datepicker" placeholder="Select Date" style="width: 150px; padding-right: 10px;">
-                          </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <i class='bx bxs-purchase-tag-alt' ></i>
-                        แท็กงาน
-                    </td>
-                    <td>
-                        <input type="text" id="taskTag" name="taskTag" placeholder="เพิ่มแท็กงาน">
-                    </td>
-                </tr>
-                <tr>
-                    <td style="vertical-align: top; padding-top: 5px;">
-                        <i class='bx bxs-receipt'></i>
-                        รายละเอียดงาน
-                    </td>
-                    <td>
-                        <textarea id="detail" name="detail" rows="4" cols="50" placeholder="กรอกรายละเอียดงาน"></textarea>
-                    </td>
-                </tr>
-            </table>
-            <input type="hidden" name="subjectId" id="subjectId" value="<%= subjects._id %>">
-            <div class="all-btn">
-                <button type="button" onclick="clearFields()"><i class='bx bx-rotate-right'></i>เครียร์</button>
-                <button type="submit">เสร็จสิ้น</button>
-            </div>
-        </form>
-    </div>
-</div>
-<div class="overlay" id="overlay"></div>
-
-<script src="/chart.js"></script>
+<script src="/script/chart.js"></script>

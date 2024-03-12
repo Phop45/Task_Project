@@ -1,3 +1,99 @@
-<h1>
-    list
-</h1>
+<head>
+    <link rel="stylesheet" href="/css/taskCss/task-list.css">
+    <link rel="stylesheet" href="/css/taskCss/task-dashboard.css">
+</head>
+
+<div class="contant">
+    <h1 class="SubName"><%= subjects.SubName %></h1>
+    <%- include('../partials/task-navbar.ejs') %>
+
+    <div class="col-lg-12 grid-margin stretch-card">
+        <div class="tasklist-top">
+            <div class="tasklist-top-left">
+                <div>
+                    <input type="search" id="searchTask" placeholder="ค้นหางาน...">
+                </div>
+                <div>
+                    <img src="<%= userImage %>" alt="">
+                </div>
+            </div>
+
+            <div class="tasklist-top-right">
+                <div class="dropdown">
+                    <button class="btn dropdown-toggle" type="button" id="filter" data-bs-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false">
+                        <i class='bx bx-filter'></i> การกรอง </button>
+                    <div class="dropdown-menu dropdown-menu-end mt-2" aria-labelledby="filter">
+                        <h6 class="dropdown-header">กรองตาม</h6>
+                        <a class="dropdown-item" href="#"><i class='bx bx-calendar-exclamation'></i>
+                            หมดเขตอาทิตย์นี้</a>
+                        <a class="dropdown-item" href="#"><i class='bx bx-check'></i>
+                            งานที่เสร็จสิ้น</a>
+                        <a class="dropdown-item" href="#"><i class='bx bx-book-add'></i>
+                            วันที่สร้างล่าสุด</a>
+                        <a class="dropdown-item" href="#"><i class='bx bx-edit-alt'></i>
+                            วันที่อัพเดตล่าสุด</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table" id="myTable">
+                        <thead class="table-head" id="table-head">
+                            <tr>
+                                <th> <input type="checkbox" id="check-all" onclick="toggleAllCheckboxes()"> </th>
+                                <th> ชื่องาน </th>
+                                <th> ประเภทงาน </th>
+                                <th> รายละเอียดงาน </th>
+                                <th> วันครบกำหนด </th>
+                                <th> Tags </th>
+                                <th> ผู้รับผิดชอบ </th>
+                                <th> สถานะ </th>
+                                <th> สร้างเมื่อ </th>
+                                <th> อัพเดตเมื่อ </th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body"">
+                            <% for (let i = taskNames.length - 1; i >= 0; i--) { %>
+                            <tr>
+                                <td> <input type="checkbox" class="checkbox" data-task-id="<%= tasks[i]._id %>" onchange="updateSelectedCount()"></td>
+                            <td> <%= taskNames[i] %> </td>
+                            <td> <%= taskTypes[i] %> </td>
+                            <td> <%= taskDetail[i] %></td>
+                            <td> <%= dueDate[i] %> </td>
+                            <td> Tags </td>
+                            <td> <img src="<%= userImage %>"> <%= userName %> </td>
+                            <td style="width: max-content;">
+                                <div id="status">
+                                    <%= taskStatuses[i] %>
+                                </div>
+                            </td>
+                            <td> <%= createdAt[i] %> </td>
+                            <td> อัพเดตเมื่อ </td>
+                        </tr>
+                        <% } %>
+                        <tr style="background: transparent;">
+                            <td style="border: none;"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <input type="hidden" name="taskIds" value="">
+                </div>
+            </div>
+        </div>
+        <div class="table-input" id="tableInput">
+            <form action="/addTask_list" method="POST" class="form">
+                <input type="text" id="taskName" name="taskName" style="display: none;"
+                    placeholder="+ คุณต้องการทำอะไรให้เสร็จสิ้น">
+                <span id="toggleInput">+ สร้างงาน</span>
+                <input type="hidden" name="subjectId" id="subjectId" value="<%= subjects._id %>">
+            </form>
+        </div>
+    </div>
+</div>
+
+<%- include('../task/task_component/list-selectInfo.ejs') %>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>

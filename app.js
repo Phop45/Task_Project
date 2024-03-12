@@ -49,6 +49,7 @@ app.use('/', require('./server/routes/index'));
 app.use('/', require('./server/routes/notesRouter'));
 app.use('/', require('./server/routes/subRouter'))
 app.use('/', require('./server/routes/taskRouter'));
+app.use('/', require('./server/routes/settingRouter'));
 app.use(upload.any());
 
 // Handle 404

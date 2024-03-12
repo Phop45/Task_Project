@@ -1,0 +1,276 @@
+:root{
+    --color1: #7952B3;
+    --color2: #a788d4;
+    --color3: #E4E9F6;
+    --text: #37352F;
+    --light: #37352FA6;
+    --more-light: #222220d7;
+    --notYet: #B5C0D0;
+}
+.tasklist-top{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 30px 50px;
+}
+.tasklist-top-left{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.tasklist-top-left input{
+    width: 300px;
+    height: 40px;
+    border-radius: 5px;
+    border: 1.5px solid rgba(55, 53, 47, 0.50) ;
+    padding: 10px;
+    margin-right: 20px;
+    transition: 0.2s ease;
+}
+.tasklist-top-left input[type="search"]::placeholder{
+    color: rgba(55, 53, 47, 0.50);
+}
+.tasklist-top-left input[type="search"]:focus{
+    outline: none;
+    border: 1.5px solid var(--more-light);
+}
+.tasklist-top-left img{
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+.tasklist-top-right .dropdown-toggle{
+    width: 130px;
+    height: 40px;
+}
+.dropdown-menu{
+    margin-top: 20px;
+    width: 200px;
+}
+.dropdown-header{
+    font-size: 1em;
+    font-weight: 600;
+    padding-bottom: 15px;
+    color: var(--color1);
+}
+.dropdown-item{
+    font-size: 0.9em;
+    padding: 10px 20px;
+    color: var(--text);
+    transition: 0.2s ease;
+}
+.dropdown-item i{
+    margin-right: 10px;
+}
+
+.table-head{
+    background-color: var(--color2);
+    color: white;
+    font-weight: 400;
+    height: 50px;
+    position: sticky;
+    top: 0px;
+    padding: 0;
+}
+.table-head tr th{
+    vertical-align: middle;
+    border-left: 1px solid rgba(55, 53, 47, 0.1);
+    border-right: 1px solid rgba(55, 53, 47, 0.1);
+}
+tbody tr{
+    background-color: white;
+    transition: background-color 0.3s ease;
+    cursor: pointer;
+}
+tbody tr:hover{
+    background-color: rgba(55, 53, 47, 0.1);
+}
+tr.drag-over {
+    background-color: lightgray;
+}
+tbody tr td{
+    border: 1px solid rgba(55, 53, 47, 0.1);
+}
+tbody tr td{
+    width: 200px;
+    height: 50px;
+    vertical-align: middle;
+}
+tbody td:first-child,
+.table-head th:first-child{
+    width: 100px;
+    text-align: center;
+}
+.table{
+    min-width: max-content;
+    border-radius: 10px;
+    border-collapse: collapse;
+    margin-bottom: 0;
+}
+
+.table-responsive{
+    max-height: 500px;
+    overflow-y: auto;
+    position: relative;
+    border-radius: 10px 10px 0 0;
+}
+.shadow {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 1.5);
+    transition: box-shadow 0.3s ease;
+}
+
+.card{
+    margin: 0 50px;
+    margin-bottom: 20px;
+    border: none;
+}
+.card-body{
+    padding: 0;
+    border: 1.5px solid rgba(55, 53, 47, 0.1);
+    border-style: outset;
+    border-radius: 11px;
+    min-height: 500px;
+}
+
+.table-input{
+    background-color: white;
+    color: var(--text);
+    font-weight: 400;
+    height: 55px;
+    padding: 0;
+    position: relative;
+    top: -72px;
+    cursor: pointer;
+    border-top: 1px solid rgba(55, 53, 47, 0.1);
+    transition: 0.3s ease;
+    margin: 0 50px;
+    border-radius: 0 0 10px 10px;
+    border: 1.5px solid rgba(55, 53, 47, 0.1);
+    overflow: hidden;
+}
+.table-input:hover{
+    background-color: rgb(232, 232, 232);
+}
+.table-input input{
+    border: none;
+    outline: none;
+    width: 100%;
+    height: 100%;
+    color: var(--text);
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    padding-left: 30px;
+    font-size: 1em;
+    font-weight: 600;
+    transition: 0.2s ease;
+}
+.table-input input::placeholder{
+    color: var(--text);
+    opacity: 0.5;
+    font-weight: 400;
+    font-size: 1em;
+    transition: 0.2s ease;
+}
+.table-input span,
+.table-input span.clicked{
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    height: 50px;
+    font-size: 1em;
+    padding-left: 30px;
+    transition: 0.3s ease;
+}
+
+.table-input input[type="text"]:focus{
+    border: 1.5px solid var(--light);
+}
+
+#taskName {
+    transition: opacity 0.3s ease; /* Add transition for opacity */
+    height: 52px;
+}
+
+#selectionInfo {
+    position: fixed;
+    width: 350px;
+    height: 60px;
+    left: 50%;
+    bottom: -100px; /* Start off-screen */
+    transform: translateX(-50%);
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+    font-size: 1em;
+    background-color: var(--color1);
+    padding: 10px;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+    transition: bottom 0.5s ease; /* Transition effect for bottom property */
+}
+.select{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding-left: 20px;
+}
+.select i{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5em;
+    vertical-align: middle;
+    margin-right: 10px;
+    width: 30px;
+    height: 30px;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: 0.3s;
+}
+.select i:hover{
+    background-color: var(--color2);
+}
+.select span{
+    padding: 0 5px;
+}
+.selectDelete{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    margin-right: 10px;
+    opacity: 0.5;
+    transition: 0.3s;
+    height: 30px;
+    width: max-content;
+    padding: 0 10px;
+    border-radius: 5px;
+}
+.selectDelete button{
+    background: none;
+    border: none;
+    color: white;
+}
+.selectDelete:hover{
+    background-color: var(--color2);
+    opacity: 1;
+}
+.stretch-card{
+    height: 620px;
+}
+
+
+#status{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--notYet);
+    width: 100px;
+    height: 40px;
+    border-radius: 20px;
+    font-size: 0.9em;
+    border: 2px solid #31363F;
+}

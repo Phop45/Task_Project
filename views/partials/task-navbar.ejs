@@ -1,0 +1,13 @@
+<ul class="nav nav-tabs">
+    <li class="nav-item">
+        <a class="nav-link <%= currentPage === 'dashboard' ? 'active' : '' %>" href="/subject/item/<%= subjects._id %>">
+            <i class='bx bxs-dashboard'></i> แดชบอร์ด
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link <%= currentPage === 'task_list' ? 'active' : '' %>" href="/subject/item/<%= subjects._id %>/task_list">ลิสต์</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link <%= currentPage === 'task_board' ? 'active' : '' %>" href="#">บอร์ด</a>
+    </li>
+</ul>
