@@ -1,3 +1,85 @@
-<h1 style="margin-left: 200px;">
-    profile
-</h1>
+<head>
+    <link rel="stylesheet" href="/css/settingCss/settingProfile.css">
+
+</head>
+
+<body>
+    <div class="content">
+        <div class="settinglayout">
+            <div class="sectionsettingnav">
+                <div class="settingnavmenubar">
+                    <h3>การตั้งค่า</h3>
+                    <ul>
+                        <li class="active"><i class='bx bx-user-circle'></i><a href="#profileUser">การตั้งค่าทั่วไป</a>
+                        </li>
+                        <li><i class='bx bx-lock'></i><a href="#settingpass">การตั้งค่ารหัสผ่าน</a></li>
+                        <li><i class='bx bx-bell'></i><a href="#notification">การตั้งค่าแจ้งเตือน</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div id="profilesettings">
+                <div class="profilesettings-section">
+                    <div class="card" id="card-profilesettings-section">
+                        <div class="card-header" id="card-header-profilesettings">ข้อมูลส่วนตัว</div>
+                        <div id="card-body-profilesettings">
+                            <div class="sectionimg">
+                                <div class="imgprofile">
+                                    <img id="previewImage" src="<%= userImage %>" alt="user">
+                                </div>
+                                <form action="/setting_profile/image/<%= userId %>" class="upload" method="post"
+                                    role="form" enctype="multipart/form-data">
+                                    <input type="file" id="profileImageInput" name="profileImage" accept="image/*"
+                                        onchange="previewImage(this);">
+                                    <label for="profileImageInput">
+                                        <i style="padding: 0;" class='bx bx-cloud iupload'></i>
+                                        อัปโหลดรูปภาพ
+                                    </label>
+                                    <div class="buttonsub-tooltip">
+                                        <button type="submit">บันทึก</button>
+                                        <span class="buttonsub-tooltiptext">ยืนยันการเปลี่ยนรูปโปรไฟล์</span>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <div class="sectiondetail">
+                                <form action="/setting_profile/username/<%= userId %>" class="edit-profiledetail"
+                                    method="post">
+                                    <label for="username"><i class='bx bxs-edit'></i>ชื่อผู้ใช้</label>
+                                    <input type="text" id="username" name="username" value="<%= userName %>">
+                                    <div class="buttonsub-tooltip">
+                                        <button type="submit">บันทึก</button>
+                                        <span class="buttonsub-tooltiptext">ยืนยันการเปลี่ยนชื่อผู้ใช้</span>
+                                    </div>
+                                </form>
+                            </div>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    </div>
+    </div>
+
+    <script>
+        function previewImage(input) {
+            var preview = document.getElementById('previewImage');
+            var file = input.files[0];
+            var reader = new FileReader();
+
+            reader.onloadend = function () {
+                preview.src = reader.result;
+            };
+
+            if (file) {
+                reader.readAsDataURL(file);
+            } else {
+                preview.src = "<%= userImage %>";
+            }
+        }
+    </script>
+</body>

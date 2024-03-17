@@ -5,9 +5,18 @@
         </a>
     </li>
     <li class="nav-item">
-        <a class="nav-link <%= currentPage === 'task_list' ? 'active' : '' %>" href="/subject/item/<%= subjects._id %>/task_list">ลิสต์</a>
+        <a class="nav-link <%= currentPage === 'task_list' ? 'active' : '' %>" href="/subject/item/<%= subjects._id %>/task_list">
+            <i class='bx bx-list-ul' ></i> ลิสต์
+        </a>
     </li>
     <li class="nav-item">
-        <a class="nav-link <%= currentPage === 'task_board' ? 'active' : '' %>" href="#">บอร์ด</a>
+        <a class="nav-link <%= currentPage === 'task_board' ? 'active' : '' %>" href="#">
+            <i class='bx bxs-dashboard' ></i> บอร์ด
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link <%= currentPage === 'task_board' ? 'active' : '' %>" href="#">
+            <i class='bx bxs-cog' ></i> การตั้งค่า
+        </a>
     </li>
 </ul>

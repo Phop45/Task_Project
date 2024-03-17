@@ -14,7 +14,7 @@ const taskSchema = new Schema({
     taskName: {
         type: String,
     },
-    date: {
+    dueDate: {
         type: Date
     },
     taskTag: {
@@ -43,6 +43,11 @@ const taskSchema = new Schema({
         type: String,
         enum: ['งานทั่วไป','การบ้าน', 'งานกลุ่ม', 'งานแลป', 'สอบ'],
         default: 'งานทั่วไป'
+    },
+    taskPriority: {
+        type: String,
+        enum: ['เร่งด่วน', 'ปกติ'],
+        default: 'ปกติ'
     }
 },
 { timestamps: { createdAt: 'createdAt', updatedAt: 'deleteAt' }});

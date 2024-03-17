@@ -5,35 +5,42 @@
 <div class="contant">
     <div class="row head">
         <div class="col">
-          <h1 style="font-weight: 500; color: #707070;">รายวิชาทั้งหมด</h1>
+          <h1 style="font-weight: 600; font-size: 30px;">รายวิชาทั้งหมด</h1>
         </div>
         <div class="col text-end">
-          <a href="#" class="add-btn btn-primary btn">+ เพิ่มรายวิชาใหม่</a>
+            <a href="/subject/recover" class="add-btn btn" id="recover-btn" style="margin-right: 20px;">
+                กู้คืนวิชา
+            </a>
+            <a href="#" class="add-btn btn" id="new-task-btn">+ เพิ่มรายวิชาใหม่</a>
         </div>
     </div>
     <div class="row sub_all">
-        <% for(var i=0; i < subjects.length; i++) { %>
+        <% for(var i=subjects.length - 1; i>= 0; i--) { %>
             <div class="col-sm-6 mb-4">
                 <div class="card" style="min-height: 210px">
-                    <div class="theme"><img src="img/book-background.jpeg" alt=""></div>
                     <a href="/subject/item/<%= subjects[i]._id %>" class="card-body text-decoration-none">
-                        <h5 class="card-title">วิชา: <%= subjects[i].SubName %></h5>
-                        <p class="card-text"><%= subjects[i].SubDescription %></p>
+                        <div class="theme"></div>
+                        <dic class="text">
+                            <h5 class="card-title">วิชา: <%= subjects[i].SubName %>
+                            </h5>
+                            <p class="card-text">
+                                <%= subjects[i].SubDescription %>
+                            </p>
+                        </dic>
                     </a>
                     <div class="icon">
-                        <i class='bx bx-star' ></i>
-                        <form action="/deleteSubject/<%= subjects[i]._id %>" method="POST" onsubmit="displayConfirmation()">
-                            <button type="submit" class="delete-btn">
-                                <i class='bx bx-trash-alt'></i>
-                            </button>
-                        </form>
-                    </div>
+                        <p class="card-infotext">จำนวนงานทั้งหมด <span id="task-lenght">
+                                <%= subjects[i].taskCount %>
+                            </span> งาน</p>
+                            <i class='bx bx-trash-alt delete-alter-btn' data-subject-id="<%= subjects[i]._id %>"></i>
+                        </div>
                 </div>
             </div>
-        <%  } %>
+        <% } %>
     </div>
 </div>
 
 <%- include('../subject/subject_componant/add-popup.ejs') %>
+<%- include('../subject/subject_componant/delete-alter.ejs') %>
 <script src="/script/nav_menu.js"></script>
 <script src="/script/popup.js"></script>

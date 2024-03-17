@@ -10,7 +10,6 @@ var data = {
         hoverBackgroundColor: ['#ffce56','#BFEA7C','#FF8F8F']
     }]
 };
-
 // Options for the donut chart
 var options = {
     cutoutPercentage: 60,
@@ -29,10 +28,8 @@ var options = {
         }
     }
 };
-
 // Get the canvas element
 var ctx = document.getElementById('myDonutChart').getContext('2d');
-
 // Create the donut chart
 var myDonutChart = new Chart(ctx, {
     type: 'doughnut',
@@ -58,6 +55,14 @@ document.getElementById("close-task-btn").addEventListener("click", function() {
 document.getElementById('datepicker').addEventListener('click', function() {
     this.type = 'date';
     this.focus();
+});
+
+$(document).ready(function() {
+    $('#datepicker').datepicker({
+        dateFormat: 'dd/mm/yy', // Set the date format
+        changeMonth: true, // Enable month selection
+        changeYear: true // Enable year selection
+    });
 });
 
 function clearFields() {

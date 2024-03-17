@@ -1,6 +1,11 @@
 <head>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/date-fns/2.25.0/date-fns.min.js"></script>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
     <link rel="stylesheet" href="/css/taskCss/task-dashboard.css">
 </head>
 
@@ -11,6 +16,28 @@
     <div class="task-content">
         <div class="right-bar">
             <div class="shortcut">
+                <h1>รายละเอียดวิชา</h1>
+                <div class="short-link">
+                    <div id="sub-datil">
+                        <p id="text">อาจาร์ยผู้สอน : </p>
+                        <p id="detail"><%= subjects.Professor %></p>
+                    </div>
+                    <div id="sub-datil">
+                        <p id="text">รหัสวิชา : </p>
+                        <p id="detail"><%= subjects.SubjectCode %></p>
+                    </div>
+                    <div id="sub-datil">
+                        <p id="text">รายละเอียดวิชา : </p>
+                        <p id="detail" style="border: none;"></p>
+                    </div>
+                    <div id="sub-datil" style="width: 100%; display: block; margin-top: 5px;">
+                        <p id="SubDescription" style="margin-left: 10px;">
+                            <%= subjects.SubDescription %>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="shortcut">
                 <h1>ทางลัด</h1>
                 <div class="short-link">
                     <a href="#" class="link" id="new-task-btn"><i class='bx bx-task'></i>งานใหม่</a>
@@ -18,18 +45,12 @@
                 </div>
             </div>
 
-            <div class="shortcut">
-                <h1>ลิงค์ทางลัด</h1>
-                <div class="short-link">
-                    <a href="#" class="link" id="new-task-btn"><i class='bx bx-task'></i>งานใหม่</a>
-                    <a href="#" class="link"><i class='bx bx-note'></i>ลิงค์ 1</a>
-                </div>
-            </div>
+
         </div>
         <div class="dashboard">
             <div class="top-info">
                 <div class="row">
-                    <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
+                    <div class="card-dashboard">
                         <div class="card">
                             <div class="card-body">
                                 <div class="row">
@@ -49,9 +70,25 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-3">
+                                        <div class="icon icon-box-success ">
+                                            <i class='bx bx-sitemap' style="background-color: #E89271;"></i>
+                                        </div>
+                                    </div>
+                                    <h6 class="card-text">งานย่อยทั้งหมด</h6>
+                                    <div class="col-9">
+                                        <div class="d-flex align-items-center align-self-start">
+                                            <h3 class="mb-0">0 <span>งาน</span></h3>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="card">
                             <div class="card-body">
                                 <div class="row">
@@ -63,47 +100,7 @@
                                     <h6 class="card-text">งานที่เสร็จสิ้น</h6>
                                     <div class="col-9">
                                         <div class="d-flex align-items-center align-self-start">
-                                            <h3 class="mb-0">5 <span>งาน</span></h3>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
-                        <div class="card">
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-3">
-                                        <div class="icon icon-box-success ">
-                                            <i class='bx bx-time-five' style="background-color: #E89271;"></i>
-                                        </div>
-                                    </div>
-                                    <h6 class="card-text">เวลาในการทำงาน</h6>
-                                    <div class="col-9">
-                                        <div class="d-flex align-items-center align-self-start">
-                                            <h3 class="mb-0">3 <span>ชม</span></h3>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-xl-3 col-sm-6 grid-margin stretch-card">
-                        <div class="card">
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-3">
-                                        <div class="icon icon-box-success ">
-                                            <i class='bx bx-task' style="background-color: #70A1E5;"></i>
-                                        </div>
-                                    </div>
-                                    <h6 class="card-text">ว่างงง</h6>
-                                    <div class="col-9">
-                                        <div class="d-flex align-items-center align-self-start">
-                                            <h3 class="mb-0">100 <span>ว่าง</span></h3>
+                                            <h3 class="mb-0">0 <span>ชม</span></h3>
                                         </div>
                                     </div>
                                 </div>

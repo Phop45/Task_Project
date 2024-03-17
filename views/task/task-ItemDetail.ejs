@@ -1,0 +1,158 @@
+<head>
+    <link rel="stylesheet" href="/css/taskCss/list-itemDetail.css">
+</head>
+
+<body>
+    <%- include('../partials/nav_menu.ejs') %>
+    <div class="content">
+        <div class="top-option">
+            <div class="breadcomes">
+                <a href="/subject">subject</a> /
+                <a href="/subject/item/<%= subjectId %>">list</a>  /
+                <a style="background-color: #7952B3; color: white; border-color: #7952B3;"><%= taskNames %></a>
+            </div>
+            <div class="btn-option">
+                <h1>สร้างเมื่อวันที่ <span id="createAt"><%= createdAt %></span></h1>
+                <i id="closeTaskItemDetail" class='bx bx-x undefined' data-subject-id="<%= subjectId %>"></i>
+            </div>
+        </div>
+        <div class="content-Wrap">
+            <div class="itemDetail">
+                <div id="firstLine">
+                    <i class='bx bx-sidebar'></i>
+                    <div class="detail-dropdown">
+                        <button class="btn dropdown-toggle" type="button" id="drop1" data-bs-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false">
+                            <%= taskTypes %> </button>
+                        <div class="dropdown-menu dropdown-menu-start mt-2" aria-labelledby="filter">
+                            <a class="dropdown-item" href="#"> งานทั่วไป </a>
+                            <a class="dropdown-item" href="#"> การบ้าน </a>
+                            <a class="dropdown-item" href="#"> งานกลุ่ม </a>
+                            <a class="dropdown-item" href="#"> งานแลป </a>
+                            <a class="dropdown-item" href="#"> สอบ </a>
+                        </div>
+                    </div>
+                    <div class="detail-dropdown">
+                        <button class="btn dropdown-toggle" type="button" id="drop2" data-bs-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false" style="font-weight: 600;">
+                            <%= taskStatuses %>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-start mt-2" aria-labelledby="filter">
+                            <a class="dropdown-item" href="#">ยังไม่ทำ </a>
+                            <a class="dropdown-item" href="#">กำลังทำ </a>
+                            <a class="dropdown-item" href="#">เสร็จ </a>
+                        </div>
+                    </div>
+                    <div class="detail-dropdown">
+                        <button class="btn dropdown-toggle" type="button" id="drop1" data-bs-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false">
+                            <i class='bx bxs-flag'></i>
+                            <%= taskPriority %> </button>
+                        <div class="dropdown-menu dropdown-menu-start mt-2" aria-labelledby="filter">
+                            <a class="dropdown-item" href="#"><i class='bx bxs-flag bx-tada' style='color:#ff004d'></i>
+                                เร่งด่วน </a>
+                            <a class="dropdown-item" href="#"><i class='bx bxs-flag' style='color:#378ce7'></i> ปกติ
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="seccondLine">
+                    <h1 class="taskName"><%= taskNames %></h1>
+                    <div class="item-detailInfo">
+                        <div id="info">
+                            <span id="inf1">ผู้รับผิดชอบ</span>
+                            <span id="inf2"><%= userName %></span>
+                        </div>
+                        <div id="info">
+                            <span id="inf1">วันครบกำหนด</span>
+                            <span id="inf2"><%= dueDate %> </span>
+                        </div>
+                        <div id="info">
+                            <span id="inf1">แท็ก</span>
+                            <span id="inf2"> Detail </span>
+                        </div>
+                    </div>
+                    <span id="desText">
+                        <i class='bx bxs-detail'></i>
+                        <h1 class="taskDes">รายละเอียดของงาน</h1>
+                    </span>
+                    <div class="description">
+                        <textarea name="taskDescription" id="taskDescription" cols="30" rows="10"><%= taskDetail %></textarea>
+                    </div>
+                </div>
+
+                <div class="thridLine">
+                    <span id="desText">
+                        <i class='bx bx-calendar-check'></i>
+                        <h1 class="taskDes">งานย่อย</h1>
+                    </span>
+                    <div class="subTask-input" id="subTask-input">
+                        <form action="/addSubtask" method="POST" class="subTask-form">
+                            <input type="text" id="subTask" name="subTask" placeholder="+ เพิ่มงานย่อยของคุณเลย">
+                            
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="activity">
+            <div class="topAct">
+                <h1>กิจกรรมที่เกิดขึ้น</h1>
+            </div>
+            <div class="messageAct">
+                <div class="activityUpdate">
+
+                </div>
+                <div class="comment">
+                    <input type="text" placeholder="add comment">
+                    <button id="sendComment">ส่ง</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+<script>
+    // Get the button element
+    const button = document.getElementById('drop2');
+
+    // Get the task status
+    const taskStatuses = '<%= taskStatuses %>';
+
+    // Set styles based on task status
+    switch (taskStatuses) {
+        case 'ยังไม่ทำ':
+            button.style.backgroundColor = '#CFD2CF';
+            button.style.borderColor = '#454545';
+            break;
+        case 'กำลังทำ':
+            button.style.backgroundColor = '#40679E';
+            button.style.borderColor = '#1B3C73';
+            button.style.color = 'white';
+            break;
+        case 'เสร็จ':
+            button.style.backgroundColor = '#87A922';
+            button.style.borderColor = '#416D19';
+            button.style.color = 'white';
+            break;
+        default:
+            break;
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+    const closeButton = document.getElementById('closeTaskItemDetail');
+    if (closeButton) {
+        const subjectId = closeButton.dataset.subjectId;
+
+        closeButton.addEventListener('click', function() {
+            // Redirect to the task list page with the subjectId
+            window.location.href = `/subject/item/${subjectId}/task_list`;
+        });
+    }
+});
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>

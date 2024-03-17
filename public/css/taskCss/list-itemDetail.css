@@ -1,0 +1,340 @@
+:root {
+    --line: #D7D9DD;
+    --more-line: #9a9a9a;
+    --text1: #515761;
+    --color1: #7952B3;
+    --color2: #a788d4;
+    --color4: #906fc3;
+    --color3: #E4E9F6;
+    --text2: #37352F;
+    --light: #37352FA6;
+    --more-light: #222220d7;
+    --notYet: #B5C0D0;
+}
+body{
+    font-size: 1em;
+}
+h1{
+    font-size: 1em;
+}
+/* content page */
+.content {
+    background-color: white;
+    margin: 20px 20px 20px 120px;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    max-width: 1320px;
+    max-height: max-content;
+    min-height: 95vh;
+    overflow-y: scroll;
+}
+.content-Wrap {
+    display: flex;
+    flex-direction: row;
+    padding: 30px 80px;
+    width: 100%;
+    justify-content: space-between;
+    min-height: 85vh;
+    max-height: 85vh;
+    overflow: scroll;
+}
+.itemDetail{
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 65%;
+}
+.activity{
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 30%;
+}
+/* content page */
+
+/* top option */
+.top-option{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--line);
+    padding: 20px 30px 20px 80px;
+}
+.top-option .breadcomes{
+    font-size: 1em;
+    color: var(--light);
+}
+.top-option .breadcomes a{
+    font-size: 0.9em;
+    color: var(--text);
+    text-decoration: none;
+    width: max-content;
+    height: 40px;
+    border: 1px solid var(--more-line);
+    border-radius: 10px;
+    padding: 5px 10px;
+    transition: 0.2s ease;
+}
+.top-option .breadcomes a:hover{
+    background-color: var(--color1);
+    border: none;
+    color: white;
+}
+.btn-option{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 20px;
+}
+.btn-option h1{
+    font-size: 1em;
+    margin: 0;
+    color: var(--text1);
+    font-weight: 400;
+}
+.btn-option h1 span{
+    font-weight: 600;
+}
+.btn-option .bx{
+    width: 32px;
+    height: 32px;
+    font-size: 1.5em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    transition: 0.3s ease;
+    cursor: pointer;
+}
+.btn-option .bx:hover{
+    background-color: #D04848;
+    color: white;
+}
+/* top option */
+
+/* first Line */
+.content-Wrap #firstLine{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 25px;
+    position: relative;
+    left: -55px;
+}
+.content-Wrap .bx{
+    width: 35px;
+    height: 35px;
+    font-size: 1em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px;
+    transition: 0.3s ease;
+    cursor: pointer;
+}
+.content-Wrap .bx:hover{
+    background-color: var(--color1);
+    color: white;
+}
+.content-Wrap .dropdown-toggle{
+    transition: 0.3s ease;
+    border: 1px solid var(--line);
+    font-size: 0.9em;
+    font-weight: 200;
+    height: 35px;
+    width: max-content;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+.dropdown-toggle::after{
+    display: none;
+}
+.dropdown-menu{
+    width: fit-content;
+}
+.dropdown-menu .dropdown-item{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+}
+.dropdown-menu .dropdown-item .bx:hover{
+    background-color: var(--more-line);
+}
+.dropdown-menu .dropdown-item .bx:hover{
+    background-color: transparent;
+}
+.content-Wrap .dropdown-toggle:hover{
+    background-color: var(--color1);
+    border-color: var(--color1);
+    color: white;
+}
+/* first Line */
+
+/* Seccond Line */
+.seccondLine .taskName{
+    font-size: 2em;
+    font-weight: 600;
+    color: var(--color1);
+    margin-top: 5px;
+}
+.seccondLine .item-detailInfo{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 20px;
+    margin: 20px 0;
+    width: 70%;
+}
+.item-detailInfo #info{
+    display: flex;
+    padding: 10px 20px;
+    width: 150px;
+    height: max-content;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 10px;
+}
+.item-detailInfo #info #inf1{
+    font-size: 1em;
+    font-weight: 500;
+    color: var(--color4);
+}
+.seccondLine #desText,
+.thridLine #desText{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin: 20px 0 10px;
+}
+.seccondLine span .bxs-detail,
+.thridLine span .bx-calendar-check{
+    color: var(--color1);
+    font-size: 25px;
+    margin-right: 10px;
+    transition: none;
+}
+.seccondLine span .bxs-detail:hover,
+.thridLine span .bx-calendar-check:hover{
+    background-color: transparent;
+    color: var(--color1);
+}
+.taskDes{
+    font-size: 16px;
+    font-weight: 400;
+    width: fit-content;
+    margin: 0;
+}
+.description{
+    width: 100%;
+    height: 200px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+}
+.description #taskDescription{
+    width: 95%;
+    height: 170px;
+    margin: 15px 0 0 20px;
+    resize: none;
+    border: none;
+}
+.description #taskDescription:focus{
+    outline: none;
+}
+/* Seccond Line */
+
+/* Third Line */
+.thridLine{
+    width: 100%;
+    height: 50px;
+}
+.thridLine h1{
+    font-size: 16px;
+    font-weight: 400;
+    margin: 20px 0 10px 0;
+}
+.thridLine .subTask-input #subTask{
+    width: 100%;
+    height: 50px;
+    padding: 20px;
+    border: 2px solid var(--line);
+    border-radius: 10px;
+}
+.thridLine .subTask-input #subTask:focus{
+    outline: none;
+    border-color: var(--light);
+}
+/* Third Line */
+
+/* Activity */
+.activity{
+    position: absolute;
+    background-color: #FBFBFC;
+    top: 93px;
+    right:30px;
+    width: 450px;
+    height: 685px;
+    overflow: hidden;
+    border-left: 1px solid var(--line);
+    border-bottom-right-radius: 20px;
+}
+.topAct{
+    background-color: white;
+    width: 100%;
+    height: 50px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+}
+.topAct h1{
+    font-size: 18px;
+    margin: 0;
+    margin-left: 30px;
+    font-weight: 400;
+}
+.messageAct .comment{
+    width: 95%;
+    height: 50px;
+    background-color: white;
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    box-shadow: 0 5px 5px 0 rgba(0, 0, 0, 0.2);
+    position: relative;
+    top: 540px;
+    left: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 30px;
+}
+.comment input{
+    width: 100%;
+    padding: 5px;
+    border: none;
+    font-size: 16px;
+    font-weight: 200;
+}
+.comment input:focus{
+    outline: none;
+}
+.comment #sendComment{
+    width: 100px;
+    height: 35px;
+    font-size: 16px;
+    font-weight: 400;
+    border: 1px solid var(--color1);
+    border-radius: 5px;
+    background-color: var(--color1);
+    color: white;
+    opacity: 0.8;
+    transition: 0.3s ease;
+}
+.comment #sendComment:hover{
+    opacity: 1;
+    cursor: pointer;
+}
+/* Activity */

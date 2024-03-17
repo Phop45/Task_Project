@@ -13,8 +13,21 @@ const subjectSchema = new Schema({
     SubDescription: {
         type: String
     },
+    SubjectCode:{
+        type: String
+    },
+    Professor:{
+        type: String
+    },
     SubPicture: {
         type: String
+    },
+    deleted: {
+        type: Boolean,
+        default: false
+    },
+    deletedAt: {
+        type: Date
     },
     createdAt: {
         type: Date,
@@ -27,5 +40,4 @@ const subjectSchema = new Schema({
 });
 
 const Subject = mongoose.model('Subjects', subjectSchema);
-
 module.exports = Subject;

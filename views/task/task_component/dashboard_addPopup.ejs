@@ -28,7 +28,7 @@
                     </td>
                     <td>
                         <div id="calendar-container">
-                            <input type="text" id="datepicker" name="datepicker" placeholder="Select Date" style="width: 150px; padding-right: 10px;" required>
+                            <input type="datetime-local" id="dueDateTime" name="dueDateTime" placeholder="เพิ่มแท็กงาน">
                         </div>
                     </td>
                 </tr>
@@ -57,8 +57,6 @@
                         </select>
                     </td>
                 </tr>
-
-
                 <tr>
                     <td style="vertical-align: top; padding-top: 5px;">
                         <i class='bx bxs-receipt'></i>
@@ -75,6 +73,7 @@
                 <button type="button" onclick="clearFields()"><i class='bx bx-rotate-right'></i>ล้าง</button>
                 <button type="submit">เสร็จสิ้น</button>
             </div>
+
         </form>
     </div>
 </div>

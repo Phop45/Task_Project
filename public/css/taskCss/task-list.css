@@ -2,10 +2,11 @@
     --color1: #7952B3;
     --color2: #a788d4;
     --color3: #E4E9F6;
-    --text: #37352F;
     --light: #37352FA6;
     --more-light: #222220d7;
     --notYet: #B5C0D0;
+    --line: #D7D9DD;
+    --text: #515761;
 }
 .tasklist-top{
     display: flex;
@@ -38,6 +39,30 @@
     width: 40px;
     height: 40px;
     border-radius: 50%;
+}
+.tasklist-top-right{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.tasklist-top-right #new-task-btn{
+    text-decoration: none;
+    font-weight: 400;
+    font-size: 16px;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    height: 40px;
+    width: 150px;
+}
+.tasklist-top-right #new-task-btn:hover{
+    background-color: var(--color1);
+    color: white;
+    transition: 0.5s;
 }
 .tasklist-top-right .dropdown-toggle{
     width: 130px;
@@ -94,7 +119,10 @@ tbody tr td{
 tbody tr td{
     width: 200px;
     height: 50px;
-    vertical-align: middle;
+    max-width: 200px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 tbody td:first-child,
 .table-head th:first-child{

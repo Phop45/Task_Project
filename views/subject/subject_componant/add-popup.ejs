@@ -1,25 +1,79 @@
-<div class="popup">
-    <div class="popup-content">
-        <form action="/createSubject" method="POST">
-            <h1>เพิ่มรายวิชาใหม่</h1>
-            <div class="input-box">
-                <span class="span-text">ชื่อรายวิชา:</span>
-                <div class="form-floating">
-                    <input type="text" class="form-control" name="SubName" id="SubName" placeholder="วิชา" required>
-                    <label for="SubName">วิชา</label>
-                </div>
-            </div>
+<div class="sidebar-popup" id="sidebar-popup">
+    <div class="side-top">
+        <i class='bx bxs-chevrons-right' id="close-task-btn"></i>
+    </div>
+    <div class="add-task-form">
+        <div class="top-form">
+            <i class='bx bx-task' ></i>
+            <p>เพิ่มวิชาใหม่</p>
+        </div>
 
-
-            <div class="input-box">
-                <span class="span-text">คำอธิบาย:</span>
-                <textarea name="SubDescription" id="SubDescription" placeholder="คำอธิบาย"></textarea>
-            </div>
-
-            <div class="form-btn">
-                <a class="close-btn">ยกเลิก</a>
+        <form action="/createSubject" method="POST" class="form" id="subjectForm" onsubmit="return validateForm()">
+            <table class="add-input">
+                <tr style="vertical-align: top;">
+                    <td>
+                        <p style="margin-top: 5px;">ชื่อรายวิชา</p>
+                    </td>
+                    <td>
+                        <input type="text" class="form-control" name="SubName" id="SubName" placeholder="* เพิ่มชื่อรายวิชา" required>
+                        <span id="notiAlert">* กรุณากรอกชื่อรายวิชาโดยไม่ใช้อักขระพิเศษ</span>
+                    </td>
+                </tr>
+                <tr style="margin-top: 10px; opacity: 0.9; margin-bottom: -5px;">
+                    <td></td>
+                    <td style="width: 350px;">
+                        <p style="font-size: 18px; font-weight: 600; margin-bottom: 0; color: #7952B3; border-bottom: 1px solid #D7D9DD; padding-bottom: 5px;">
+                            ตัวเลือกเพิ่มเติม
+                        </p>
+                    </td>
+                </tr>
+                <tr style="vertical-align: top;">
+                    <td>
+                        <p style="margin-top: 5px;">รหัสวิชา</p>
+                    </td>
+                    <td>
+                        <input type="text" class="form-control" name="SubjectCode" id="SubjectCode" placeholder="-">
+                    </td>
+                </tr>
+                <tr style="vertical-align: top;">
+                    <td>
+                        <p style="margin-top: 5px;">อาจาร์ย</p>
+                    </td>
+                    <td>
+                        <input type="text" class="form-control" name="Professor" id="Professor" placeholder="-">
+                    </td>
+                </tr>
+                <tr>
+                    <td style="vertical-align: top; padding-top: 5px;"> รายละเอียดวิชา </td>
+                    <td>
+                        <textarea id="SubDescription" name="SubDescription" rows="4" cols="50" placeholder="เพิ่มรายละเอียดวิชา"></textarea>
+                    </td>
+                </tr>
+            </table>
+            <div class="all-btn">
+                <button type="button" onclick="clearFields()" id="btnClear"><i class='bx bx-rotate-right'></i>ล้าง</button>
                 <button type="submit" class="btn">สร้าง</button>
             </div>
         </form>
     </div>
 </div>
+<div class="overlay" id="overlay"></div>
+
+<script>
+    function validateForm() {
+        var subName = document.getElementById("SubName").value;
+
+        if (subName.trim() === "" || !isAlphanumeric(subName.charAt(0))) {
+            document.getElementById("notiAlert").style.display = "block";
+            return false;
+        }
+        return true;
+    }
+    function isAlphanumeric(char) {
+        return /^[a-zA-Z0-9ก-๙]+$/.test(char);
+    }
+
+    document.getElementById("SubName").addEventListener("focus", function() {
+        document.getElementById("notiAlert").style.display = "none";
+    });
+</script>
