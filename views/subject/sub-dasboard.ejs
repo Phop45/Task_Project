@@ -9,7 +9,7 @@
         </div>
         <div class="col text-end">
             <a href="/subject/recover" class="add-btn btn" id="recover-btn" style="margin-right: 20px;">
-                กู้คืนวิชา
+                <i class='bx bx-revision'></i> กู้คืนวิชา
             </a>
             <a href="#" class="add-btn btn" id="new-task-btn">+ เพิ่มรายวิชาใหม่</a>
         </div>
@@ -23,8 +23,8 @@
                         <dic class="text">
                             <h5 class="card-title">วิชา: <%= subjects[i].SubName %>
                             </h5>
-                            <p class="card-text">
-                                <%= subjects[i].SubDescription %>
+                            <p class="card-text" style="opacity: 0.6;">
+                                <%= subjects[i].SubDescription ? subjects[i].SubDescription : "วิชานี้คือวิชา " + subjects[i].SubName + " ถูกสร้างเมื่อ " + subjects[i].createdAt %>
                             </p>
                         </dic>
                     </a>

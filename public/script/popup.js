@@ -25,6 +25,7 @@ function validateForm() {
 function isAlphanumeric(char) {
     return /^[a-zA-Z0-9ก-๙]+$/.test(char);
 }
+
 function clearFields() {
     document.getElementById("SubName").value = "";
     document.getElementById("SubDescription").value = "";

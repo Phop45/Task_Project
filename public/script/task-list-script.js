@@ -83,24 +83,24 @@ document.addEventListener('DOMContentLoaded', function () {
                 },
                 body: JSON.stringify({ taskIds: selectedTaskIds })
             })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to delete tasks');
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log(data.message);
-                // Optionally, update UI or refresh task list
-                checkboxes.forEach(function (checkbox) {
-                    checkbox.checked = false;
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to delete tasks');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log(data.message);
+                    // Optionally, update UI or refresh task list
+                    checkboxes.forEach(function (checkbox) {
+                        checkbox.checked = false;
+                    });
+                    updateSelectedCount();
+                })
+                .catch(error => {
+                    console.error('Error deleting tasks:', error);
+                    // Handle error
                 });
-                updateSelectedCount();
-            })
-            .catch(error => {
-                console.error('Error deleting tasks:', error);
-                // Handle error
-            });
         }
     }
 
@@ -133,12 +133,12 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
-document.getElementById('deleteTasksForm').addEventListener('submit', function(e) {
+document.getElementById('deleteTasksForm').addEventListener('submit', function (e) {
     // Get the selected tasks
     var selectedTasks = document.querySelectorAll('input[type="checkbox"]:checked');
 
     // Get the task IDs
-    var taskIds = Array.from(selectedTasks).map(function(task) {
+    var taskIds = Array.from(selectedTasks).map(function (task) {
         return task.getAttribute('data-task-id');
     });
 

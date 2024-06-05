@@ -292,3 +292,9 @@
     display: inline-block;
     cursor: pointer;
 }
+
+.upload p{
+    margin-top: 5px;
+    font-size: small;
+    color: #f43a3a;
+}

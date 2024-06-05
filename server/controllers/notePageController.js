@@ -1,15 +1,10 @@
 const Note = require("../models/Notes");
 const mongoose = require("mongoose");
 
-// Get Dashboard
+// หน้ารวมโน้ต
 exports.noteDashboard = async (req, res) => {
   let perPage = 12;
   let page = req.query.page || 1;
-
-  const locals = {
-    title: "Dashboard",
-    description: "Free NodeJS Notes App.",
-  };
 
   try {
     const notes = await Note.aggregate([
@@ -31,7 +26,6 @@ exports.noteDashboard = async (req, res) => {
     res.render("notePage/index", {
       userName: req.user.firstName,
       userImage: req.user.profileImage,
-      locals,
       notes,
       layout: "../views/layouts/notes",
       current: page,
@@ -43,7 +37,7 @@ exports.noteDashboard = async (req, res) => {
   }
 };
 
-// View Note
+// กดเข้าไปดูโน้ต
 exports.ViewNote = async (req, res) => {
   const note = await Note.findById({ _id: req.params.id })
     .where({ user: req.user.id })
@@ -62,7 +56,7 @@ exports.ViewNote = async (req, res) => {
   }
 };
 
-// Update Note
+// อัพเดทโน้ต
 exports.UpdateNote = async (req, res) => {
   try {
     const noteId = req.params.id._id || req.params.id;
@@ -74,11 +68,8 @@ exports.UpdateNote = async (req, res) => {
       { title: req.body.title, body: req.body.body, updatedAt: Date.now() }
     ).where({ user: ObjectId(req.user.id) });
 
-    // Set user data in session
     req.session.userName = req.user.firstName;
     req.session.userImage = req.user.profileImage;
-
-    // Redirect to the notes page
     res.redirect("/note");
   } catch (error) {
     console.log(error);

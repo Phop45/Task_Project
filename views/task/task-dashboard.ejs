@@ -20,11 +20,11 @@
                 <div class="short-link">
                     <div id="sub-datil">
                         <p id="text">อาจาร์ยผู้สอน : </p>
-                        <p id="detail"><%= subjects.Professor %></p>
+                        <p id="detail"><%= subjects.Professor || "-" %></p>
                     </div>
                     <div id="sub-datil">
                         <p id="text">รหัสวิชา : </p>
-                        <p id="detail"><%= subjects.SubjectCode %></p>
+                        <p id="detail"><%= subjects.SubjectCode || "-" %></p>
                     </div>
                     <div id="sub-datil">
                         <p id="text">รายละเอียดวิชา : </p>
@@ -32,7 +32,7 @@
                     </div>
                     <div id="sub-datil" style="width: 100%; display: block; margin-top: 5px;">
                         <p id="SubDescription" style="margin-left: 10px;">
-                            <%= subjects.SubDescription %>
+                            <%= subjects.SubDescription ? subjects.SubDescription : "วิชานี้คือวิชา " + subjects.SubName + " ถูกสร้างเมื่อ " + subjects.createdAt %>
                         </p>
                     </div>
                 </div>
@@ -109,11 +109,12 @@
                     </div>
                 </div>
             </div>
+
             <div class="second-table">
                 <div class="donut">
                     <h1>ชาร์ตแสดงปริมาณงาน</h1>
                     <canvas id="myDonutChart" width="300" height="350"></canvas>
-                </div>
+                  </div>
                 <div class="task-table">
                     <h1>ตารางงาน</h1>
                     <div class="table-responsive">
@@ -128,7 +129,7 @@
                             </thead>
                             <tbody>
                                 <% for (let i=taskNames.length - 1; i>= 0; i--) { %>
-                                    <tr>
+                                    <tr class="task-row" data-task-id="<%= tasks[i]._id %>" onclick="redirectToTaskDetail('<%= tasks[i]._id %>')">
                                         <td>
                                             <%= taskNames[i] %>
                                         </td>
@@ -152,5 +153,53 @@
     </div>
 </div>
 <%- include('../task/task_component/dashboard_addPopup.ejs') %>
+<script>
+    function redirectToTaskDetail(taskId) {
+        window.location.href = `/task/${taskId}/detail`;
+    }
 
+    // Define the statusCounts object from the server side data
+window.statusCounts = {
+    working: <%= statusCounts.working %>,
+    compleate: <%= statusCounts.compleate %>,
+    fix: <%= statusCounts.fix %>
+  };
+
+document.addEventListener('DOMContentLoaded', function () {
+    const chartData = {
+        labels: ['กำลังทำ', 'เสร็จสิ้น', 'แก้ไข'],
+        datasets: [{
+            data: [window.statusCounts.working, window.statusCounts.compleate, window.statusCounts.fix],
+            backgroundColor: ['#B4B4B8', '#9BCF53', '#FF6868'],
+            hoverBackgroundColor: ['#C7C8CC', '#BFEA7C', '#FF8F8F']
+        }]
+    };
+
+    const options = {
+        cutoutPercentage: 60,
+        responsive: false,
+        plugins: {
+            legend: {
+                position: 'bottom',
+                align: 'start',
+                labels: {
+                    font: {
+                        size: '16px'
+                    },
+                    maxRows: 3
+                },
+                fullWidth: true
+            }
+        }
+    };
+
+    const ctx = document.getElementById('myDonutChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: chartData,
+        options: options
+    });
+});
+</script>
 <script src="/script/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

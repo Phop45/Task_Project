@@ -1,6 +1,5 @@
 <head>
     <link rel="stylesheet" href="/css/settingCss/settingProfile.css">
-
 </head>
 
 <body>
@@ -39,6 +38,7 @@
                                         <button type="submit">บันทึก</button>
                                         <span class="buttonsub-tooltiptext">ยืนยันการเปลี่ยนรูปโปรไฟล์</span>
                                     </div>
+                                    <p>*อัปโหลดไฟล์รูป /jpeg/jpg/png ไม่เกิน 1 MB</p>
                                 </form>
                             </div>
 
@@ -81,5 +81,32 @@
                 preview.src = "<%= userImage %>";
             }
         }
+        // ฟังก์ชันสำหรับแสดง Popup
+        function showConfirmationPopup(event) {
+            // แสดง Popup ด้วย confirm()
+            var isConfirmed = confirm("คุณต้องการบันทึกข้อมูลการเปลี่ยนแปลงหรือไม่?");
+
+            // หากผู้ใช้กดตกลง
+            if (isConfirmed) {
+                // ไม่ต้องป้องกันการส่งฟอร์ม
+                return true;
+            } else {
+                // ป้องกันการส่งฟอร์ม
+                event.preventDefault();
+                return false;
+            }
+        }
+
+        // เพิ่มการเรียกใช้งานฟังก์ชันเมื่อกดปุ่ม "บันทึก" ในส่วนของการเปลี่ยนรูปโปรไฟล์
+        document.querySelector('#profilesettings form.upload button[type="submit"]').addEventListener('click', function (event) {
+            showConfirmationPopup(event);
+        });
+
+        // เพิ่มการเรียกใช้งานฟังก์ชันเมื่อกดปุ่ม "บันทึก" ในส่วนของการเปลี่ยนชื่อผู้ใช้
+        document.querySelector('#profilesettings form.edit-profiledetail button[type="submit"]').addEventListener('click', function (event) {
+            showConfirmationPopup(event);
+        });
+
     </script>
+
 </body>

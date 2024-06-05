@@ -49,6 +49,7 @@
     border-radius: 5px;
     width: 96%;
     max-height: 20vh;
+    min-height: 20vh;
     overflow: scroll;
 }
 #sub-datil{
@@ -312,14 +313,16 @@
     margin-right: 10px;
 }
 .add-input input{
-    width: 350px;
+    width: 330px;
     height: 40px;
-    padding-left: 10px;
+    margin-left: 30px;
+    padding-left: 20px;
     border: none;
     border-radius: 5px;
     color: var(--text);
     transition: 0.2s;
     outline: none;
+    border-bottom: 1px solid rgba(55, 53, 47, 0.3);
 }
 .add-input input::placeholder,
 .add-input textarea::placeholder{
@@ -332,9 +335,10 @@
 }
 input[type="text"]:focus {
     border: 1.5px solid var(--more-light);
+    background-color: rgba(55, 53, 47, 0.08);
 }
 .add-input textarea{
-    width: 350px;
+    width: 330px;
     padding-left: 10px;
     padding-top: 5px;
     border-radius: 5px;
@@ -343,6 +347,7 @@ input[type="text"]:focus {
     color: var(--text);
     transition: 0.2s;
     border: 1px solid rgba(55, 53, 47, 0.16);
+    margin-left: 30px;
 }
 .form .all-btn{
     display: flex;
@@ -388,13 +393,15 @@ input[type="text"]:focus {
 #taskType{
     width: 150px;
     height: 40px;
-    padding-left: 5px;
+    margin-left: 30px;
+    padding-left: 10px;
     border: none;
     border-radius: 5px;
     color: var(--text);
     transition: 0.2s;
     outline: none;
     text-overflow: ellipsis;
+    border: 1px solid rgba(55, 53, 47, 0.16);
 }
 .dropdown-clicked {
     /* Add your custom styles here */

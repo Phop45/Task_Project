@@ -2,8 +2,8 @@
 const Task = require("../models/Task");
 const Subject = require("../models/Subject");
 const Subtask = require("../models/Subtask");
-const mongoose = require("mongoose");
-const ObjectId = require('mongoose').Types.ObjectId;
+const moment = require('moment');
+moment.locale('th');
 
 const extractTaskParameters = async (tasks) => {
   const taskNames = tasks.map(task => task.taskName);
@@ -11,6 +11,7 @@ const extractTaskParameters = async (tasks) => {
   const taskStatuses = tasks.map(task => task.status);
   const taskTypes = tasks.map(task => task.taskType);
   const taskPriority = tasks.map(task => task.taskPriority);
+  const taskTag = tasks.map(task => task.taskTag);
   const dueDate = tasks.map(task => {
     const date = new Date(task.dueDate);
     const options = { day: 'numeric', month: 'long', locale: 'th-TH' };
@@ -22,11 +23,40 @@ const extractTaskParameters = async (tasks) => {
     return date.toLocaleDateString(undefined, options);
   });
 
-  return { taskNames, taskDetail, taskStatuses, taskTypes, dueDate, createdAt, taskPriority };
+  return { taskNames, taskDetail, taskStatuses, taskTypes, dueDate, createdAt, taskPriority, taskTag };
 };
 
-/// Add Task
+async function addTaskCommon(req, res, redirectPath) {
+  try {
+    const dueDate = req.body.dueDate;
+    const dueTime = req.body.dueTime;
+    const task = new Task({
+      taskName: req.body.taskName,
+      dueDate: new Date(dueDate),
+      dueTime: dueTime,
+      taskTag: req.body.taskTag ? req.body.taskTag.split(',') : [],
+      detail: req.body.detail,
+      taskType: req.body.taskType,
+      user: req.user.id,
+      subject: req.body.subjectId
+    });
+
+    await task.save();
+    res.redirect(redirectPath);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send("Internal Server Error");
+  }
+}
 exports.addTask = async (req, res) => {
+  await addTaskCommon(req, res, `/subject/item/${req.body.subjectId}`);
+};
+exports.addTask_list = async (req, res) => {
+  await addTaskCommon(req, res, `/subject/item/${req.body.subjectId}/task_list`);
+};
+
+/// popup เพิ่มงาน จากหน้า lits
+exports.addTask2 = async (req, res) => {
   try {
     const dueDateTime = req.body.dueDateTime;
 
@@ -40,54 +70,28 @@ exports.addTask = async (req, res) => {
       subject: req.body.subjectId
     });
     await task.save();
-    res.redirect(`/subject/item/${req.body.subjectId}`);
-  } catch (error) {
-    console.log(error);
-    res.status(500).send("Internal Server Error");
-  }
-};
-exports.addTask_list = async (req, res) => {
-  try {
-    const newTask = new Task({
-      taskName: req.body.taskName,
-      date: new Date().toLocaleDateString('th-TH'),
-      taskTag: req.body.taskTag,
-      detail: req.body.detail,
-      user: req.user.id,
-      subject: req.body.subjectId
-    });
-    await newTask.save();
     res.redirect(`/subject/item/${req.body.subjectId}/task_list`);
   } catch (error) {
     console.log(error);
     res.status(500).send("Internal Server Error");
   }
 };
-exports.addSubtask = async function(req, res) {
-  const { subtask_Name } = req.body;
-  try {
-      const subtask = new Subtask({ subtask_Name });
-      await subtask.save();
-
-      res.status(200).json({ message: 'Subtask added successfully', subtask });
-      console.log('Subtask added successfully');
-  } catch (error) {
-      // Send an error response
-      res.status(500).json({ message: 'An error occurred', error });
-  }
-};
-
-/// Task Dashboard
-exports.task_dashbard = async (req, res) => {
+/// หน้าแดชบอร์ดสรุปงาน
+exports.task_dashboard = async (req, res) => {
   try {
     const subject = await Subject.findById({ _id: req.params.id, user: req.user.id }).lean();
     const tasks = await Task.find({ subject: req.params.id }).lean();
 
-    const { taskNames, dueDate, taskStatuses, taskTypes} = await extractTaskParameters(tasks);
-    const thaiDueDate = dueDate.map(date => new Date(date).toLocaleDateString('th-TH', {
-      month: 'long',
-      day: 'numeric'
-    }));
+    const { taskNames, dueDate, taskStatuses, taskTypes } = await extractTaskParameters(tasks);
+    const thaiDueDate = dueDate.map(date => moment(date).format('LL'));
+    subject.createdAt = moment(subject.createdAt).format('LL');
+
+    // Calculate status counts
+    const statusCounts = {
+      working: tasks.filter(task => task.status === 'กำลังทำ').length,
+      compleate: tasks.filter(task => task.status === 'เสร็จสิ้น').length,
+      fix: tasks.filter(task => task.status === 'แก้ไข').length,
+    };
 
     res.render("task/task-dashboard", {
       subjects: subject,
@@ -102,7 +106,8 @@ exports.task_dashbard = async (req, res) => {
       layout: "../views/layouts/task",
       userName: req.user.firstName,
       userImage: req.user.profileImage,
-      currentPage: 'dashboard'
+      currentPage: 'dashboard',
+      statusCounts: statusCounts // Pass statusCounts to the template
     });
   } catch (error) {
     console.log(error);
@@ -110,17 +115,14 @@ exports.task_dashbard = async (req, res) => {
   }
 };
 
-/// Task List
+/// หน้สแสดงงานเป็นลิสต์
 exports.task_list = async (req, res) => {
   try {
     const subject = await Subject.findById({ _id: req.params.id, user: req.user.id }).lean();
     const tasks = await Task.find({ subject: req.params.id }).lean();
 
     const { taskNames, taskDetail, taskStatuses, taskTypes, dueDate, createdAt } = await extractTaskParameters(tasks);
-    const thaiDueDate = dueDate.map(date => new Date(date).toLocaleDateString('th-TH', {
-      month: 'long',
-      day: 'numeric'
-    }));
+    const thaiDueDate = dueDate.map(date => moment(date).format('DD MMM'));
 
     const taskId = req.query.taskId;
     let taskDetails = {};
@@ -158,8 +160,7 @@ exports.task_list = async (req, res) => {
   }
 };
 
-
-/// Delete Task
+/// ลบงาน
 exports.deleteTasks = async (req, res) => {
   try {
     let taskIds = req.body.taskIds;
@@ -177,18 +178,8 @@ exports.deleteTasks = async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 };
-/// Update Task
-exports.updateTaskStatus = async (req, res) => {
-  try {
-    await Task.updateOne({ _id: req.params.id }, { status: req.body.status });
-    res.redirect(`/subject/item/${req.body.subjectId}`);
-  } catch (error) {
-    console.log(error);
-    res.status(500).send("Internal Server Error");
-  }
-};
 
-/// Get Task Details
+/// แสดงรายละเอียดงาน
 exports.getTaskDetails = async (req, res) => {
   try {
     const taskId = req.params.id;
@@ -203,13 +194,12 @@ exports.getTaskDetails = async (req, res) => {
   }
 };
 
-
 exports.ItemDetail = async (req, res) => {
   try {
     const subject = await Subject.findById({ _id: req.params.id, user: req.user.id }).lean();
     const taskId = req.params.id;
     const task = await Task.findById(taskId);
-    const { taskNames, dueDate, taskStatuses, taskTypes, taskDetail, taskPriority } = await extractTaskParameters([task]);
+    const { taskNames, dueDate, taskStatuses, taskTypes, taskDetail, taskPriority, taskTag } = await extractTaskParameters([task]);
     const thaiDueDate = dueDate.map(date => new Date(date).toLocaleDateString('th-TH', {
       month: 'long',
       day: 'numeric'
@@ -228,6 +218,7 @@ exports.ItemDetail = async (req, res) => {
       taskStatuses: taskStatuses,
       createdAt: thaiCreatedAt,
       taskPriority: taskPriority,
+      taskTag: taskTag,
       subject: subject,
       subjectId: req.params.id,
       userName: req.user.firstName,
@@ -236,6 +227,28 @@ exports.ItemDetail = async (req, res) => {
     });
   } catch (error) {
     console.error('Error fetching task details:', error);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
+exports.updateTask = async (req, res) => {
+  try {
+    const { taskId, taskName, taskType, taskStatuses, taskPriority, taskDetail } = req.body;
+    const updatedTask = await Task.findByIdAndUpdate(
+      taskId,
+      {
+        taskType,
+        status: taskStatuses,
+        taskPriority,
+        taskName,
+        detail: taskDetail
+      },
+      { new: true }
+    );
+
+    res.redirect(`/task/${updatedTask._id}/detail`);
+  } catch (error) {
+    console.log(error);
     res.status(500).send("Internal Server Error");
   }
 };

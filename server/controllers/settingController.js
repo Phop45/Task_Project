@@ -37,7 +37,7 @@ const storage = multer.diskStorage({
   // Check File Type
   function checkFileType(file, cb) {
     // Allowed ext
-    const filetypes = /jpeg|jpg|png|gif/;
+    const filetypes = /jpeg|jpg|png/;
     // Check ext
     const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
     // Check mime
@@ -50,30 +50,32 @@ const storage = multer.diskStorage({
     }
   }
 
-  // Update user profile image
+// Update user profile image
 module.exports.edit_Update_profileImage = async (req, res) => {
     upload(req, res, async (err) => {
         if (err) {
-            res.render('error', {
-                message: err
-            });
+            // เมื่อเกิด error ในการอัปโหลดไฟล์
+            // แสดงข้อความ error ในรูปแบบของ alert บนเว็บไซต์
+            res.send('<script>alert("เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ: ' + err + '"); window.location="/setting";</script>');
         } else {
             if (req.file == undefined) {
-                res.render('error', {
-                    message: 'Error: No File Selected!'
-                });
+                // กรณีไม่ได้อัปโหลดไฟล์
+                // แสดงข้อความ error ในรูปแบบของ alert บนเว็บไซต์
+                res.send('<script>alert("ไม่ได้เลือกไฟล์! กรุณาเลือกไฟล์รูปภาพ"); window.location="/setting";</script>');
             } else {
                 try {
                     // Update user profile image in database
                     const user = await User.findById(req.params.id);
                     user.profileImage = '/uploads/' + req.file.filename;
                     await user.save();
-                    res.redirect('/setting');
+                    // หลังจากที่บันทึกข้อมูลเสร็จสิ้น
+                    // แสดงข้อความ success ในรูปแบบของ alert บนเว็บไซต์
+                    res.send('<script>alert("อัปโหลดรูปภาพสำเร็จ"); window.location="/setting";</script>');
                 } catch (error) {
                     console.log(error);
-                    res.render('error', {
-                        message: 'Server Error'
-                    });
+                    // กรณีเกิด error ในการบันทึกข้อมูลในฐานข้อมูล
+                    // แสดงข้อความ error ในรูปแบบของ alert บนเว็บไซต์
+                    res.send('<script>alert("เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' + error.message + '"); window.location="/setting";</script>');
                 }
             }
         }
@@ -84,13 +86,15 @@ module.exports.edit_Update_profileImage = async (req, res) => {
 module.exports.edit_Update_username = async (req, res) => {
     try {
         const user = await User.findById(req.params.id);
+        if (!user) {
+            // Handle user not found error
+            return res.status(404).render('error', { message: 'ไม่พบผู้ใช้' }); // Render the error page with a clear message
+        }
         user.username = req.body.username;
         await user.save();
         res.redirect('/setting');
     } catch (error) {
         console.log(error);
-        res.render('error', {
-            message: 'Server Error'
-        });
+        res.status(500).render('error', { message: 'ข้อผิดพลาดของเซิร์ฟเวอร์' }); // Render the error page with a clear message
     }
 };

@@ -19,6 +19,8 @@
                     </td>
                     <td>
                         <input type="text" id="taskName" name="taskName" placeholder="กรอกชื่องาน" required>
+                        <span id="notiAlert" style="display: none; color: #FF004D; font-size: 14px;
+                        font-weight: 400; padding-top: 5px; padding-left: 35px;">* กรุณากรอกชื่อรายวิชาโดยไม่ใช้อักขระพิเศษ</span>
                     </td>
                 </tr>
                 <tr>
@@ -28,7 +30,20 @@
                     </td>
                     <td>
                         <div id="calendar-container">
-                            <input type="datetime-local" id="dueDateTime" name="dueDateTime" placeholder="เพิ่มแท็กงาน">
+                            <input type="date" id="dueDate" name="dueDate" required
+                            style="width: 150px;">
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <i class='bx bxs-calendar' ></i>
+                        เวลาครบกำหนด
+                    </td>
+                    <td>
+                        <div id="calendar-container">
+                            <input type="time" id="dueTime" name="dueTime" required
+                            style="width: 150px;">
                         </div>
                     </td>
                 </tr>
@@ -44,7 +59,7 @@
 
                 <tr>
                     <td>
-                        <i class='bx bxs-purchase-tag-alt' ></i>
+                        <i class='bx bxs-data'></i>
                         ประเภทงาน
                     </td>
                     <td>
@@ -78,3 +93,60 @@
     </div>
 </div>
 <div class="overlay" id="overlay"></div>
+<script>
+     function validateForm() {
+        var taskName = document.getElementById("taskName").value;
+
+        if (taskName.trim() === "" || !isAlphanumeric(taskName)) {
+            document.getElementById("notiAlert").style.display = "block";
+            document.getElementById("notiAlert").textContent = "* กรุณากรอกชื่องานโดยไม่ใช้อักขระพิเศษตอนต้น";
+            return false;
+        }
+        return true;
+    }
+
+    function isAlphanumeric(str) {
+        return /^[^\s!@#$%^&*()_+=\[\]{}|\\:;"'<>,.?\/][a-zA-Z0-9ก-๙\s]*$/.test(str);
+    }
+
+    function clearFields() {
+        document.getElementById("taskName").value = "";
+        // Clear other fields if needed
+        document.getElementById("notiAlert").style.display = "none";
+    }
+
+    // Get the input element
+    var taskNameInput = document.getElementById("taskName");
+    // Get the notiAlert element
+    var notiAlert = document.getElementById("notiAlert");
+    // Get the submit button
+    var submitButton = document.querySelector("button[type='submit']");
+
+    // Disable the submit button initially
+    submitButton.disabled = true;
+
+    // Add input event listener
+    taskNameInput.addEventListener('input', function() {
+        // Get the input value
+        var inputValue = taskNameInput.value;
+        // Check if the input value is not empty and matches the regular expression
+        if (inputValue !== "" && isAlphanumeric(inputValue)) {
+            // If it matches, hide the notiAlert
+            notiAlert.style.display = "none";
+            // Enable the submit button
+            submitButton.disabled = false;
+        } else {
+            // If it doesn't match, display the notiAlert
+            notiAlert.style.display = "block";
+            // Set notiAlert content
+            notiAlert.textContent = "* กรุณากรอกชื่องานโดยไม่ใช้อักขระพิเศษตอนต้น";
+            // Disable the submit button
+            submitButton.disabled = true;
+        }
+    });
+
+    // Add focus event listener to hide notiAlert
+    taskNameInput.addEventListener("focus", function() {
+        notiAlert.style.display = "none";
+    });
+</script>

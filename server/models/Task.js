@@ -17,9 +17,12 @@ const taskSchema = new Schema({
     dueDate: {
         type: Date
     },
-    taskTag: {
+    dueTime: {
         type: String
     },
+    taskTag: [{
+        type: String
+    }],
     detail: {
         type: String
     },
@@ -36,8 +39,8 @@ const taskSchema = new Schema({
     },
     status: {
         type: String,
-        enum: ['ยังไม่ทำ', 'กำลังทำ', 'เสร็จสิ้น'],
-        default: 'ยังไม่ทำ'
+        enum: ['กำลังทำ', 'เสร็จสิ้น', 'แก้ไข'],
+        default: 'กำลังทำ'
     },
     taskType: {
         type: String,
@@ -54,5 +57,3 @@ const taskSchema = new Schema({
 
 const Task = mongoose.model('Tasks', taskSchema);
 module.exports = Task;
-
-
