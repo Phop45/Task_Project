@@ -29,6 +29,7 @@ app.use(passport.session());
 app.use(cookieParser());
 app.use(express.urlencoded({extended: true}));
 app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(methodOverride("_method"));
 
 // Conntect to Database
@@ -51,6 +52,9 @@ app.use('/', require('./server/routes/subjectRoutes'))
 app.use('/', require('./server/routes/taskRoutes'));
 app.use('/', require('./server/routes/settingRoutes'));
 app.use('/', require('./server/routes/subjectRoutes'));
+app.use('/', require('./server/routes/friendRoutes'));
+app.use('/', require('./server/routes/userRoutes'));
+app.use('/', require('./server/routes/friendRequestRoutes'));
 app.use(upload.any());
 
 // Handle 404

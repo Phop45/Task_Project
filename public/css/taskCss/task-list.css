@@ -293,14 +293,13 @@ tbody td:first-child,
 }
 
 
-#status{
+#status {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: var(--notYet);
     width: 100px;
     height: 40px;
     border-radius: 20px;
     font-size: 0.9em;
-    border: 2px solid #31363F;
+    font-weight: 500;
 }

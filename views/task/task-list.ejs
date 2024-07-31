@@ -250,64 +250,63 @@
 
 <body>
     <div class="contant">
-        <h1 class="SubName">
-            <%= subjects.SubName %>
-        </h1>
+        <h1 class="SubName"> <%= subjects.SubName %> </h1>
         <%- include('../partials/task-navbar.ejs') %>
-            <div class="col-lg-12 grid-margin stretch-card">
-                <div class="tasklist-top">
-                    <div class="tasklist-top-left">
-                        <div>
-                            <input type="search" id="searchTask" placeholder="ค้นหางาน...">
-                        </div>
-                        <div>
-                            <img src="<%= userImage %>" alt="">
-                        </div>
-                    </div>
 
-                    <div class="tasklist-top-right">
-                        <a href="#" class="link" id="new-task-btn"><i class='bx bx-task'></i>+ เพิ่มงานใหม่</a>
-                        <div class="dropdown">
-                            <button class="btn dropdown-toggle" type="button" id="filter" data-bs-toggle="dropdown"
-                                aria-haspopup="true" aria-expanded="false">
-                                <i class='bx bx-filter'></i> การกรอง </button>
-                            <div class="dropdown-menu dropdown-menu-end mt-2" aria-labelledby="filter">
-                                <h6 class="dropdown-header">กรองตาม</h6>
-                                <a class="dropdown-item" href="#"><i class='bx bx-calendar-exclamation'></i>
-                                    หมดเขตอาทิตย์นี้</a>
-                                <a class="dropdown-item" href="#"><i class='bx bx-check'></i>
-                                    งานที่เสร็จสิ้น</a>
-                                <a class="dropdown-item" href="#"><i class='bx bx-book-add'></i>
-                                    วันที่สร้างล่าสุด</a>
-                                <a class="dropdown-item" href="#"><i class='bx bx-edit-alt'></i>
-                                    วันที่อัพเดตล่าสุด</a>
-                            </div>
+        <div class="col-lg-12 grid-margin stretch-card">
+            <div class="tasklist-top">
+                <div class="tasklist-top-left">
+                    <div>
+                        <input type="search" id="searchTask" placeholder="ค้นหางาน...">
+                    </div>
+                    <div>
+                        <img src="<%= userImage %>" alt="">
+                    </div>
+                </div>
+
+                <div class="tasklist-top-right">
+                    <a href="#" class="link" id="new-task-btn"><i class='bx bx-task'></i>+ เพิ่มงานใหม่</a>
+                    <div class="dropdown">
+                        <button class="btn dropdown-toggle" type="button" id="filter" data-bs-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false">
+                            <i class='bx bx-filter'></i> การกรอง </button>
+                        <div class="dropdown-menu dropdown-menu-end mt-2" aria-labelledby="filter">
+                            <h6 class="dropdown-header">กรองตาม</h6>
+                            <a class="dropdown-item" href="#"><i class='bx bx-calendar-exclamation'></i>
+                                หมดเขตอาทิตย์นี้</a>
+                            <a class="dropdown-item" href="#"><i class='bx bx-check'></i>
+                                งานที่เสร็จสิ้น</a>
+                            <a class="dropdown-item" href="#"><i class='bx bx-book-add'></i>
+                                วันที่สร้างล่าสุด</a>
+                            <a class="dropdown-item" href="#"><i class='bx bx-edit-alt'></i>
+                                วันที่อัพเดตล่าสุด</a>
                         </div>
                     </div>
                 </div>
-                <div class="card">
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table" id="myTable">
-                                <thead class="table-head" id="table-head">
-                                    <tr>
-                                        <th> <input type="checkbox" id="check-all" onclick="toggleAllCheckboxes()">
-                                        </th>
-                                        <th> ชื่องาน </th>
-                                        <th> ประเภทงาน </th>
-                                        <th> รายละเอียดงาน </th>
-                                        <th> วันครบกำหนด </th>
-                                        <th> Tags </th>
-                                        <th> ผู้รับผิดชอบ </th>
-                                        <th> สถานะ </th>
-                                        <th> สร้างเมื่อ </th>
-                                        <th> อัพเดตเมื่อ </th>
-                                    </tr>
-                                </thead>
-                                <tbody id="table-body"">
-                                    <% for (let i = taskNames.length - 1; i >= 0; i--) { %>
-                                        <tr class=" task-row" data-task-id="<%= tasks[i]._id %>"
-                                    onclick="redirectToTaskDetail('<%= tasks[i]._id %>')">
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table" id="myTable">
+                            <thead class="table-head" id="table-head">
+                                <tr>
+                                    <th> <input type="checkbox" id="check-all" onclick="toggleAllCheckboxes()">
+                                    </th>
+                                    <th> ชื่องาน </th>
+                                    <th> ประเภทงาน </th>
+                                    <th> รายละเอียดงาน </th>
+                                    <th> วันครบกำหนด </th>
+                                    <th> Tags </th>
+                                    <th> ผู้รับผิดชอบ </th>
+                                    <th> สถานะ </th>
+                                    <th> สร้างเมื่อ </th>
+                                    <th> อัพเดตเมื่อ </th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="table-body"">
+                                <% for (let i = taskNames.length - 1; i >= 0; i--) { %>
+                                <tr class="task-row" data-task-id="<%= tasks[i]._id %>" onclick="redirectToTaskDetail('<%= tasks[i]._id %>', '<%= tasks[i].subject._id %>')">
                                     <td>
                                         <input type="checkbox" class="checkbox" data-task-id="<%= tasks[i]._id %>"
                                             onchange="updateSelectedCount()">
@@ -322,11 +321,11 @@
                                         <%= taskDetail[i] ? taskDetail[i] : "วิชานี้คือวิชา " + taskNames[i] %>
                                     </td>
                                     <td>
-                                        <% if (dueDate[i] && dueDate[i] !== 'Invalid date') { %>
+                                        <% if (dueDate[i] && dueDate[i] !=='Invalid date' ) { %>
                                             <%= dueDate[i] %>
-                                        <% } else { %>
-                                            ยังไม่ได้กำหนดวัน
-                                        <% } %>
+                                                <% } else { %>
+                                                    <p style="opacity: 0.4; margin-bottom: 0;">ยังไม่ได้กำหนดวัน</p>
+                                                    <% } %>
                                     </td>
                                     <td> - </td>
                                     <td>
@@ -334,92 +333,61 @@
                                         <%= userName %>
                                     </td>
                                     <td style="width: max-content;">
-                                        <div id="status">
-                                            <%= taskStatuses[i] %>
-                                        </div>
+                                        <% let backgroundColor; %>
+                                            <% if (taskStatuses[i]==='กำลังทำ' ) { %>
+                                                <% backgroundColor='#B4B4B8' ; %>
+                                                    <% } else if (taskStatuses[i]==='เสร็จสิ้น' ) { %>
+                                                        <% backgroundColor='#9BCF53' ; %>
+                                                            <% } else if (taskStatuses[i]==='แก้ไข' ) { %>
+                                                                <% backgroundColor='#FF6868' ; %>
+                                                                    <% } %>
+
+                                                                        <div id="status"
+                                                                            style="background-color: <%= backgroundColor %>;">
+                                                                            <%= taskStatuses[i] %>
+                                                                        </div>
                                     </td>
                                     <td>
                                         <%= createdAt[i] %>
                                     </td>
                                     <td> อัพเดตเมื่อ </td>
+                                </tr>
+                                <% } %>
+                                    <tr style="background: transparent;">
+                                        <td style="border: none;"></td>
                                     </tr>
-                                    <% } %>
-                                        <tr style="background: transparent;">
-                                            <td style="border: none;"></td>
-                                        </tr>
-                                </tbody>
-                            </table>
-                            <input type="hidden" name="taskIds" value="">
-                        </div>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-                <div class="table-input" id="tableInput">
-                    <form action="/addTask_list" method="POST" class="form">
-                        <input type="text" id="taskName" name="taskName" style="display: none;"
-                            placeholder="+ คุณต้องการทำอะไรให้เสร็จสิ้น">
-                        <span id="toggleInput">+ สร้างงาน</span>
-                        <input type="hidden" name="subjectId" id="subjectId" value="<%= subjects._id %>">
-                    </form>
-                </div>
             </div>
+
+            <div class="table-input" id="tableInput">
+                <form action="/addTask_list" method="POST" class="form">
+                    <input type="text" id="taskName" name="taskName" style="display: none;"
+                        placeholder="+ คุณต้องการทำอะไรให้เสร็จสิ้น">
+                    <span id="toggleInput">+ สร้างงาน</span>
+                    <input type="hidden" name="subjectId" id="subjectId" value="<%= subjects._id %>">
+                </form>
+            </div>
+        </div>
     </div>
 
     <script>
-        function redirectToTaskDetail(taskId) {
+        function redirectToTaskDetail(taskId, subjectId) {
             const tagName = event.target.tagName.toLowerCase();
             if (tagName !== 'input') {
-                window.location.href = `/task/${taskId}/detail`;
+                window.location.href = `/task/${taskId}/detail?subjectId=${subjectId}`;
             }
         }
-
-        function handleSubmit(event) {
-            event.preventDefault();
-
-            // Get values from form fields
-            const taskName = document.getElementById('taskName').value;
-            const dueDate = new Date(document.getElementById('dueDateTime').value);
-            const taskTag = document.getElementById('taskTag').value;
-            const taskType = document.getElementById('taskType').value;
-            const detail = document.getElementById('detail').value;
-            const subjectId = document.getElementById('subjectId').value;
-
-            // Construct data object to send to server
-            const formData = {
-                taskName,
-                dueDate,
-                taskTag,
-                taskType,
-                detail,
-                subjectId
-            };
-
-            // Send POST request to server
-            fetch('/addTask', {
-                method: 'POST',
-                body: JSON.stringify(formData)
-            })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('Task created successfully:', data);
-                })
-                .catch(error => {
-                    console.error('Error creating task:', error);
-                });
-        }
     </script>
+
 </body>
 
 
-
 <%- include('../task/task_component/list-selectInfo.ejs') %>
-    <%- include('../task/task_component/list_itemDetail.ejs') %>
-        <%- include('../task/task_component/list_addPopup.ejs') %>
-
-            <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
-            <script src="/script/popup.js"></script>
+<%- include('../task/task_component/list_itemDetail.ejs') %>
+<%- include('../task/task_component/list_addPopup.ejs') %>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+<script src="/script/popup.js"></script>

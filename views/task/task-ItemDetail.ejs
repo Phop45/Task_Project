@@ -90,12 +90,13 @@
         <div class="top-option">
             <div class="breadcomes">
                 <a href="/subject">subject</a> /
-                <a href="`/subject/item/${subjectId}/task_list`">list</a>  /
+                <a href="/subject/item/<%= subjectId %>/task_list">list</a> /
                 <a style="background-color: #7952B3; color: white; border-color: #7952B3;"><%= taskNames %></a>
             </div>
             <div class="btn-option">
                 <h1>สร้างเมื่อวันที่ <span id="createAt"><%= createdAt %></span></h1>
-                <i id="closeTaskItemDetail" class='bx bx-x undefined' data-subject-id="<%= subjectId %>"></i>
+                <a href="/subject/item/<%= subjectId %>/task_list"><i id="close_btn" class='bx bx-x'></i></a>
+
             </div>
         </div>
 
@@ -106,10 +107,10 @@
                         <i class='bx bx-sidebar'></i>
                         <select id="taskType" name="taskType">
                             <option value="" disabled selected><%= taskTypes %></option>
-                            <option value="งานทั่วไป">งานทั่วไป</option>
+                            <option value="งานทั่วไป">ทั่วไป</option>
                             <option value="การบ้าน">การบ้าน</option>
-                            <option value="งานกลุ่ม">งานกลุ่ม</option>
-                            <option value="งานแลป">งานแลป</option>
+                            <option value="งานกลุ่ม">กลุ่ม</option>
+                            <option value="งานแลป">แลป</option>
                             <option value="สอบ">สอบ</option>
                         </select>
 
@@ -209,15 +210,9 @@
     </div>
 
     <script>
-        document.getElementById('closeTaskItemDetail').addEventListener('click', function() {
-            // Get the subjectId from the data attribute
-            var subjectId = this.getAttribute('data-subject-id');
-
-            // Construct the redirect URL
-            var redirectUrl = `/subject/item/${subjectId}/task_list`;
-
-            // Redirect to the constructed URL
-            window.location.href = redirectUrl;
+        document.getElementById('close_btn').addEventListener('click', function() {
+            const subjectId = '<%= subjectId %>'; // Ensure this variable is passed to the view
+            window.location.href = `/subject/item/${subjectId}/task_list`;
         });
 
         function getRandomColor() {

@@ -1,0 +1,319 @@
+<head>
+  <link rel="stylesheet" href="/css/taskCss/task-note.css">
+  <style>
+    .contant {
+      height: max-content;
+    }
+
+    .note_contant {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 0.5fr));
+      gap: 20px 30px;
+      padding: 30px;
+    }
+
+    .addNote,
+    .listNote {
+      position: relative;
+      min-width: 300px;
+      height: 300px;
+      background-color: #fff385;
+      transition: 0.3s;
+      overflow: hidden;
+    }
+
+    .addNote:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.3);
+      border-top-left-radius: 50px;
+    }
+
+    .addNote::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 40px;
+      /* Adjust width as needed */
+      height: 40px;
+      /* Adjust height as needed */
+      background-color: white;
+      border-bottom-left-radius: 10px;
+      z-index: -2;
+      /* Make sure it's below the yellow triangle */
+    }
+
+    .addNote::before {
+      content: '';
+      position: absolute;
+      width: 0;
+      height: 0;
+      top: 0;
+      left: 0;
+      border-top: 20px solid transparent;
+      border-left: 20px solid transparent;
+      border-bottom: 20px solid #ffb700;
+      /* Background color */
+      border-right: 20px solid #ffb700;
+      /* Background color */
+      border-top-right-radius: 10px;
+      /* Curved edge on the top right */
+      transform-origin: top left;
+      transform: scale(0.1);
+      /* Start with 0 size */
+      transition: transform 0.4s;
+      z-index: -1;
+    }
+
+    .addNote:hover::before {
+      transform: scale(1);
+    }
+
+
+    #note-title {
+      text-align: center;
+      font-size: 18px;
+      font-weight: 600;
+      padding-top: 20px;
+    }
+
+    #note-content {
+      font-size: 16px;
+      padding: 10px 30px;
+    }
+
+    #note-content p {
+      width: 240px;
+      height: 200px;
+      overflow: auto;
+      text-overflow: ellipsis;
+      scrollbar-width: none;
+      text-align: justify;
+      font-size: 15px;
+    }
+
+    #addNote-title {
+      display: flex;
+      justify-content: center;
+      padding: 20px 0;
+    }
+
+    #addNote-title input {
+      text-align: center;
+      background-color: transparent;
+      border: 1px solid transparent;
+      font-size: 18px;
+      transition: 0.2s;
+    }
+
+    #addNote-title input:hover {
+      border-bottom: 1px solid rgb(0, 0, 0, 0.3);
+    }
+
+    #addNote-title input::placeholder {
+      color: rgb(100, 100, 100);
+    }
+
+    #addNote-title input:focus {
+      outline: none;
+      border-bottom: 1px solid rgb(46, 46, 46);
+    }
+
+    #content {
+      margin-left: 15px;
+      width: 90%;
+      height: 200px;
+      background: transparent;
+      border: 1px solid transparent;
+      transition: 0.2s;
+      border-radius: 5px;
+      padding: 10px;
+      resize: none;
+      font-size: 16px;
+      font-weight: 300;
+    }
+
+    #content:hover {
+      border: 1px solid rgb(0, 0, 0, 0.5);
+      border-radius: 5px;
+    }
+
+    #content:focus {
+      outline: none;
+    }
+
+
+    /* Modal styling */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgb(0, 0, 0);
+      background-color: rgba(0, 0, 0, 0.4);
+    }
+
+    .modal-content {
+      background-color: #fefefe;
+      margin: 15% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+    }
+
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="contant">
+    <h1 class="SubName"> Name </h1>
+    <%- include('../partials/task-navbar.ejs') %>
+
+      <div class="note_contant">
+        <form action="/addNotes" method="POST" class="add-form" id="noteForm">
+          <div class="addNote">
+            <div id="addNote-title">
+              <input type="text" name="title" id="title" placeholder="title">
+            </div>
+            <div id="addNote-content">
+              <textarea name="content" id="content"></textarea>
+            </div>
+          </div>
+          <input type="submit" style="display: none;"> <!-- Hide the submit button -->
+          <input type="hidden" name="subjectId" id="subjectId" value="<%= subjects._id %>">
+        </form>
+
+        <!-- Notes List -->
+        <div class="note_contant">
+          <% notes.forEach(note=> { %>
+            <div class="listNote" data-note-id="<%= note._id %>">
+              <div class="note-title editable" data-field="title">
+                <%= note.title %>
+              </div>
+              <div class="note-content editable" data-field="content">
+                <%= note.content %>
+              </div>
+              <div class="note-updated">
+                อัพเดตเมื่อ: <%= new Date(note.updatedAt).toLocaleDateString('th-TH', { day: 'numeric' , month: 'short'
+                  }) %>
+                  เวลา: <%= new Date(note.updatedAt).toLocaleTimeString('th-TH', { hour: '2-digit' , minute: '2-digit' ,
+                    hour12: false }) %>
+              </div>
+              <div class="note-actions">
+                <button class="delete-btn">ลบ</button>
+              </div>
+            </div>
+            <% }); %>
+        </div>
+
+      </div>
+  </div>
+</body>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const editableElements = document.querySelectorAll('.editable');
+
+    editableElements.forEach(element => {
+      element.addEventListener('click', function () {
+        if (this.querySelector('.edit-input')) return;
+
+        const field = this.dataset.field;
+        const originalValue = this.innerText.trim();
+        const input = document.createElement(field === 'title' ? 'input' : 'textarea');
+
+        input.value = originalValue;
+        input.classList.add('edit-input');
+        this.innerHTML = '';
+        this.appendChild(input);
+        input.focus();
+
+        input.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter') {
+            e.preventDefault(); // Prevent the default newline action for textarea
+
+            const noteId = this.closest('.listNote').getAttribute('data-note-id');
+            const newValue = this.value.trim();
+            this.parentNode.innerText = newValue;
+
+            updateNote(noteId, field, newValue);
+          }
+        });
+
+        input.addEventListener('blur', function () {
+          this.parentNode.innerText = originalValue; // Revert to original value if unfocused
+        });
+      });
+    });
+
+    function updateNote(noteId, field, value) {
+      fetch('/updateNote', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ noteId, [field]: value })
+      })
+        .then(response => response.json())
+        .then(data => {
+          console.log('Note updated:', data);
+          location.reload(); // Refresh the page to show the updated content
+        })
+        .catch(error => {
+          console.error('Error updating note:', error);
+        });
+    }
+
+
+    const deleteButtons = document.querySelectorAll('.delete-btn');
+
+    deleteButtons.forEach(button => {
+      button.addEventListener('click', function () {
+        const noteId = this.closest('.listNote').getAttribute('data-note-id');
+        if (confirm('คุณแน่ใจหรือว่าต้องการลบโน้ตนี้?')) {
+          deleteNote(noteId);
+        }
+      });
+    });
+
+    function deleteNote(noteId) {
+      fetch('/deleteNote', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ noteId })
+      })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log('Note deleted:', data);
+          location.reload(); // Refresh the page to update the list
+        })
+        .catch(error => {
+          console.error('Error deleting note:', error);
+        });
+    }
+  });
+</script>

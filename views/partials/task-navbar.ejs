@@ -10,8 +10,13 @@
         </a>
     </li>
     <li class="nav-item">
-        <a class="nav-link <%= currentPage === 'task_board' ? 'active' : '' %>" href="#">
+        <a class="nav-link <%= currentPage === 'board' ? 'active' : '' %>" href="/subject/item/<%= subjects._id %>/task_board">
             <i class='bx bxs-dashboard' ></i> บอร์ด
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link <%= currentPage === 'notes' ? 'active' : '' %>" href="/subject/item/<%= subjects._id %>/task_notes">
+            <i class='bx bxs-cog' ></i> โน้ต
         </a>
     </li>
     <li class="nav-item">

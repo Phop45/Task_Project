@@ -1,0 +1,8 @@
+.contant{
+    background-color: white;
+    margin: 20px 20px 20px 130px;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}

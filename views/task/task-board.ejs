@@ -1,0 +1,128 @@
+<head>
+    <link rel="stylesheet" href="/css/taskCss/task-list.css">
+    <link rel="stylesheet" href="/css/taskCss/task-dashboard.css">
+    <style>
+        body {
+    font-family: Arial, sans-serif;
+}
+
+.board {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+}
+
+.column {
+    width: 30%;
+    background: #f4f4f4;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.column h2 {
+    text-align: center;
+}
+
+.task {
+    background: #fff;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.task.dragging {
+    opacity: 0.5;
+}
+    </style>
+</head>
+
+<body>
+    <div class="contant">
+        <h1 class="SubName"> <%= subjects.SubName %> </h1>
+        <%- include('../partials/task-navbar.ejs') %>
+
+        <div class="board">
+            <% const statuses = ['กำลังทำ', 'เสร็จสิ้น', 'แก้ไข']; %>
+            <% statuses.forEach(status => { %>
+                <div class="column" data-status="<%= status %>">
+                    <h2><%= status %></h2>
+                    <ul id="tasks-<%= status %>">
+                        <% tasks.filter(task => task.status === status).forEach(task => { %>
+                            <li class="task"
+                                data-id="<%= task._id %>"
+                                data-subject-id="<%= subjects._id %>"
+                                draggable="true"
+                                onclick="redirectToTaskDetail('<%= task._id %>', '<%= subjects._id %>')">
+                                <h3><%= task.taskName %></h3>
+                                <p><%= task.detail %></p>
+                            </li>
+                        <% }) %>
+                    </ul>
+                </div>
+            <% }) %>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+    const columns = document.querySelectorAll('.column');
+
+    columns.forEach(column => {
+        column.addEventListener('dragover', (e) => {
+            e.preventDefault();
+        });
+
+        column.addEventListener('drop', async (e) => {
+            e.preventDefault();
+            const taskId = e.dataTransfer.getData('text/plain');
+            const newStatus = e.currentTarget.getAttribute('data-status');
+
+            const taskElement = document.querySelector(`.task[data-id="${taskId}"]`);
+            taskElement.classList.remove('dragging');
+            taskElement.remove();
+
+            e.currentTarget.querySelector('ul').appendChild(taskElement);
+
+            try {
+                await fetch('/updateTaskStatus', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        taskId: taskId,
+                        newStatus: newStatus
+                    })
+                });
+            } catch (err) {
+                console.error('Failed to update task status:', err);
+            }
+        });
+    });
+
+    const tasks = document.querySelectorAll('.task');
+
+    tasks.forEach(task => {
+        task.addEventListener('dragstart', (e) => {
+            e.dataTransfer.setData('text/plain', task.getAttribute('data-id'));
+            task.classList.add('dragging');
+        });
+
+        task.addEventListener('dragend', () => {
+            task.classList.remove('dragging');
+        });
+    });
+});
+
+function redirectToTaskDetail(taskId, subjectId) {
+    const tagName = event.target.tagName.toLowerCase();
+    if (tagName !== 'input') {
+        window.location.href = `/task/${taskId}/detail?subjectId=${subjectId}`;
+    }
+}
+
+    </script>
+</body>
