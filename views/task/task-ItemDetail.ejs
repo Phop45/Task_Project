@@ -1,5 +1,6 @@
 <head>
     <link rel="stylesheet" href="/css/taskCss/list-itemDetail.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <style>
         #taskName{
             font-size: 2em;
@@ -81,6 +82,18 @@
             background-color: #7952B3;
             transition: 0.3s ease;
         }
+        .subtask-item.completed {
+            text-decoration: line-through;
+            color: grey;
+          }
+          .subtask-item {
+            margin-bottom: 10px;
+          }
+          .date {
+            font-size: smaller;
+            color: grey;
+            margin-left: 10px;
+          }
     </style>
 </head>
 
@@ -95,8 +108,7 @@
             </div>
             <div class="btn-option">
                 <h1>สร้างเมื่อวันที่ <span id="createAt"><%= createdAt %></span></h1>
-                <a href="/subject/item/<%= subjectId %>/task_list"><i id="close_btn" class='bx bx-x'></i></a>
-
+                <a href="#" id="close_btn_link"><i id="close_btn" class='bx bx-x'></i></a>
             </div>
         </div>
 
@@ -104,6 +116,7 @@
             <div class="itemDetail">
                 <div id="firstLine">
                     <form id="updateTaskForm" action="/updateTask" method="post" class="updateTaskForm1">
+                        <input type="hidden" name="subjectId" value="<%= subjectId %>">
                         <i class='bx bx-sidebar'></i>
                         <select id="taskType" name="taskType">
                             <option value="" disabled selected><%= taskTypes %></option>
@@ -145,7 +158,7 @@
                             กรุณากรอกชื่อโดยไม่ใช้อักขระพิเศษ</span>
                         <span id="notiAlertName" style="font-size: 14px; color: #FF004D; display: none; margin-top: 5px;">*
                             มีชื่อนี้ภายในงานอยู่แล้ว กรุณากรอกชื่อใหม่</span>
-
+                    
                         <div class="item-detailInfo">
                             <div id="info">
                                 <span id="inf1">ผู้รับผิดชอบ</span>
@@ -155,9 +168,10 @@
                             </div>
                             <div id="info">
                                 <span id="inf1">วันครบกำหนด</span>
-                                <span id="inf2">
-                                    <%= dueDate %>
+                                <span id="dueDateText" style="cursor: pointer;">
+                                    <%= dueDate  %>
                                 </span>
+                                <input type="text" id="dueDate" name="dueDate" value="<%= dueDate || '' %>" style="display: none;">
                             </div>
                             <div id="info">
                                 <span id="inf1">แท็ก</span>
@@ -170,13 +184,12 @@
                         </span>
                         <div class="description">
                             <textarea name="taskDetail" id="taskDescription" cols="30" rows="10"><%= taskDetail %></textarea>
-                            <!-- Add a submit button inside a div -->
                             <div id="submitButtonContainer" style="display: none;">
                                 <button type="submit" id="updateDetail">บันทึก</button>
                             </div>
                         </div>
                         <input type="hidden" name="taskId" id="taskId" value="<%= task._id %>">
-                    </form>
+                    </form>                    
                 </div>
 
                 <div class="thridLine">
@@ -187,6 +200,8 @@
                     <div class="subTask-input" id="subTask-input">
                         <form action="/addSubtask" method="POST" class="subTask-form">
                             <input type="text" id="subTask" name="subTask" placeholder="+ เพิ่มงานย่อยของคุณเลย">
+                            <input type="hidden" name="taskId" value="<%= task._id %>">
+                            <button type="submit">Add Subtask</button>
                         </form>
                     </div>
                 </div>
@@ -194,27 +209,70 @@
         </div>
 
         <div class="activity">
-                <div class="topAct">
-                    <h1>กิจกรรมที่เกิดขึ้น</h1>
+            <div class="topAct">
+                <h1>กิจกรรมที่เกิดขึ้น</h1>
+            </div>
+            <div class="messageAct">
+                <div class="activityUpdate">
+                    <% task.activityLogs.forEach(log => { %>
+                        <p><%= log %></p>
+                    <% }) %>
                 </div>
-                <div class="messageAct">
-                    <div class="activityUpdate">
-
-                    </div>
-                    <div class="comment">
-                        <input type="text" placeholder="add comment">
-                        <button id="sendComment">ส่ง</button>
-                    </div>
+                <div class="comment">
+                    <input type="text" placeholder="add comment">
+                    <button id="sendComment">ส่ง</button>
                 </div>
+            </div>
         </div>
+
+        <div class="showSubtask">
+            <h3>Subtasks</h3>
+            <ul>
+              <% subtasks.forEach(subtask => { %>
+                <li class="subtask-item <%= subtask.completed ? 'completed' : '' %>">
+                  <input type="radio" name="completedSubtask" value="<%= subtask._id %>" 
+                         onchange="toggleCompletion('<%= subtask._id %>', this)"
+                         <%= subtask.completed ? 'checked' : '' %> />
+                  <span><%= subtask.subtask_Name %></span>
+                  <span class="date">(<%= new Date(subtask.createdAt).toLocaleDateString('th-TH') %>)</span>
+                </li>
+              <% }) %>
+            </ul>
+          </div>
     </div>
 
     <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Flatpickr with the date format
+        const flatpickrInstance = flatpickr("#dueDate", {
+            dateFormat: "Y-m-d",
+            onChange: function(selectedDates, dateStr, instance) {
+                // Update the displayed due date
+                document.getElementById('dueDateText').innerText = new Date(dateStr).toLocaleDateString('th-TH');
+                // Update the hidden input field
+                document.getElementById('dueDate').value = dateStr;
+                // Trigger form submission to save the changes
+                document.getElementById('updateTaskForm').submit();
+            }
+        });
+
+        // Event listener to show the Flatpickr date picker
+        document.getElementById('dueDateText').addEventListener('click', function() {
+            this.style.display = 'none'; // Hide the date display span
+            const dueDateInput = document.getElementById('dueDate');
+            dueDateInput.style.display = 'inline'; // Show the date input field
+            dueDateInput.focus(); // Focus the input field
+            flatpickrInstance.open(); // Open the date picker
+        });
+
+        // Event listener for the close button
         document.getElementById('close_btn').addEventListener('click', function() {
-            const subjectId = '<%= subjectId %>'; // Ensure this variable is passed to the view
+            const urlParams = new URLSearchParams(window.location.search);
+            const subjectId = urlParams.get('subjectId');
             window.location.href = `/subject/item/${subjectId}/task_list`;
         });
 
+        // Function to get a random color
         function getRandomColor() {
             const letters = "0123456789ABCDEF";
             let color = "#";
@@ -223,7 +281,8 @@
             }
             return color;
         }
-        // Get the container element
+
+        // Get the container element for tags
         const tagContainer = document.getElementById('inf2_tag');
 
         // Get the task tags as an array
@@ -232,7 +291,7 @@
         // Define colors for each tag
         const tagColors = ['#FF5733', '#33FF57', '#5733FF', '#FF3357', '#57FF33'];
 
-        // Iterate over tags and create HTML elements
+        // Create and append tag elements
         taskTags.forEach((tag, index) => {
             const tagElement = document.createElement('span');
             tagElement.textContent = tag.trim(); // Remove extra spaces
@@ -243,9 +302,90 @@
             tagElement.style.color = 'white';
             tagContainer.appendChild(tagElement);
         });
-    </script>
+    });
+
+    function toggleCompletion(subtaskId, radioBtn) {
+        fetch('/toggleSubTaskCompletion', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+          },
+          body: JSON.stringify({ subtaskId })
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok.');
+          }
+          return response.json();
+        })
+        .then(data => {
+          if (data.message === 'Subtask completion status toggled') {
+            // Refresh the page to reflect the updated status
+            location.reload();
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
+      }
+
+
+      document.addEventListener('DOMContentLoaded', function() {
+        const addUserBtn = document.getElementById('addUserBtn');
+        const userListModal = document.getElementById('userListModal');
+        const userList = document.getElementById('userList');
+
+        addUserBtn.addEventListener('click', async () => {
+            userListModal.style.display = 'block';
+
+            try {
+                const response = await fetch('/task/users');
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const users = await response.json();
+
+                userList.innerHTML = '';
+                users.forEach(user => {
+                    const li = document.createElement('li');
+                    li.textContent = user.displayName || user.firstName + ' ' + user.lastName;
+                    li.dataset.userId = user._id;
+                    li.addEventListener('click', async () => {
+                        const taskId = '<%= task._id %>';
+                        const userId = li.dataset.userId;
+
+                        const response = await fetch('/task/addUserToTask', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ taskId, userId })
+                        });
+
+                        if (response.ok) {
+                            alert('User added to task');
+                        } else {
+                            alert('Failed to add user to task');
+                        }
+
+                        userListModal.style.display = 'none';
+                    });
+                    userList.appendChild(li);
+                });
+            } catch (error) {
+                console.error('Fetch error:', error);
+                alert('Failed to fetch users');
+            }
+        });
+    });
+</script>
+
+    
     <script src="/script/taskScsript/task-item.js"></script>
     <script src="/script/taskScsript/task-alert.js"></script>
     <script src="/script/taskScsript/task-changBackground.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 </body>
+
 

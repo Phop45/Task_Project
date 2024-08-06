@@ -36,7 +36,11 @@ const subjectSchema = new Schema({
     updatedAt: {
         type: Date,
         default: Date.now()
-    }
+    },
+    collaborators: [{
+        type: Schema.ObjectId,
+        ref: 'User'
+    }]
 });
 
 const Subject = mongoose.model('Subjects', subjectSchema);

@@ -8,6 +8,7 @@
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 </head>
 
+
 <div class="contant">
     <h1 class="SubName">
         <%= subjects.SubName %>
@@ -121,6 +122,7 @@
                         <h1>ชาร์ตแสดงปริมาณงาน</h1>
                         <canvas id="myDonutChart" width="300" height="350"></canvas>
                     </div>
+
                     <div class="task-table">
                         <h1>ตารางงาน</h1>
                         <div class="table-responsive">
@@ -173,50 +175,52 @@
 <%- include('../task/task_component/dashboard_addPopup.ejs') %>
 
 <script>
+    // Function to handle redirection to task detail
     function redirectToTaskDetail(taskId) {
         window.location.href = `/task/${taskId}/detail`;
     }
 
-    // Define the statusCounts object from the server side data
+    // Ensure statusCounts are correctly passed from the server-side
     window.statusCounts = {
         working: <%= statusCounts.working %>,
-        compleate: <%= statusCounts.compleate %>,
+        complete: <%= statusCounts.complete %>,
         fix: <%= statusCounts.fix %>
     };
 
+    // Ensure the DOM content is fully loaded before executing the script
     document.addEventListener('DOMContentLoaded', function () {
         const chartData = {
-            labels: ['กำลังทำ', 'เสร็จสิ้น', 'แก้ไข'],
-            datasets: [{
-                data: [window.statusCounts.working, window.statusCounts.compleate, window.statusCounts.fix],
-                backgroundColor: ['#B4B4B8', '#9BCF53', '#FF6868'],
-                hoverBackgroundColor: ['#C7C8CC', '#BFEA7C', '#FF8F8F']
-            }]
+          labels: ['กำลังทำ', 'เสร็จสิ้น', 'แก้ไข'],
+          datasets: [{
+            data: [window.statusCounts.working, window.statusCounts.complete, window.statusCounts.fix],
+            backgroundColor: ['#B4B4B8', '#9BCF53', '#FF6868'],
+            hoverBackgroundColor: ['#C7C8CC', '#BFEA7C', '#FF8F8F']
+          }]
         };
-
+    
         const options = {
-            cutoutPercentage: 60,
-            responsive: false,
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    align: 'start',
-                    labels: {
-                        font: {
-                            size: '16px'
-                        },
-                        maxRows: 3
-                    },
-                    fullWidth: true
-                }
+          cutoutPercentage: 60,
+          responsive: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              align: 'start',
+              labels: {
+                font: {
+                  size: '16px'
+                },
+                maxRows: 3
+              },
+              fullWidth: true
             }
+          }
         };
 
         const ctx = document.getElementById('myDonutChart').getContext('2d');
         new Chart(ctx, {
-            type: 'doughnut',
-            data: chartData,
-            options: options
+        type: 'doughnut',
+        data: chartData,
+        options: options
         });
     });
 </script>

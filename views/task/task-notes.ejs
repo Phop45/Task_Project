@@ -1,6 +1,6 @@
 <head>
   <link rel="stylesheet" href="/css/taskCss/task-note.css">
-  <style>
+  <!-- <style>
     .contant {
       height: max-content;
     }
@@ -178,142 +178,159 @@
       text-decoration: none;
       cursor: pointer;
     }
-  </style>
+  </style> -->
 </head>
 
-<body>
-  <div class="contant">
-    <h1 class="SubName"> Name </h1>
-    <%- include('../partials/task-navbar.ejs') %>
-
+<div class="contant">
+  <h1 class="SubName">Name</h1>
+  <%- include('../partials/task-navbar.ejs') %>
+  <div class="popup-box" id="popupBox">
+    <div class="popup">
+      <span class="close-popup" id="closePopup"></span>
       <div class="note_contant">
-        <form action="/addNotes" method="POST" class="add-form" id="noteForm">
+        <form
+          action="/addNotes"
+          method="POST"
+          class="add-form"
+          id="noteForm"
+        >
           <div class="addNote">
             <div id="addNote-title">
-              <input type="text" name="title" id="title" placeholder="title">
+              <input
+                type="text"
+                name="title"
+                id="title"
+                placeholder="Title"
+                required
+              />
             </div>
             <div id="addNote-content">
-              <textarea name="content" id="content"></textarea>
+              <textarea
+                name="content"
+                id="content"
+                placeholder="Description"
+                required
+              ></textarea>
             </div>
           </div>
-          <input type="submit" style="display: none;"> <!-- Hide the submit button -->
-          <input type="hidden" name="subjectId" id="subjectId" value="<%= subjects._id %>">
+          <div class="button-container">
+            <button type="submit">Add Note</button>
+          </div>
+          <input
+            type="hidden"
+            name="subjectId"
+            id="subjectId"
+            value="<%= subjects._id %>"
+          />
+          <input type="hidden" name="noteId" id="noteId" />
         </form>
-
-        <!-- Notes List -->
-        <div class="note_contant">
-          <% notes.forEach(note=> { %>
-            <div class="listNote" data-note-id="<%= note._id %>">
-              <div class="note-title editable" data-field="title">
-                <%= note.title %>
-              </div>
-              <div class="note-content editable" data-field="content">
-                <%= note.content %>
-              </div>
-              <div class="note-updated">
-                อัพเดตเมื่อ: <%= new Date(note.updatedAt).toLocaleDateString('th-TH', { day: 'numeric' , month: 'short'
-                  }) %>
-                  เวลา: <%= new Date(note.updatedAt).toLocaleTimeString('th-TH', { hour: '2-digit' , minute: '2-digit' ,
-                    hour12: false }) %>
-              </div>
-              <div class="note-actions">
-                <button class="delete-btn">ลบ</button>
-              </div>
-            </div>
-            <% }); %>
-        </div>
-
       </div>
+    </div>
   </div>
-</body>
+  <div class="wrapper">
+    <li class="add-box" id="addBox">
+      <div class="icon"><i class="uil uil-plus"></i></div>
+      <p>Add new note</p>
+    </li>
+
+    <!-- Notes List -->
+    <% notes.forEach(note => { %>
+    <li class="note contant">
+      <div class="details">
+        <div class="note-title editable" data-field="title">
+          <%= note.title %>
+        </div>
+        <div class="note-content editable" data-field="content">
+          <%= note.content %>
+        </div>
+      </div>
+      <div class="bottom-content">
+        <div class="note-updated">
+          <%= new Date(note.updatedAt).toLocaleDateString('th-TH', { day:
+          'numeric', month: 'short' }) %> เวลา: <%= new
+          Date(note.updatedAt).toLocaleTimeString('th-TH', { hour:
+          '2-digit', minute: '2-digit', hour12: false }) %>
+        </div>
+        <div class="settings">
+          <i onclick="showMenu(this)" class="uil uil-ellipsis-h"></i>
+          <ul class="menu">
+            <li
+              onclick="openUpdateNotePopup('<%= note._id %>', '<%= note.title %>', '<%= note.content %>')"
+            >
+              <i class="uil uil-pen"></i>Edit
+            </li>
+            <li onclick="deleteNote('<%= note._id %>')">
+              <i class="uil uil-trash"></i>Delete
+            </li>
+          </ul>
+        </div>
+      </div>
+    </li>
+    <% }); %>
+  </div>
+</div>
 
 <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const editableElements = document.querySelectorAll('.editable');
+  document.getElementById("addBox").addEventListener("click", function () {
+    document.getElementById("popupBox").style.display = "flex";
+    resetForm();
+  });
 
-    editableElements.forEach(element => {
-      element.addEventListener('click', function () {
-        if (this.querySelector('.edit-input')) return;
-
-        const field = this.dataset.field;
-        const originalValue = this.innerText.trim();
-        const input = document.createElement(field === 'title' ? 'input' : 'textarea');
-
-        input.value = originalValue;
-        input.classList.add('edit-input');
-        this.innerHTML = '';
-        this.appendChild(input);
-        input.focus();
-
-        input.addEventListener('keydown', function (e) {
-          if (e.key === 'Enter') {
-            e.preventDefault(); // Prevent the default newline action for textarea
-
-            const noteId = this.closest('.listNote').getAttribute('data-note-id');
-            const newValue = this.value.trim();
-            this.parentNode.innerText = newValue;
-
-            updateNote(noteId, field, newValue);
-          }
-        });
-
-        input.addEventListener('blur', function () {
-          this.parentNode.innerText = originalValue; // Revert to original value if unfocused
-        });
-      });
+  document
+    .getElementById("closePopup")
+    .addEventListener("click", function () {
+      document.getElementById("popupBox").style.display = "none";
     });
 
-    function updateNote(noteId, field, value) {
-      fetch('/updateNote', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ noteId, [field]: value })
-      })
-        .then(response => response.json())
-        .then(data => {
-          console.log('Note updated:', data);
-          location.reload(); // Refresh the page to show the updated content
-        })
-        .catch(error => {
-          console.error('Error updating note:', error);
-        });
-    }
-
-
-    const deleteButtons = document.querySelectorAll('.delete-btn');
-
-    deleteButtons.forEach(button => {
-      button.addEventListener('click', function () {
-        const noteId = this.closest('.listNote').getAttribute('data-note-id');
-        if (confirm('คุณแน่ใจหรือว่าต้องการลบโน้ตนี้?')) {
-          deleteNote(noteId);
-        }
-      });
-    });
-
-    function deleteNote(noteId) {
-      fetch('/deleteNote', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ noteId })
-      })
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('Network response was not ok');
-          }
-          return response.json();
-        })
-        .then(data => {
-          console.log('Note deleted:', data);
-          location.reload(); // Refresh the page to update the list
-        })
-        .catch(error => {
-          console.error('Error deleting note:', error);
-        });
+  // Close the popup when clicking outside of it
+  window.addEventListener("click", function (event) {
+    if (event.target === document.getElementById("popupBox")) {
+      document.getElementById("popupBox").style.display = "none";
     }
   });
+
+  function showMenu(elem) {
+    elem.parentElement.classList.add("show");
+    document.addEventListener("click", (e) => {
+      if (e.target.tagName != "I" || e.target != elem) {
+        elem.parentElement.classList.remove("show");
+      }
+    });
+  }
+
+  function openUpdateNotePopup(noteId, title, content) {
+    document.getElementById("title").value = title;
+    document.getElementById("content").value = content;
+    document.getElementById("noteId").value = noteId;
+    document.getElementById("noteForm").action = "/updateNote";
+    document.getElementById("popupBox").style.display = "flex";
+  }
+
+  async function deleteNote(noteId) {
+    try {
+      const response = await fetch("/deleteNote", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ noteId }),
+      });
+
+      if (response.ok) {
+        location.reload(); // Reload the page to reflect the changes
+      } else {
+        console.error("Failed to delete the note");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  }
+
+  function resetForm() {
+    document.getElementById("noteForm").reset();
+    const hiddenInput = document.querySelector('input[name="noteId"]');
+    if (hiddenInput) hiddenInput.remove();
+    document.getElementById("noteForm").action = "/addNotes";
+  }
 </script>
+</body>

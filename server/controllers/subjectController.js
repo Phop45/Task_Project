@@ -1,24 +1,25 @@
 //subjectController.js
-const Subject = require("../models/Subject");
+const Subject = require('../models/Subject');
+const User = require('../models/User'); 
 const mongoose = require("mongoose");
 const moment = require("moment");
 moment.locale('th');
 
-// รวมงาน
+// show subject dashboard page
 exports.SubDashboard = async (req, res) => {
     try {
         const subjects = await Subject.aggregate([
             { $match: { user: mongoose.Types.ObjectId(req.user.id), deleted: false } },
             { $project: { SubName: 1, SubDescription: 1, createdAt: 1 } },
             {
-                // join กับ collection "tasks"
                 $lookup: {
                     from: "tasks",
                     localField: "_id",
                     foreignField: "subject",
                     as: "tasks"
                 }
-            }, {
+            },
+            {
                 $addFields: {
                     taskCount: { $size: "$tasks" }
                 }
@@ -29,11 +30,13 @@ exports.SubDashboard = async (req, res) => {
             subject.createdAt = moment(subject.createdAt).format('LL');
         });
 
+        const users = await User.find();
         const count = await Subject.countDocuments({ user: req.user.id, deleted: false });
         res.render("subject/sub-dasboard", {
             subjects: subjects,
             userName: req.user.firstName,
             userImage: req.user.profileImage,
+            users: users,
             layout: "../views/layouts/subject",
         });
     } catch (error) {
@@ -42,16 +45,20 @@ exports.SubDashboard = async (req, res) => {
     }
 };
 
-// สร้างวิชา
+// create subject
 exports.createSubject = async (req, res) => {
     try {
+        const { SubName, SubDescription, SubjectCode, Professor, collaborators } = req.body;
+
         const newSubject = new Subject({
-            SubName: req.body.SubName,
-            SubDescription: req.body.SubDescription,
-            SubjectCode: req.body.SubjectCode,
-            Professor: req.body.Professor,
-            user: req.user.id
+            SubName,
+            SubDescription,
+            SubjectCode,
+            Professor,
+            user: req.user.id,
+            collaborators: Array.isArray(collaborators) ? collaborators : [collaborators]
         });
+
         await newSubject.save();
         res.redirect("/subject");
     } catch (error) {
@@ -60,7 +67,7 @@ exports.createSubject = async (req, res) => {
     }
 };
 
-// ลบวิชา
+// delete subject
 exports.deleteSubject = async (req, res) => {
     try {
         const subject = await Subject.findById(req.params.id);
@@ -76,8 +83,8 @@ exports.deleteSubject = async (req, res) => {
     }
 };
 
-// หน้าแสดงการกู้คืนวิชา
-exports.SubRecover = async (req, res) => {
+// Show subkect that can Recover
+exports.ShowRecover = async (req, res) => {
     try {
         const subjects = await Subject.aggregate([
             { $match: { user: mongoose.Types.ObjectId(req.user.id), deleted: true } },
@@ -110,7 +117,7 @@ exports.SubRecover = async (req, res) => {
     }
 };
 
-// กู้คืนวิชา
+// recover Subject
 exports.recoverSubject = async (req, res) => {
     const subjectId = req.params.id;
     try {

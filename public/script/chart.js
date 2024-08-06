@@ -15,7 +15,6 @@ document.getElementById("close-task-btn").addEventListener("click", function () 
     document.getElementById("overlay").classList.add("hide-overlay");
 });
 
-
 // Function to display calendar on input click
 document.getElementById('datepicker').addEventListener('click', function () {
     this.type = 'date';

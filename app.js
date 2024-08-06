@@ -50,8 +50,8 @@ app.use('/', require('./server/routes/index'));
 app.use('/', require('./server/routes/notesRoutes'));
 app.use('/', require('./server/routes/subjectRoutes'))
 app.use('/', require('./server/routes/taskRoutes'));
+app.use('/', require('./server/routes/subtaskRoutes'));
 app.use('/', require('./server/routes/settingRoutes'));
-app.use('/', require('./server/routes/subjectRoutes'));
 app.use('/', require('./server/routes/friendRoutes'));
 app.use('/', require('./server/routes/userRoutes'));
 app.use('/', require('./server/routes/friendRequestRoutes'));

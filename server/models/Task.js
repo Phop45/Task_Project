@@ -6,16 +6,16 @@ const taskSchema = new Schema({
     user: {
         type: Schema.ObjectId,
         ref: 'User'
-      },
+    },
     subject: {
         type: Schema.ObjectId,
         ref: 'Subject'
-      },
+    },
     taskName: {
         type: String,
     },
     dueDate: {
-        type: Date
+        type: Date,
     },
     dueTime: {
         type: String
@@ -28,11 +28,11 @@ const taskSchema = new Schema({
     },
     createdAt: {
         type: Date,
-        default: Date.now()
+        default: Date.now
     },
     updatedAt: {
         type: Date,
-        default: Date.now()
+        default: Date.now
     },
     deleteAt: {
         type: Date
@@ -51,9 +51,13 @@ const taskSchema = new Schema({
         type: String,
         enum: ['เร่งด่วน', 'ปกติ'],
         default: 'ปกติ'
-    }
-},
-{ timestamps: { createdAt: 'createdAt', updatedAt: 'deleteAt' }});
+    },
+    activityLogs: {
+        type: [String],
+        default: []
+    },
+    users: [{ type: Schema.Types.ObjectId, ref: 'User' }]
+}, { timestamps: { createdAt: 'createdAt', updatedAt: 'updatedAt' } });
 
 const Task = mongoose.model('Tasks', taskSchema);
 module.exports = Task;

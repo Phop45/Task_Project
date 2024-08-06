@@ -49,6 +49,19 @@
                         <textarea id="SubDescription" name="SubDescription" rows="4" cols="50" placeholder="เพิ่มรายละเอียดวิชา"></textarea>
                     </td>
                 </tr>
+
+                <tr>
+                    <td>
+                        <p style="margin-top: 5px;">Add Collaborators</p>
+                    </td>
+                    <td>
+                        <select name="collaborators" id="collaborators" class="form-control" multiple>
+                            <% users.forEach(user => { %>
+                                <option value="<%= user._id %>"><%= user.firstName %> <%= user.lastName %></option>
+                            <% }) %>
+                        </select>
+                    </td>
+                </tr>
             </table>
             <div class="all-btn">
                 <button type="button" onclick="clearFields()" id="btnClear"><i class='bx bx-rotate-right'></i>ล้าง</button>

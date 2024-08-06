@@ -1,128 +1,199 @@
 <head>
-    <link rel="stylesheet" href="/css/taskCss/task-list.css">
-    <link rel="stylesheet" href="/css/taskCss/task-dashboard.css">
+    <link rel="stylesheet" href="/css/taskCss/task-list.css" />
+    <link rel="stylesheet" href="/css/taskCss/task-dashboard.css" />
     <style>
-        body {
-    font-family: Arial, sans-serif;
-}
-
-.board {
-    display: flex;
-    justify-content: space-between;
-    padding: 20px;
-}
-
-.column {
-    width: 30%;
-    background: #f4f4f4;
-    padding: 10px;
-    border-radius: 5px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-}
-
-.column h2 {
-    text-align: center;
-}
-
-.task {
-    background: #fff;
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-.task.dragging {
-    opacity: 0.5;
-}
+      @import url(https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap);
+      * {
+        font-family: "kanit", sans-serif;
+      }
+  
+      .board {
+        display: flex;
+        justify-content: space-between;
+        padding: 20px;
+      }
+  
+      .board .column {
+        width: 30%;
+        background: #ffffff;
+        padding: 10px;
+        border-radius: 5px;
+        box-shadow: 0 4px 8px 0 rgba(159, 159, 159, 0.1), 0 6px 20px 0 rgba(63, 63, 63, 0.1);
+      }
+  
+      .board .column h2 {
+        text-align: center;
+      }
+  
+      .column[data-status="กำลังทำ"] .status p {
+        background-color: #ffb300;
+        color: #fff;
+      }
+  
+      .column[data-status="เสร็จสิ้น"] .status p {
+        background-color: #4caf50;
+        color: #fff;
+      }
+  
+      .column[data-status="แก้ไข"] .status p {
+        background-color: #797979;
+        color: #fff;
+      }
+  
+      
+  
+      .board ol,
+      ul {
+        padding-left: 0;
+      }
+  
+      .board .status p {
+        background-color: #ddd;
+        border-radius: 5px;
+        padding: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+  
+      .board .status .span {
+        background-color: rgba(248, 248, 248, 0.6);
+        color: #000000;
+        padding: 2px 10px;
+        border-radius: 5px;
+        margin-left: auto;
+      }
+  
+      .board .task {
+        background: #fff;
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        cursor: pointer;
+        list-style-type: none;
+      }
+      
+      .board .task .dragging {
+        opacity: 0.5;
+      }
+      .task #linetask {
+        margin: 0px;
+        padding: 0;
+        height: 100%;
+        border: solid black 2px;
+      }   
     </style>
-</head>
+  </head>
 
 <body>
-    <div class="contant">
-        <h1 class="SubName"> <%= subjects.SubName %> </h1>
-        <%- include('../partials/task-navbar.ejs') %>
-
-        <div class="board">
+    <body>
+        <div class="contant">
+          <h1 class="SubName"><%= subjects.SubName %></h1>
+          <%- include('../partials/task-navbar.ejs') %>
+      
+          <div class="board">
             <% const statuses = ['กำลังทำ', 'เสร็จสิ้น', 'แก้ไข']; %>
             <% statuses.forEach(status => { %>
-                <div class="column" data-status="<%= status %>">
-                    <h2><%= status %></h2>
-                    <ul id="tasks-<%= status %>">
-                        <% tasks.filter(task => task.status === status).forEach(task => { %>
-                            <li class="task"
-                                data-id="<%= task._id %>"
-                                data-subject-id="<%= subjects._id %>"
-                                draggable="true"
-                                onclick="redirectToTaskDetail('<%= task._id %>', '<%= subjects._id %>')">
-                                <h3><%= task.taskName %></h3>
-                                <p><%= task.detail %></p>
-                            </li>
-                        <% }) %>
-                    </ul>
+              <div class="column" data-status="<%= status %>">
+                <div class="status">
+                  <p><%= status %> <span class="span count" data-status-count="<%= status %>">0</span></p>
                 </div>
+                <ul id="tasks-<%= status %>">
+                  <% tasks.filter(task => task.status === status).forEach(task => { %>
+                    <div class="sectask">
+                      <p id="linetask"></p>
+                      <li 
+                      class="task"
+                      data-id="<%= task._id %>"
+                      data-subject-id="<%= subjects._id %>"
+                      draggable="true"
+                      onclick="redirectToTaskDetail('<%= task._id %>', '<%= subjects._id %>')"
+                    >
+                      <div class="taskname"><p><%= task.taskName %></p></div>
+                      <div class="detail"><p><%= task.detail %></p></div>
+                    </li>
+                    </div>
+                  <% }) %>
+                </ul>
+              </div>
             <% }) %>
-        </div>
-    </div>
+          </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-    const columns = document.querySelectorAll('.column');
-
-    columns.forEach(column => {
-        column.addEventListener('dragover', (e) => {
-            e.preventDefault();
-        });
-
-        column.addEventListener('drop', async (e) => {
-            e.preventDefault();
-            const taskId = e.dataTransfer.getData('text/plain');
-            const newStatus = e.currentTarget.getAttribute('data-status');
-
-            const taskElement = document.querySelector(`.task[data-id="${taskId}"]`);
-            taskElement.classList.remove('dragging');
-            taskElement.remove();
-
-            e.currentTarget.querySelector('ul').appendChild(taskElement);
-
-            try {
-                await fetch('/updateTaskStatus', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        taskId: taskId,
-                        newStatus: newStatus
-                    })
+            // Function to update the task count
+            const updateTaskCounts = () => {
+                const counts = document.querySelectorAll('.count');
+                counts.forEach(count => {
+                    const status = count.getAttribute('data-status-count');
+                    const taskCount = document.querySelectorAll(`.column[data-status="${status}"] .task`).length;
+                    count.textContent = taskCount;
                 });
-            } catch (err) {
-                console.error('Failed to update task status:', err);
+            };
+        
+            // Initial count
+            updateTaskCounts();
+        
+            const columns = document.querySelectorAll('.column');
+        
+            columns.forEach(column => {
+                column.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                });
+        
+                column.addEventListener('drop', async (e) => {
+                    e.preventDefault();
+                    const taskId = e.dataTransfer.getData('text/plain');
+                    const newStatus = e.currentTarget.getAttribute('data-status');
+        
+                    const taskElement = document.querySelector(`.task[data-id="${taskId}"]`);
+                    taskElement.classList.remove('dragging');
+                    taskElement.remove();
+        
+                    e.currentTarget.querySelector('ul').appendChild(taskElement);
+        
+                    // Update the counts
+                    updateTaskCounts();
+        
+                    try {
+                        await fetch('/updateTaskStatus', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                taskId: taskId,
+                                newStatus: newStatus
+                            })
+                        });
+                    } catch (err) {
+                        console.error('Failed to update task status:', err);
+                    }
+                });
+            });
+        
+            const tasks = document.querySelectorAll('.task');
+        
+            tasks.forEach(task => {
+                task.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.setData('text/plain', task.getAttribute('data-id'));
+                    task.classList.add('dragging');
+                });
+        
+                task.addEventListener('dragend', () => {
+                    task.classList.remove('dragging');
+                });
+            });
+        });
+        
+        function redirectToTaskDetail(taskId, subjectId) {
+            const tagName = event.target.tagName.toLowerCase();
+            if (tagName !== 'input') {
+                window.location.href = `/task/${taskId}/detail?subjectId=${subjectId}`;
             }
-        });
-    });
-
-    const tasks = document.querySelectorAll('.task');
-
-    tasks.forEach(task => {
-        task.addEventListener('dragstart', (e) => {
-            e.dataTransfer.setData('text/plain', task.getAttribute('data-id'));
-            task.classList.add('dragging');
-        });
-
-        task.addEventListener('dragend', () => {
-            task.classList.remove('dragging');
-        });
-    });
-});
-
-function redirectToTaskDetail(taskId, subjectId) {
-    const tagName = event.target.tagName.toLowerCase();
-    if (tagName !== 'input') {
-        window.location.href = `/task/${taskId}/detail?subjectId=${subjectId}`;
-    }
-}
+        }
+        
 
     </script>
 </body>
