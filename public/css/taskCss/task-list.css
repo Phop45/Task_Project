@@ -109,7 +109,6 @@ tbody tr{
 }
 tbody tr:hover{
     background-color: #efefef;
-    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
     z-index: 1;
 }
 tr.drag-over {

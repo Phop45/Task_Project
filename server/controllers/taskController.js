@@ -1,7 +1,7 @@
 /// task controller
 const Task = require("../models/Task");
 const Subject = require("../models/Subject");
-const SubTask = require('../models/Subtask');
+const SubTask = require('../models/SubTask');
 const User = require("../models/User");
 const Notes = require("../models/Notes");
 const moment = require('moment');
@@ -17,14 +17,14 @@ const extractTaskParameters = async (tasks) => {
   const taskPriority = tasks.map(task => task.taskPriority);
   const taskTag = tasks.map(task => task.taskTag);
   const dueDate = tasks.map(task => {
-    const date = new Date(task.dueDate);
-    const options = { day: 'numeric', month: 'long', locale: 'th-TH' };
-    return date.toLocaleDateString(undefined, options);
+      const date = new Date(task.dueDate);
+      const options = { day: 'numeric', month: 'long', year: 'numeric', locale: 'th-TH' };
+      return date.toLocaleDateString(undefined, options);
   });
   const createdAt = tasks.map(task => {
-    const date = new Date(task.createdAt);
-    const options = { day: 'numeric', month: 'long', locale: 'th-TH' };
-    return date.toLocaleDateString(undefined, options);
+      const date = new Date(task.createdAt);
+      const options = { day: 'numeric', month: 'long', year: 'numeric', locale: 'th-TH' };
+      return date.toLocaleDateString(undefined, options);
   });
 
   return { taskNames, taskDetail, taskStatuses, taskTypes, dueDate, createdAt, taskPriority, taskTag };
@@ -33,15 +33,20 @@ const extractTaskParameters = async (tasks) => {
 /// Add Task
 exports.addTask = async (req, res) => {
   try {
+    const assignedUsers = req.body.assignedUsers || [];
+    const dueDate = req.body.dueDate ? new Date(req.body.dueDate) : undefined; // Define dueDate
+
     const newTask = new Task({
       taskName: req.body.taskName,
-      date: new Date().toLocaleDateString('th-TH'),
+      dueDate: dueDate, // Use the defined dueDate
       taskTag: req.body.taskTag,
       detail: req.body.detail,
       taskType: req.body.taskType,
       user: req.user.id,
-      subject: req.body.subjectId
+      subject: req.body.subjectId,
+      assignedUsers: assignedUsers
     });
+
     await newTask.save();
     res.redirect(`/subject/item/${req.body.subjectId}`);
     console.log(newTask);
@@ -73,42 +78,122 @@ exports.addTask_list = async (req, res) => {
 /// popup เพิ่มงาน จากหน้า list
 exports.addTask2 = async (req, res) => {
   try {
-    const { dueDateTime } = req.body;
-    if (dueDateTime && isNaN(Date.parse(dueDateTime))) {
-      return res.status(400).send({ error: 'Invalid Date' });
-    }
+    const { dueDate, taskName, taskTag, detail, taskType, subjectId } = req.body;
+    const assignedUsers = req.body.assignedUsers || [];
+    const parsedDueDate = dueDate ? new Date(dueDate) : undefined;
 
-    const task = new Task({
-      taskName: req.body.taskName,
-      dueDate: dueDateTime ? new Date(dueDateTime) : undefined,
-      taskTag: req.body.taskTag,
-      detail: req.body.detail,
-      taskType: req.body.taskType,
+    const newTask = new Task({
+      taskName: taskName,
+      dueDate: parsedDueDate,  
+      taskTag: taskTag,
+      detail: detail,
+      taskType: taskType,
       user: req.user.id,
-      subject: req.body.subjectId
+      subject: subjectId,
+      assignedUsers: assignedUsers
     });
-    await task.save();
-    res.redirect(`/subject/item/${req.body.subjectId}/task_list`);
+
+    // Save the task to the database
+    await newTask.save();
+
+    // Redirect to the task list page of the subject
+    res.redirect(`/subject/item/${subjectId}/task_list`);
   } catch (error) {
     console.log(error);
     res.status(500).send("Internal Server Error");
   }
 };
 
+
 /// หน้าแดชบอร์ดสรุปงาน
 exports.task_dashboard = async (req, res) => {
   try {
-    const subject = await Subject.findById({ _id: req.params.id, user: req.user.id }).lean();
-    const tasks = await Task.find({ subject: req.params.id }).lean();
+    const subjectId = req.params.id;
+    const userId = req.user.id;
+
+    // Fetch the subject
+    const subject = await Subject.findOne({
+      _id: subjectId,
+      $or: [
+        { user: userId },
+        { collaborators: userId }
+      ]
+    })
+    .populate('collaborators', 'displayName profileImage')
+    .lean();
+
+    if (!subject) {
+      return res.status(404).send('Subject not found');
+    }
+
+    // Fetch the tasks with populated user details
+    const tasks = await Task.find({ subject: subjectId })
+      .populate({
+        path: 'assignedUsers',
+        select: 'displayName profileImage'
+      })
+      .populate({
+        path: 'user', // Populate the task owner
+        select: 'displayName profileImage'
+      })
+      .lean();
+
+    // Collect all unique users (task owners + assigned users)
+    const usersSet = new Map(); // Using Map to avoid duplicates by `_id`
+
+    tasks.forEach(task => {
+      // Add task owner if not already in the map
+      if (task.user) {
+        if (!usersSet.has(task.user._id.toString())) {
+          usersSet.set(task.user._id.toString(), task.user);
+        }
+      }
+
+      // Add assigned users
+      task.assignedUsers.forEach(assignedUser => {
+        if (!usersSet.has(assignedUser._id.toString())) {
+          usersSet.set(assignedUser._id.toString(), assignedUser);
+        }
+      });
+    });
+
+    const users = Array.from(usersSet.values()); // Convert map values to an array
+
+    const subtasksCount = await SubTask.countDocuments({ subject: subjectId });
+    const completedTasksCount = tasks.filter(task => task.status === 'เสร็จสิ้น').length;
 
     const { taskNames, dueDate, taskStatuses, taskTypes } = await extractTaskParameters(tasks);
-    const thaiDueDate = dueDate.map(date => moment(date).format('LL'));
+
+    const thaiDueDate = dueDate.map(date => moment(date, 'MMMM DD, YYYY').format('LL'));
     subject.createdAt = moment(subject.createdAt).format('LL');
 
     const statusCounts = {
       working: tasks.filter(task => task.status === 'กำลังทำ').length,
       complete: tasks.filter(task => task.status === 'เสร็จสิ้น').length,
       fix: tasks.filter(task => task.status === 'แก้ไข').length,
+    };
+
+    const userWorkload = {};
+    tasks.forEach(task => {
+      task.assignedUsers.forEach(user => {
+        if (!userWorkload[user._id]) {
+          userWorkload[user._id] = { name: user.displayName, workload: 0 };
+        }
+        userWorkload[user._id].workload += 1;
+      });
+    });
+
+    const colors = Object.keys(userWorkload).map(() => `#${Math.floor(Math.random() * 16777215).toString(16)}`);
+
+    const workloadChartData = {
+      labels: Object.values(userWorkload).map(user => user.name),
+      datasets: [{
+        label: 'Workload per User',
+        data: Object.values(userWorkload).map(user => user.workload),
+        backgroundColor: colors,
+        borderColor: '#000000',
+        borderWidth: 1
+      }]
     };
 
     res.render("task/task-dashboard", {
@@ -118,14 +203,64 @@ exports.task_dashboard = async (req, res) => {
       taskStatuses: taskStatuses,
       taskTypes: taskTypes,
       dueDate: thaiDueDate,
-      SubName: req.body.SubName,
-      SubDescription: req.body.SubDescription,
-      user: req.user.id,
+      users: users,
+      currentUser: req.user,
+      user: userId,
       layout: "../views/layouts/task",
       userName: req.user.firstName,
       userImage: req.user.profileImage,
       currentPage: 'dashboard',
-      statusCounts: statusCounts
+      statusCounts: statusCounts,
+      subtasksCount: subtasksCount,
+      completedTasksCount: completedTasksCount,
+      workloadChartData: JSON.stringify(workloadChartData),
+    });
+  } catch (error) {
+    console.log('Error in task_dashboard:', error);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
+exports.task_board = async (req, res) => {
+  try {
+    const subjectId = req.params.id;
+    const userId = req.user.id;
+
+    // Fetch the subject, allowing access if the user is the owner or a collaborator
+    const subject = await Subject.findOne({
+      _id: subjectId,
+      $or: [
+        { user: userId },
+        { collaborators: userId }
+      ]
+    })
+    .lean();
+
+    if (!subject) {
+      return res.status(404).send("Subject not found");
+    }
+
+    // Fetch the tasks and populate the assignedUsers field with user details
+    const tasks = await Task.find({ subject: subjectId })
+      .populate('assignedUsers', 'profileImage displayName')  // Populate with user profile image and display name
+      .lean();
+    
+    // Format task creation dates if needed
+    tasks.forEach(task => {
+      task.createdAtFormatted = moment(task.createdAt).format('DD-MM'); // Format to 'DD-MM' if required
+    });
+
+    const users = await User.find();
+
+    res.render("task/task-board", {
+      subjects: subject,
+      tasks: tasks,
+      users: users,
+      user: userId,
+      userName: req.user.firstName,
+      userImage: req.user.profileImage,
+      currentPage: 'board',
+      layout: "../views/layouts/task",
     });
   } catch (error) {
     console.log(error);
@@ -133,46 +268,46 @@ exports.task_dashboard = async (req, res) => {
   }
 };
 
-exports.task_board = async (req, res) => {
-  try {
-      const subject = await Subject.findById({ _id: req.params.id, user: req.user.id }).lean();
-      const tasks = await Task.find({ subject: req.params.id }).lean();
-
-      res.render("task/task-board", {
-          subjects: subject,
-          tasks: tasks,
-          user: req.user.id,
-          userName: req.user.firstName,
-          userImage: req.user.profileImage,
-          currentPage: 'task_board',
-          layout: "../views/layouts/task",
-      });
-  } catch (error) {
-      console.log(error);
-      res.status(500).send("Internal Server Error");
-  }
-};
-
 /// หน้าแสดงงานเป็นลิสต์
 exports.task_list = async (req, res) => {
   try {
-    const subject = await Subject.findOne({ _id: req.params.id, user: req.user.id }).lean();
-    const tasks = await Task.find({ subject: req.params.id }).lean();
+    const subject = await Subject.findOne({ 
+      _id: req.params.id, 
+      $or: [
+          { user: req.user._id },
+          { collaborators: req.user._id }
+      ]
+    })
+    .populate({
+        path: 'user',
+        select: 'displayName profileImage'
+    })
+    .lean();
+
+    const tasks = await Task.find({ subject: req.params.id })
+            .populate({
+                path: 'assignedUsers',
+                select: 'displayName profileImage'
+            })
+            .lean();
+
+    // Extract task parameters
     const { taskNames, taskDetail, taskStatuses, taskTypes, dueDate, createdAt } = await extractTaskParameters(tasks);
     const thaiDueDate = dueDate.map(date => moment(date).format('DD MMMM'));
     const thaiCreatedAt = createdAt.map(date => moment(date).format('DD MMMM'));
 
+    // Handle specific task details if provided
     const taskId = req.query.taskId;
     if (taskId) {
       const task = await Task.findById(taskId).lean();
+      // Do something with the task if needed
     }
 
     res.render("task/task-list", {
-      subjects: subject,
+      subjects: subject, // Ensure 'subject' is properly passed
       subjectId: req.params.id,
       SubName: req.body.SubName,
       SubDescription: req.body.SubDescription,
-
       tasks: tasks,
       taskNames: taskNames,
       taskDetail: taskDetail,
@@ -180,7 +315,7 @@ exports.task_list = async (req, res) => {
       taskTypes: taskTypes,
       dueDate: thaiDueDate,
       createdAt: thaiCreatedAt,
-
+      users: tasks.flatMap(task => task.assignedUsers), // Flatten user details from tasks
       user: req.user.id,
       userName: req.user.firstName,
       userImage: req.user.profileImage,
@@ -204,7 +339,6 @@ exports.deleteTasks = async (req, res) => {
 
     await Task.deleteMany({ _id: { $in: taskIds }, subject: subjectId });
 
-    // Redirect back to the task list page for the subject
     res.redirect(`/subject/item/${subjectId}/task_list`);
   } catch (error) {
     console.log(error);
@@ -216,7 +350,7 @@ exports.ItemDetail = async (req, res) => {
   try {
     const subject = await Subject.findById({ _id: req.params.id, user: req.user.id }).lean();
     const taskId = req.params.id;
-    const task = await Task.findById(taskId);
+    const task = await Task.findById(taskId).populate('assignedUsers', 'displayName profileImage').lean(); // Populate assigned users
     const subtasks = await SubTask.find({ task: taskId }).sort({ createdAt: -1 }).exec();
     const { taskNames, dueDate, taskStatuses, taskTypes, taskDetail, taskPriority, taskTag } = await extractTaskParameters([task]);
     const thaiDueDate = dueDate.map(date => new Date(date).toLocaleDateString('th-TH', {
@@ -231,6 +365,7 @@ exports.ItemDetail = async (req, res) => {
     res.render("task/task-ItemDetail", {
       task: task,
       subtasks: subtasks,
+      tasks: [task],
       taskNames: taskNames,
       dueDate: thaiDueDate,
       taskDetail: taskDetail,
@@ -270,30 +405,37 @@ exports.updateTask = async (req, res) => {
     let activityLogs = [];
     const now = new Date();
 
+    // Handle updates to task attributes other than due date
     if (taskName && taskName !== task.taskName) {
-      activityLogs.push(`Task renamed to ${taskName} at ${formatDateTime(now)}`);
+      activityLogs.push(`ชื่อของงานถูกเปลี่ยนเป็น ${taskName} เมื่อ ${formatDateTime(now)}`);
       task.taskName = taskName;
     }
 
     if (taskDetail && taskDetail !== task.detail) {
-      activityLogs.push(`Task details updated at ${formatDateTime(now)}`);
+      activityLogs.push(`รายละเอียดของงานถูกอัพเดตเมื่อ ${formatDateTime(now)}`);
       task.detail = taskDetail;
     }
 
     if (taskType && taskType !== task.taskType) {
-      activityLogs.push(`Task type changed to ${taskType} at ${formatDateTime(now)}`);
+      activityLogs.push(`ประเภทของงานเปลี่ยนเป็น ${taskType} เมื่อ ${formatDateTime(now)}`);
       task.taskType = taskType;
     }
 
     if (taskStatuses && taskStatuses !== task.status) {
-      activityLogs.push(`Task status changed to ${taskStatuses} at ${formatDateTime(now)}`);
+      activityLogs.push(`สถานะของงานถูกเปลี่ยนเป็น ${taskStatuses} เมื่อ ${formatDateTime(now)}`);
       task.status = taskStatuses;
     }
 
     if (taskPriority && taskPriority !== task.taskPriority) {
-      activityLogs.push(`Task priority changed to ${taskPriority} at ${formatDateTime(now)}`);
+      activityLogs.push(`ความสำคัญของงานถูกเปลี่ยนเป็น ${taskPriority} เมื่อ ${formatDateTime(now)}`);
       task.taskPriority = taskPriority;
     }
+
+    if (dueDate && new Date(dueDate).toISOString() !== new Date(task.dueDate).toISOString()) {
+      activityLogs.push(`วันครบกำหนดของงานถูกเปลี่ยนเป็น ${moment(dueDate).format('LL')} เมื่อ ${formatDateTime(now)}`);
+      task.dueDate = dueDate;
+    }
+
 
     task.activityLogs = task.activityLogs.concat(activityLogs);
 
@@ -305,6 +447,7 @@ exports.updateTask = async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 };
+
 
 exports.deleteActivityLog = async (req, res) => {
   try {
@@ -360,8 +503,24 @@ exports.addNotes = async (req, res) => {
 exports.task_notes = async (req, res) => {
   const { id } = req.params;
   try {
-    const subject = await Subject.findOne({ _id: req.params.id, user: req.user.id }).lean();
-    const notes = await Notes.find({ subject: req.params.id, user: req.user.id }).lean();
+    // Fetch subject details, including collaborators
+    const subject = await Subject.findOne({
+      _id: id,
+      $or: [
+        { user: req.user.id }, // Owner
+        { collaborators: req.user.id } // Collaborator
+      ]
+    }).lean();
+
+    // Check if subject was found
+    if (!subject) {
+      return res.status(403).send("Access denied"); // Or redirect to a "not authorized" page
+    }
+
+    // Fetch all notes related to the subject
+    const notes = await Notes.find({ subject: id })
+      .populate('user', 'profileImage displayName') // Populate user details
+      .lean();
 
     res.render("task/task-notes", {
       subjects: subject,

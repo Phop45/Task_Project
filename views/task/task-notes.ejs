@@ -179,95 +179,101 @@
       cursor: pointer;
     }
   </style> -->
+  <style>
+    .note-created-by {
+      display: flex;
+      align-items: center;
+      margin-top: 10px;
+  }
+  
+  .note-created-by img {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      margin-right: 10px;
+  }
+  
+  .note-created-by p {
+      margin: 0;
+      font-size: 14px;
+      color: #333;
+  }
+  </style>
 </head>
 
 <div class="contant">
-  <h1 class="SubName">Name</h1>
+  <% if (subjects) { %>
+    <h1 class="SubName"><%= subjects.SubName %></h1>
+  <% } else { %>
+    <h1 class="SubName">Subject Not Found</h1>
+  <% } %>
   <%- include('../partials/task-navbar.ejs') %>
-  <div class="popup-box" id="popupBox">
-    <div class="popup">
-      <span class="close-popup" id="closePopup"></span>
-      <div class="note_contant">
-        <form
-          action="/addNotes"
-          method="POST"
-          class="add-form"
-          id="noteForm"
-        >
-          <div class="addNote">
-            <div id="addNote-title">
-              <input
-                type="text"
-                name="title"
-                id="title"
-                placeholder="Title"
-                required
-              />
+    <div class="popup-box" id="popupBox">
+      <div class="popup">
+        <span class="close-popup" id="closePopup"></span>
+        <div class="note_contant">
+          <form action="/addNotes" method="POST" class="add-form" id="noteForm">
+            <div class="addNote">
+              <div id="addNote-title">
+                <input type="text" name="title" id="title" placeholder="หัวข้อ" required />
+              </div>
+              <div id="addNote-content">
+                <textarea name="content" id="content" placeholder="เนื้อหา" required></textarea>
+              </div>
             </div>
-            <div id="addNote-content">
-              <textarea
-                name="content"
-                id="content"
-                placeholder="Description"
-                required
-              ></textarea>
+            <div class="button-container">
+              <button type="submit">เพิ่มโน็ต</button>
             </div>
-          </div>
-          <div class="button-container">
-            <button type="submit">Add Note</button>
-          </div>
-          <input
-            type="hidden"
-            name="subjectId"
-            id="subjectId"
-            value="<%= subjects._id %>"
-          />
-          <input type="hidden" name="noteId" id="noteId" />
-        </form>
+            <input type="hidden" name="subjectId" id="subjectId" value="<%= subjects._id %>" />
+            <input type="hidden" name="noteId" id="noteId" />
+          </form>
+        </div>
       </div>
     </div>
-  </div>
-  <div class="wrapper">
-    <li class="add-box" id="addBox">
-      <div class="icon"><i class="uil uil-plus"></i></div>
-      <p>Add new note</p>
-    </li>
 
-    <!-- Notes List -->
-    <% notes.forEach(note => { %>
-    <li class="note contant">
-      <div class="details">
-        <div class="note-title editable" data-field="title">
-          <%= note.title %>
-        </div>
-        <div class="note-content editable" data-field="content">
-          <%= note.content %>
-        </div>
-      </div>
-      <div class="bottom-content">
-        <div class="note-updated">
-          <%= new Date(note.updatedAt).toLocaleDateString('th-TH', { day:
-          'numeric', month: 'short' }) %> เวลา: <%= new
-          Date(note.updatedAt).toLocaleTimeString('th-TH', { hour:
-          '2-digit', minute: '2-digit', hour12: false }) %>
-        </div>
-        <div class="settings">
-          <i onclick="showMenu(this)" class="uil uil-ellipsis-h"></i>
-          <ul class="menu">
-            <li
-              onclick="openUpdateNotePopup('<%= note._id %>', '<%= note.title %>', '<%= note.content %>')"
-            >
-              <i class="uil uil-pen"></i>Edit
-            </li>
-            <li onclick="deleteNote('<%= note._id %>')">
-              <i class="uil uil-trash"></i>Delete
-            </li>
-          </ul>
-        </div>
-      </div>
-    </li>
-    <% }); %>
-  </div>
+    <h1 style="padding-left: 50px;
+              padding-top: 30px;">โน้ตจดบันทึก</h1>
+    <div class="wrapper">
+      <li class="add-box" id="addBox">
+        <div class="icon"><i class='bx bx-plus'></i></div>
+        <p>เพิ่มโน็ตใหม่</p>
+      </li>
+
+      <!-- Notes List -->
+      <% notes.forEach(note => { %>
+        <li class="note contant">
+          <div class="details">
+            <div class="note-title editable" data-field="title">
+              <%= note.title %>
+            </div>
+            <div class="note-content editable" data-field="content">
+              <%= note.content %>
+            </div>
+            <div class="note-created-by">
+              <img src="<%= note.user.profileImage %>" alt="Profile Picture" style="width: 30px; height: 30px; border-radius: 50%; margin-top: 10px;">
+              <p>Created by: <%= note.user.displayName %></p>
+            </div>
+          </div>
+          <div class="bottom-content">
+            <div class="note-updated">
+              <%= new Date(note.updatedAt).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' }) %> เวลา: <%=
+                  new Date(note.updatedAt).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', hour12: false }) %>
+            </div>
+            <div class="settings">
+              <i onclick="showMenu(this)" class="uil uil-ellipsis-h"></i>
+              <ul class="menu">
+                <li onclick="openUpdateNotePopup('<%= note._id %>', '<%= note.title %>', '<%= note.content %>')">
+                  <i class="uil uil-pen"></i>แก้ไข
+                </li>
+                <li onclick="deleteNote('<%= note._id %>')">
+                  <i class="uil uil-trash"></i>ลบ
+                </li>
+              </ul>
+            </div>
+          </div>
+        </li>
+      <% }); %>
+    </div>
 </div>
 
 <script>
@@ -332,5 +338,32 @@
     if (hiddenInput) hiddenInput.remove();
     document.getElementById("noteForm").action = "/addNotes";
   }
+  function getRandomPastelColor() {
+    // Generates a pastel color in hexadecimal format
+    const r = Math.floor(Math.random() * 128 + 127);
+    const g = Math.floor(Math.random() * 128 + 127);
+    const b = Math.floor(Math.random() * 128 + 127);
+    return `rgb(${r},${g},${b})`;
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    // Apply a pastel background color to each note
+    document.querySelectorAll('.note').forEach(note => {
+      note.style.backgroundColor = getRandomPastelColor();
+    });
+
+    // Alternatively, if you want to set the color when a note is created (for example, via a form submission)
+    const noteForm = document.getElementById('noteForm');
+    if (noteForm) {
+      noteForm.addEventListener('submit', function () {
+        // Apply a pastel color to new notes when the form is submitted
+        const newNote = document.createElement('li');
+        newNote.classList.add('note', 'contant');
+        newNote.style.backgroundColor = getRandomPastelColor();
+        // Append newNote to the notes list
+        document.querySelector('.wrapper').appendChild(newNote);
+      });
+    }
+  });
 </script>
 </body>

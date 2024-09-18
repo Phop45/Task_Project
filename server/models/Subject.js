@@ -2,10 +2,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const subjectSchema = new Schema({
-    user: {
-        type: Schema.ObjectId,
-        ref: 'User'
-      },
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     SubName: {
         type: String,
         required: true
@@ -13,10 +10,10 @@ const subjectSchema = new Schema({
     SubDescription: {
         type: String
     },
-    SubjectCode:{
+    SubjectCode: {
         type: String
     },
-    Professor:{
+    Professor: {
         type: String
     },
     SubPicture: {
@@ -26,22 +23,10 @@ const subjectSchema = new Schema({
         type: Boolean,
         default: false
     },
-    deletedAt: {
-        type: Date
-    },
-    createdAt: {
-        type: Date,
-        default: Date.now()
-    },
-    updatedAt: {
-        type: Date,
-        default: Date.now()
-    },
-    collaborators: [{
-        type: Schema.ObjectId,
-        ref: 'User'
-    }]
+    collaborators: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
+}, {
+    timestamps: true  // Automatically adds createdAt and updatedAt fields
 });
 
-const Subject = mongoose.model('Subjects', subjectSchema);
+const Subject = mongoose.model('Subject', subjectSchema);
 module.exports = Subject;

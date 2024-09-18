@@ -10,15 +10,22 @@
       .board {
         display: flex;
         justify-content: space-between;
-        padding: 20px;
+        padding: 30px 50px;
+        padding-bottom: 0;
+        align-items: flex-start;
+        margin-bottom: 50px;
       }
   
+      .boardText{
+        padding: 30px 0 0 50px;
+      }
       .board .column {
         width: 30%;
+        min-height: 80vh; /* Ensure columns have a minimum height */
         background: #ffffff;
         padding: 10px;
         border-radius: 5px;
-        box-shadow: 0 4px 8px 0 rgba(159, 159, 159, 0.1), 0 6px 20px 0 rgba(63, 63, 63, 0.1);
+        box-shadow: 0 4px 8px 0 rgba(159, 159, 159, 0.2), 0 6px 20px 0 rgba(63, 63, 63, 0.2);
       }
   
       .board .column h2 {
@@ -26,17 +33,17 @@
       }
   
       .column[data-status="กำลังทำ"] .status p {
-        background-color: #ffb300;
+        background-color: #B4B4B8;
         color: #fff;
       }
   
       .column[data-status="เสร็จสิ้น"] .status p {
-        background-color: #4caf50;
+        background-color: #9BCF53;
         color: #fff;
       }
   
       .column[data-status="แก้ไข"] .status p {
-        background-color: #797979;
+        background-color: #FF6868;
         color: #fff;
       }
   
@@ -83,16 +90,39 @@
         height: 100%;
         border: solid black 2px;
       }   
+
+      .assigned-users {
+          display: flex;
+          gap: 5px; /* Adjust spacing as needed */
+          margin-top: 5px;
+      }
+
+      .user-profile-image {
+          width: 30px;
+          height: 30px;
+          border-radius: 50%;
+          object-fit: cover; /* Ensure the image covers the container */
+      }
+      .createdAt{
+        display: flex;
+        align-items: center;
+      }
+      #createAtP{
+        font-size: 14px;
+        font-weight: 200;
+        margin-bottom: 0;
+        opacity: 0.5;
+      }
     </style>
   </head>
 
 <body>
-    <body>
         <div class="contant">
           <h1 class="SubName"><%= subjects.SubName %></h1>
           <%- include('../partials/task-navbar.ejs') %>
       
-          <div class="board">
+          <h1 class="boardText">บอร์ดงาน</h1>
+          <div class="board">  
             <% const statuses = ['กำลังทำ', 'เสร็จสิ้น', 'แก้ไข']; %>
             <% statuses.forEach(status => { %>
               <div class="column" data-status="<%= status %>">
@@ -101,9 +131,7 @@
                 </div>
                 <ul id="tasks-<%= status %>">
                   <% tasks.filter(task => task.status === status).forEach(task => { %>
-                    <div class="sectask">
-                      <p id="linetask"></p>
-                      <li 
+                    <li 
                       class="task"
                       data-id="<%= task._id %>"
                       data-subject-id="<%= subjects._id %>"
@@ -111,89 +139,97 @@
                       onclick="redirectToTaskDetail('<%= task._id %>', '<%= subjects._id %>')"
                     >
                       <div class="taskname"><p><%= task.taskName %></p></div>
-                      <div class="detail"><p><%= task.detail %></p></div>
+                      <div class="detail"><p style="opacity: 0.6;"><%= task.detail %></p></div>
+                      <div class="assigned-users">
+                        <% task.assignedUsers.forEach(user => { %>
+                          <img src="<%= user.profileImage %>" alt="<%= user.displayName %>" style="width: 30px; height: 30px; border-radius: 50%;">
+                        <% }) %>
+                        <div class="createdAt">
+                          <p id="createAtP">
+                            งานถูกสร้างเมื่อ: <%= new Date(task.createdAt).toLocaleDateString('th-TH', { day: '2-digit', month: '2-digit' }) %>
+                          </p>
+                        </div>
+                      </div>
                     </li>
-                    </div>
                   <% }) %>
                 </ul>
               </div>
             <% }) %>
           </div>
+          
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Function to update the task count
-            const updateTaskCounts = () => {
-                const counts = document.querySelectorAll('.count');
-                counts.forEach(count => {
-                    const status = count.getAttribute('data-status-count');
-                    const taskCount = document.querySelectorAll(`.column[data-status="${status}"] .task`).length;
-                    count.textContent = taskCount;
-                });
-            };
-        
-            // Initial count
-            updateTaskCounts();
-        
-            const columns = document.querySelectorAll('.column');
-        
-            columns.forEach(column => {
-                column.addEventListener('dragover', (e) => {
-                    e.preventDefault();
-                });
-        
-                column.addEventListener('drop', async (e) => {
-                    e.preventDefault();
-                    const taskId = e.dataTransfer.getData('text/plain');
-                    const newStatus = e.currentTarget.getAttribute('data-status');
-        
-                    const taskElement = document.querySelector(`.task[data-id="${taskId}"]`);
-                    taskElement.classList.remove('dragging');
-                    taskElement.remove();
-        
-                    e.currentTarget.querySelector('ul').appendChild(taskElement);
-        
-                    // Update the counts
-                    updateTaskCounts();
-        
-                    try {
-                        await fetch('/updateTaskStatus', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                taskId: taskId,
-                                newStatus: newStatus
-                            })
-                        });
-                    } catch (err) {
-                        console.error('Failed to update task status:', err);
-                    }
-                });
+      document.addEventListener('DOMContentLoaded', () => {
+        // Function to update the task count
+        const updateTaskCounts = () => {
+            const counts = document.querySelectorAll('.count');
+            counts.forEach(count => {
+                const status = count.getAttribute('data-status-count');
+                const taskCount = document.querySelectorAll(`.column[data-status="${status}"] .task`).length;
+                count.textContent = taskCount;
             });
-        
-            const tasks = document.querySelectorAll('.task');
-        
-            tasks.forEach(task => {
-                task.addEventListener('dragstart', (e) => {
-                    e.dataTransfer.setData('text/plain', task.getAttribute('data-id'));
-                    task.classList.add('dragging');
-                });
-        
-                task.addEventListener('dragend', () => {
-                    task.classList.remove('dragging');
-                });
+        };
+    
+        // Initial count
+        updateTaskCounts();
+    
+        const columns = document.querySelectorAll('.column');
+    
+        columns.forEach(column => {
+            column.addEventListener('dragover', (e) => {
+                e.preventDefault();
+            });
+    
+            column.addEventListener('drop', async (e) => {
+                e.preventDefault();
+                const taskId = e.dataTransfer.getData('text/plain');
+                const newStatus = e.currentTarget.getAttribute('data-status');
+    
+                const taskElement = document.querySelector(`.task[data-id="${taskId}"]`);
+                taskElement.classList.remove('dragging');
+                taskElement.remove();
+    
+                e.currentTarget.querySelector('ul').appendChild(taskElement);
+    
+                // Update the counts
+                updateTaskCounts();
+    
+                try {
+                    await fetch('/updateTaskStatus', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            taskId: taskId,
+                            newStatus: newStatus
+                        })
+                    });
+                } catch (err) {
+                    console.error('Failed to update task status:', err);
+                }
             });
         });
-        
-        function redirectToTaskDetail(taskId, subjectId) {
-            const tagName = event.target.tagName.toLowerCase();
-            if (tagName !== 'input') {
-                window.location.href = `/task/${taskId}/detail?subjectId=${subjectId}`;
-            }
-        }
-        
-
+    
+        const tasks = document.querySelectorAll('.task');
+    
+        tasks.forEach(task => {
+            task.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('text/plain', task.getAttribute('data-id'));
+                task.classList.add('dragging');
+            });
+    
+            task.addEventListener('dragend', () => {
+                task.classList.remove('dragging');
+            });
+        });
+    });
+    
+      function redirectToTaskDetail(taskId, subjectId) {
+          const tagName = event.target.tagName.toLowerCase();
+          if (tagName !== 'input') {
+              window.location.href = `/task/${taskId}/detail?subjectId=${subjectId}`;
+          }
+      }
     </script>
 </body>

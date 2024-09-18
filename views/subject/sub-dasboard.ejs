@@ -1,5 +1,11 @@
 <head>
     <link rel="stylesheet" href="/css/subjectCss/subject.css">
+    <style>
+        #sub-Detail{
+            display: flex;
+            gap: 15px;
+        }
+    </style>
 </head>
 
 <div class="contant">
@@ -29,11 +35,26 @@
                         </dic>
                     </a>
                     <div class="icon">
-                        <p class="card-infotext">จำนวนงานทั้งหมด <span id="task-lenght">
-                                <%= subjects[i].taskCount %>
-                            </span> งาน</p>
-                            <i class='bx bx-trash-alt delete-alter-btn' data-subject-id="<%= subjects[i]._id %>"></i>
+                        <div id="sub-Detail">
+                            <p class="card-infotext">จำนวนงานทั้งหมด <span id="task-lenght">
+                                    <%= subjects[i].taskCount %> </span> งาน
+                            </p>
+
+                            <!-- Display the profile picture -->
+                            <div class="profile-pictures">
+                                <% if (subjects[i].user && userProfileImages[subjects[i].user.toString()]) { %>
+                                    <img src="<%= userProfileImages[subjects[i].user.toString()] %>" alt="Profile Picture" style="width: 40px; height: 40px; border-radius: 50%;">
+                                <% } %>
+                                <% subjects[i].collaborators.forEach(collaboratorId => { %>
+                                    <% if (collaboratorId && userProfileImages[collaboratorId.toString()]) { %>
+                                        <img src="<%= userProfileImages[collaboratorId.toString()] %>" alt="Profile Picture" style="width: 40px; height: 40px; border-radius: 50%;">
+                                    <% } %>
+                                <% }); %>
+                            </div>
                         </div>
+                        
+                        <i class='bx bx-trash-alt delete-alter-btn' data-subject-id="<%= subjects[i]._id %>"></i>
+                    </div>
                 </div>
             </div>
         <% } %>

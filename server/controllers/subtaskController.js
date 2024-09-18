@@ -1,5 +1,5 @@
 const Task = require("../models/Task");
-const SubTask = require("../models/Subtask");
+const SubTask = require("../models/SubTask");
 
 exports.createSubTask = async (req, res) => {
     try {
@@ -18,9 +18,9 @@ exports.createSubTask = async (req, res) => {
         const newSubTask = new SubTask({
             subtask_Name: subTask,
             task: taskId,
-            user: req.user._id,  // Assuming you have user authentication
+            user: req.user._id,
             subject: task.subject,
-            taskPriority: 'ปกติ',  // Default priority, can be customized
+            taskPriority: 'ปกติ',
         });
 
         await newSubTask.save();
@@ -49,20 +49,18 @@ exports.toggleSubTaskCompletion = async (req, res) => {
   
       const now = new Date();
       let activityLogMessage = '';
-  
-      // Toggle completion status and add activity logs
+
       if (subtask.completed) {
           subtask.completed = false;
-          activityLogMessage = `Subtask "${subtask.subtask_Name}" has been edited at ${formatDateTime(now)}`;
+          activityLogMessage = `"${subtask.subtask_Name}" ถูกแก้ไขเมื่อ ${formatDateTime(now)}`;
       } else {
           subtask.completed = true;
-          activityLogMessage = `Subtask "${subtask.subtask_Name}" is completed at ${formatDateTime(now)}`;
+          activityLogMessage = `"${subtask.subtask_Name}" เสร็จสิ้นเมื่อ ${formatDateTime(now)}`;
       }
   
       subtask.activityLogs.push(activityLogMessage);
       await subtask.save();
   
-      // Update task activity logs
       task.activityLogs.push(activityLogMessage);
       await task.save();
   

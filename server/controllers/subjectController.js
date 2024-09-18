@@ -9,8 +9,16 @@ moment.locale('th');
 exports.SubDashboard = async (req, res) => {
     try {
         const subjects = await Subject.aggregate([
-            { $match: { user: mongoose.Types.ObjectId(req.user.id), deleted: false } },
-            { $project: { SubName: 1, SubDescription: 1, createdAt: 1 } },
+            { 
+                $match: { 
+                    $or: [
+                        { user: mongoose.Types.ObjectId(req.user.id) },
+                        { collaborators: mongoose.Types.ObjectId(req.user.id) }
+                    ],
+                    deleted: false 
+                } 
+            },
+            { $project: { SubName: 1, SubDescription: 1, createdAt: 1, collaborators: 1 } },
             {
                 $lookup: {
                     from: "tasks",
@@ -30,13 +38,25 @@ exports.SubDashboard = async (req, res) => {
             subject.createdAt = moment(subject.createdAt).format('LL');
         });
 
-        const users = await User.find();
-        const count = await Subject.countDocuments({ user: req.user.id, deleted: false });
+        // Fetch users and their profile images
+        let users = await User.find();
+        users = users.filter(user => user._id.toString() !== req.user._id.toString());
+        const uniqueUsers = Array.from(new Set(users.map(user => user._id.toString())))
+            .map(id => users.find(user => user._id.toString() === id));
+
+        // Create a map for user profile images
+        const userProfileImages = uniqueUsers.reduce((acc, user) => {
+            acc[user._id.toString()] = user.profileImage;
+            return acc;
+        }, {});
+
         res.render("subject/sub-dasboard", {
             subjects: subjects,
             userName: req.user.firstName,
             userImage: req.user.profileImage,
-            users: users,
+            users: uniqueUsers, 
+            userProfileImages: userProfileImages,  // Pass userProfileImages to the template
+            currentUser: req.user,
             layout: "../views/layouts/subject",
         });
     } catch (error) {
@@ -44,6 +64,8 @@ exports.SubDashboard = async (req, res) => {
         res.status(500).send("Internal Server Error");
     }
 };
+
+
 
 // create subject
 exports.createSubject = async (req, res) => {
@@ -96,7 +118,8 @@ exports.ShowRecover = async (req, res) => {
                     foreignField: "subject",
                     as: "tasks"
                 }
-            }, {
+            },
+            {
                 $addFields: {
                     taskCount: { $size: "$tasks" }
                 }
@@ -104,11 +127,15 @@ exports.ShowRecover = async (req, res) => {
         ]).exec();
 
         const count = await Subject.countDocuments({ user: req.user.id, deleted: false });
+
+        // Fetch all users
+        const users = await User.find();
+
         res.render("subject/sub-recover", {
             subjects: subjects,
             userName: req.user.firstName,
             userImage: req.user.profileImage,
-            subjects,
+            users: users,  // Pass users to the template
             layout: "../views/layouts/subject",
         });
     } catch (error) {
@@ -116,6 +143,7 @@ exports.ShowRecover = async (req, res) => {
         res.status(500).send("Internal Server Error");
     }
 };
+
 
 // recover Subject
 exports.recoverSubject = async (req, res) => {

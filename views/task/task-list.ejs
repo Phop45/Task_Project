@@ -145,7 +145,7 @@
         }
 
         #add-input-list textarea {
-            width: 350px;
+            width: 320px;
             padding-left: 10px;
             padding-top: 5px;
             border-radius: 5px;
@@ -245,6 +245,17 @@
             width: 100%;
 
         }
+
+        #dueDate{
+            background-color: transparent;
+        }
+
+        .showUserImg img {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
     </style>
 </head>
 
@@ -259,8 +270,16 @@
                     <div>
                         <input type="search" id="searchTask" placeholder="ค้นหางาน...">
                     </div>
-                    <div>
-                        <img src="<%= userImage %>" alt="">
+                    <div class="showUserImg">
+                        <% 
+                        const seenUsers = new Set();
+                        users.forEach(user => {
+                            if (!seenUsers.has(user._id.toString())) {
+                                seenUsers.add(user._id.toString()); %>
+                                <img src="<%= user.profileImage %>" style="width: 30px; height: 30px; border-radius: 50%; margin-right: 5px;">
+                            <% }
+                        }); 
+                        %>
                     </div>
                 </div>
 
@@ -296,11 +315,9 @@
                                     <th> ประเภทงาน </th>
                                     <th> รายละเอียดงาน </th>
                                     <th> วันครบกำหนด </th>
-                                    <th> Tags </th>
                                     <th> ผู้รับผิดชอบ </th>
                                     <th> สถานะ </th>
                                     <th> สร้างเมื่อ </th>
-                                    <th> อัพเดตเมื่อ </th>
                                 </tr>
                             </thead>
 
@@ -318,19 +335,33 @@
                                         <%= taskTypes[i] || "-" %>
                                     </td>
                                     <td>
-                                        <%= taskDetail[i] ? taskDetail[i] : "วิชานี้คือวิชา " + taskNames[i] %>
+                                        <% if (taskDetail[i]) { %>
+                                            <%= taskDetail[i] %>
+                                        <% } else { %>
+                                            <p style="opacity: 0.4; margin-bottom: 0;">ไม่พบรายละเอียดงาน</p>
+                                        <% } %>
                                     </td>
                                     <td>
-                                        <% if (dueDate[i] && dueDate[i] !=='Invalid date' ) { %>
+                                        <% if (dueDate[i] && dueDate[i] !=='ไม่พบข้อมูล' ) { %>
                                             <%= dueDate[i] %>
-                                                <% } else { %>
-                                                    <p style="opacity: 0.4; margin-bottom: 0;">ยังไม่ได้กำหนดวัน</p>
-                                                    <% } %>
+                                        <% } else { %>
+                                            <p style="opacity: 0.4; margin-bottom: 0;">ยังไม่ได้กำหนดวัน</p>
+                                        <% } %>
                                     </td>
-                                    <td> - </td>
                                     <td>
-                                        <img src="<%= userImage %>">
-                                        <%= userName %>
+                                        <% if (tasks[i].assignedUsers.length > 0) { %>
+                                            <% tasks[i].assignedUsers.forEach(user => { %>
+                                                <div style="margin-bottom: 10px; margin-left: 10px; margin-top: 5px;">
+                                                    <img src="<%= user.profileImage %>" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover; max-width: 30px; max-height: 30px; ">
+                                                    <span>> <%= user.displayName %></span>
+                                                </div>
+                                            <% }) %>
+                                        <% } else { %>
+                                            <div>
+                                                <img src="<%= subjects.user.profileImage %>" alt="<%= subjects.user.displayName %>" style="width: 30px; height: 30px; border-radius: 50%;">
+                                                <span><%= subjects.user.displayName %></span>
+                                            </div>
+                                        <% } %>
                                     </td>
                                     <td style="width: max-content;">
                                         <% let backgroundColor; %>
@@ -350,7 +381,7 @@
                                     <td>
                                         <%= createdAt[i] %>
                                     </td>
-                                    <td> อัพเดตเมื่อ </td>
+                                    
                                 </tr>
                                 <% } %>
                                     <tr style="background: transparent;">
@@ -363,7 +394,7 @@
             </div>
 
             <div class="table-input" id="tableInput">
-                <form action="/addTask_listTable" method="POST" class="form">
+                <form action="/addTask_list" method="POST" class="form">
                     <input type="text" id="taskName" name="taskName" style="display: none;"
                         placeholder="+ คุณต้องการทำอะไรให้เสร็จสิ้น">
                     <span id="toggleInput">+ สร้างงาน</span>

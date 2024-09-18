@@ -33,12 +33,12 @@ function changeBackground() {
     var selectWrapper = document.getElementById("selectWrapper");
 
     if (selectedOption.classList.contains("not-done")) {
-        selectWrapper.style.backgroundColor = "#B5C0D0";
+        selectWrapper.style.backgroundColor = "#FF6868";
     } else if (selectedOption.classList.contains("in-progress")) {
-        selectWrapper.style.backgroundColor = "#378CE7";
+        selectWrapper.style.backgroundColor = "#B4B4B8";
         selectWrapper.style.color = "#fff"; // Set font color to white for in-progress
     } else if (selectedOption.classList.contains("completed")) {
-        selectWrapper.style.backgroundColor = "#198754";
+        selectWrapper.style.backgroundColor = "#9BCF53";
         selectWrapper.style.color = "#fff"; // Set font color to white for completed
     }
 }
@@ -49,13 +49,13 @@ function saveBackgroundColor() {
     var fontColor;
 
     if (selectedOption.classList.contains("not-done")) {
-        backgroundColor = "#B5C0D0";
+        backgroundColor = "#B4B4B8";
         fontColor = "#515761"; // Default font color
     } else if (selectedOption.classList.contains("in-progress")) {
-        backgroundColor = "#378CE7";
+        backgroundColor = "#9BCF53";
         fontColor = "#fff"; // Font color for in-progress
     } else if (selectedOption.classList.contains("completed")) {
-        backgroundColor = "#198754";
+        backgroundColor = "#FF6868";
         fontColor = "#fff"; // Font color for completed
     }
 

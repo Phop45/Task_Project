@@ -452,3 +452,7 @@
     border-color: var(--light);
     box-shadow: none;
 }
+
+#collaborators:focus{
+    outline: none;
+}

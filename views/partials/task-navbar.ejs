@@ -1,3 +1,8 @@
+<style>
+    .nav-link{
+        color: gray;
+    }
+</style>
 <ul class="nav nav-tabs">
     <li class="nav-item">
         <a class="nav-link <%= currentPage === 'dashboard' ? 'active' : '' %>" href="/subject/item/<%= subjects._id %>">
@@ -17,21 +22,6 @@
     <li class="nav-item">
         <a class="nav-link <%= currentPage === 'notes' ? 'active' : '' %>" href="/subject/item/<%= subjects._id %>/task_notes">
             <i class='bx bxs-cog' ></i> โน้ต
-        </a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link <%= currentPage === 'notes' ? 'active' : '' %>" href="/subject/item/<%= subjects._id %>/task_notes">
-            <i class='bx bxs-cog' ></i> แชท
-        </a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link <%= currentPage === 'notes' ? 'active' : '' %>" href="/subject/item/<%= subjects._id %>/task_notes">
-            <i class='bx bxs-cog' ></i> เอกสาร
-        </a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link <%= currentPage === 'notes' ? 'active' : '' %>" href="/subject/item/<%= subjects._id %>/task_notes">
-            <i class='bx bxs-cog' ></i> ปฎิทิน
         </a>
     </li>
     <li class="nav-item">

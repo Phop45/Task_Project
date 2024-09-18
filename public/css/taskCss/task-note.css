@@ -191,11 +191,10 @@
   }
   
   .wrapper {
-    margin: 50px;
+    margin: 20px 50px;
     display: grid;
     gap: 40px;
     grid-template-columns: repeat(auto-fill, 265px);
-    justify-content: center;
   }
   
   .wrapper li {
@@ -239,4 +238,8 @@
     color: var(--color1);
     font-weight: 500;
     margin-top: 20px;
+  }
+
+  .nav{
+    padding-left: 50px;
   }
