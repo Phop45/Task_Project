@@ -77,10 +77,11 @@
         }
     </style>
 </head>
-
+  
+<!-- space delete alter -->
 <div class="delete-popup" id="delete-popup">
     <div class="delete-content">
-        <h1 id="deleteText">คุณต้องการลบวิชา <br> ใช่หรือไม่</h1>
+        <h1 id="deleteText"></h1>
     </div>
     <div class="delete-btn">
         <button class="btn" id="delete-btn">ลบ</button>
@@ -92,30 +93,36 @@
 <script>
     document.querySelectorAll(".delete-alter-btn").forEach(function(button) {
         button.addEventListener("click", function() {
-            const subjectId = this.dataset.subjectId;
+            const spaceId = this.dataset.spaceId; // Get space ID from the data attribute
+            const spaceName = this.dataset.spaceName; // Get space Name from the data attribute
+            
+            // Set the delete confirmation text to include the space name
+            document.getElementById("deleteText").innerText = `คุณต้องการลบพื้นที่ ${spaceName} ใช่หรือไม่`;
+            
             document.getElementById("delete-popup").classList.add("show");
             document.getElementById("delete-overlay").classList.add("show-delete-overlay");
-            document.getElementById("delete-btn").dataset.subjectId = subjectId;
+            document.getElementById("delete-btn").dataset.spaceId = spaceId; // Assign spaceId to the delete button
         });
     });
 
+    // Delete the space when the delete button is clicked
     document.getElementById('delete-btn').addEventListener('click', function() {
-        const subjectId = this.dataset.subjectId;
+        const spaceId = this.dataset.spaceId;
 
-        if (!subjectId) {
-            console.error("Subject ID is undefined.");
+        if (!spaceId) {
+            console.error("Space ID is undefined.");
             return;
         }
 
-        fetch(`/subject/${subjectId}`, {
+        fetch(`/space/delete/${spaceId}`, {
             method: 'DELETE',
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Remove the subject card from the DOM
-                const subjectCard = document.querySelector(`.delete-alter-btn[data-subject-id="${subjectId}"]`).closest('.col-sm-6');
-                subjectCard.parentNode.removeChild(subjectCard);
+                // Remove the space card from the DOM
+                const spaceCard = document.querySelector(`.delete-alter-btn[data-space-id="${spaceId}"]`).closest('.col-sm-6');
+                spaceCard.parentNode.removeChild(spaceCard);
                 // Close the delete popup and overlay
                 document.getElementById("delete-popup").classList.remove("show");
                 document.getElementById("delete-overlay").classList.remove("show-delete-overlay");
@@ -127,8 +134,10 @@
         .catch(err => console.error(err));
     });
 
+    // Cancel the delete action and close the popup
     document.getElementById("cancel-btn").addEventListener("click", function() {
         document.getElementById("delete-popup").classList.remove("show");
         document.getElementById("delete-overlay").classList.remove("show-delete-overlay");
     });
 </script>
+

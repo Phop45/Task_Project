@@ -1,0 +1,58 @@
+<head>
+    <link rel="stylesheet" href="/css/subjectCss/subject.css">
+    <style>
+        #sub-Detail{
+            display: flex;
+            gap: 15px;
+        }
+    </style>
+</head>
+
+<div class="contant">
+    <div class="row head">
+        <div class="col">
+          <h1 style="font-weight: 600; font-size: 30px;">พื้นที่ทำงานทั้งหมด</h1>
+        </div>
+        <div class="col text-end">
+            <a href="/subject/recover" class="add-btn btn" id="recover-btn" style="margin-right: 20px;">
+                <i class='bx bx-revision'></i> กู้คืนพื้นที่
+            </a>
+            <a href="#" class="add-btn btn" id="new-task-btn">+ เพิ่มพื้นที่ใหม่</a>
+        </div>
+    </div>
+    <div class="row sub_all">
+        <% for(var i = spaces.length - 1; i >= 0; i--) { %>
+            <div class="col-sm-6 mb-4">
+                <div class="card" style="min-height: 210px">
+                    <a href="/space/item/<%= spaces[i]._id %>" class="card-body text-decoration-none">
+                        <div class="theme"></div>
+                        <div class="text">
+                            <h5 class="card-title"><%= spaces[i].SpaceName %></h5>
+                            <p class="card-text" style="opacity: 0.6;">
+                                <%= spaces[i].SpaceDescription %>
+                            </p>
+                        </div>
+                    </a>
+                    <div class="icon">
+                        <div id="sub-Detail">
+                            <p class="card-infotext">จำนวนงานในพื้นที่ทั้งหมด 
+                                <span id="task-lenght"><%= spaces[i].taskCount %></span> งาน
+                            </p>
+                        </div>
+                        <i class='bx bx-trash-alt delete-alter-btn' 
+                            data-space-id="<%= spaces[i]._id %>" 
+                            data-space-name="<%= spaces[i].SpaceName %>">
+                        </i>
+                    </div>
+                </div>
+            </div>
+        <% } %>
+    </div>
+    
+</div>
+
+<%- include('../space/space-componant/add-popup.ejs') %>
+<%- include('../space/space-componant/delete-alter.ejs') %>
+
+<script src="/script/nav_menu.js"></script>
+<script src="/script/popup.js"></script>

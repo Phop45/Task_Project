@@ -1,5 +1,9 @@
 <head>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://kit.fontawesome.com/3f3f24edf3.js" crossorigin="anonymous"></script>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
     <style>
         :root {
             --line: #d7d9dd;
@@ -476,8 +480,8 @@
         <div class="content">
             <div class="top-option">
                 <div class="breadcomes">
-                    <a href="/subject">subject</a> <span>/</span>
-                    <a href="/subject/item/<%= subjectId %>/task_list">list</a>
+                    <a href="/space">subject</a> <span>/</span>
+                    <a href="/space/item/<%= spaceId %>/task_list">list</a>
                     <span>/</span>
                     <a class="active-detail">
                         <%= taskNames %>
@@ -497,59 +501,77 @@
                         <div class="itemDetail">
                             <div id="firstLine">
                                 <form id="updateTaskForm" action="/updateTask" method="post" class="updateTaskForm1">
-                                    <input type="hidden" name="subjectId" value="<%= subjectId %>">
-                                    <i class='bx bx-sidebar'></i>
-                                    <select id="taskType" name="taskType">
-                                        <option value="" disabled selected>
-                                            <%= taskTypes %>
-                                        </option>
-                                        <option value="งานทั่วไป">ทั่วไป</option>
-                                        <option value="การบ้าน">การบ้าน</option>
-                                        <option value="งานกลุ่ม">กลุ่ม</option>
-                                        <option value="งานแลป">แลป</option>
-                                        <option value="สอบ">สอบ</option>
-                                    </select>
-
-                                    <div class="select-warpper" id="selectWrapper">
-                                        <div>
-                                            <p id="statusText">
-                                                <%= taskStatuses %>
-                                            </p>
+                                    <input type="hidden" name="spaceId" value="<%= spaceId %>">
+                                    <!-- แก้ไขเพิ่ม -->
+                                    <div class="nav-item dropdown taskStatuses">
+                                        <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button"
+                                            data-bs-toggle="dropdown" aria-expanded="false">
+                                            <%= taskStatuses %>
+                                        </a>
+                                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownStatus">
+                                            <li><a class="dropdown-item task-status" href="#" data-status="กำลังทำ">
+                                                <i class="fa-regular fa-circle"></i> กำลังทำ </a>
+                                            </li>
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li><a class="dropdown-item task-status" href="#" data-status="เสร็จสิ้น">
+                                                <i class="fa-solid fa-circle"></i> เสร็จสิ้น </a>
+                                            </li>
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li><a class="dropdown-item task-status" href="#" data-status="แก้ไข">
+                                                <i class="fa-solid fa-circle-half-stroke"></i> แก้ไข </a>
+                                            </li>
+                                        </ul>
+                                        <!-- Next Status Button -->
+                                        <div class="nextStatus" id="nextStatus" style="cursor: pointer;">
+                                            <i class="fa-solid fa-forward"></i>
                                         </div>
-                                        <select id="taskStatuses" name="taskStatuses" onchange="changeBackground()">
-                                            <option value="" disabled selected>
-                                                <%= taskStatuses %>
-                                            </option>
-                                            <option value="กำลังทำ" class="not-done">กำลังทำ</option>
-                                            <option value="เสร็จสิ้น" class="in-progress">เสร็จสิ้น</option>
-                                            <option value="แก้ไข" class="completed">แก้ไข</option>
-                                        </select>
-                                    </div>
+                                      </div>
 
-                                    <select id="taskPriority" name="taskPriority">
-                                        <option value="" disabled selected>
-                                            <%= taskPriority %>
-                                        </option>
-                                        <option value="เร่งด่วน">เร่งด่วน</option>
-                                        <option value="ปกติ">ปกติ</option>
-                                    </select>
-                                    <input type="hidden" name="taskId" value="<%= task._id %>">
+                                    <div class="nav-item dropdown taskPriority">
+                                        <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button"
+                                            data-bs-toggle="dropdown" aria-expanded="false">
+                                            <%= task.taskPriority %>
+                                        </a>
+                                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                            <li><a class="dropdown-item task-priority" href="#" data-priority="ด่วน">
+                                                <i class="fa-solid fa-flag"></i> ด่วน </a>
+                                                <span class="pri_dis">
+                                                    งานที่มีลำดับความสำคัญสูงมีความสำคัญต่อความคืบหน้าของงานโดยรวมและควรดำเนินการโดยเร็วที่สุด
+                                                </span>
+                                            </li>
+                                            <li><hr class="dropdown-divider"></li>
+
+                                            <li><a class="dropdown-item task-priority" href="#" data-priority="ปกติ">
+                                                <i class="fa-solid fa-flag"></i> ปกติ </a>
+                                                <span class="pri_dis">
+                                                    งานที่มีลำดับความสำคัญปานกลางมีความสำคัญแต่ไม่เร่งด่วนเท่างานที่มีลำดับความสำคัญสูง
+                                                </span>
+                                            </li>
+                                            <li><hr class="dropdown-divider"></li>
+
+                                            <li><a class="dropdown-item task-priority" href="#" data-priority="ต่ำ">
+                                                <i class="fa-solid fa-flag"></i> ต่ำ </a>
+                                                <span class="pri_dis">
+                                                    งานที่มีลำดับความสำคัญต่ำสามารถดำเนินการในภายหลังได้
+                                                </span>
+                                            </li>
+                                        </ul>
+                                      </div>
+                                    <!-- แก้ไขเพิ่ม -->
+
+                                    <input type="hidden" id="taskId" value="<%= task._id %>">
+                                    <input type="hidden" id="taskPriority" name="taskPriority" value="<%= task.taskPriority %>">
                                 </form>
                             </div>
 
                             <div class="seccondLine">
-                                <form action="/updateTask" method="post" id="updateTaskForm"
-                                    onsubmit="return validateForm()">
-                                    <h1 class="taskName" id="taskName-text" >
-                                        <%= taskNames %>
-                                    </h1>
+                                <form action="/updateTask" method="post" id="updateTaskForm" onsubmit="return validateForm()">
+                                    <h1 class="taskName" id="taskName-text"><%= taskNames %></h1>
                                     <input type="text" id="taskName" name="taskName" value="<%= taskNames %>" style="display: none;">
-                                    <span id="notiAlert"
-                                        style="font-size: 14px; color: #FF004D; display: none; margin-top: 5px;">*
-                                        กรุณากรอกชื่อโดยไม่ใช้อักขระพิเศษ</span>
-                                    <span id="notiAlertName"
-                                        style="font-size: 14px; color: #FF004D; display: none; margin-top: 5px;">*
-                                        มีชื่อนี้ภายในงานอยู่แล้ว กรุณากรอกชื่อใหม่</span>
+                                    <span id="notiAlert" style="font-size: 14px; color: #FF004D; display: none; margin-top: 5px;">
+                                        * กรุณากรอกชื่อโดยไม่ใช้อักขระพิเศษ
+                                    </span>
+                                
 
                                     <div class="item-detailInfo">
                                         <div id="info">
@@ -597,50 +619,6 @@
                                 </form>
 
                             </div>
-
-                            <div class="thridLine">
-                                <span id="desText">
-                                    <i class="bx bx-calendar-check"></i>
-                                    <h1 class="taskDes">งานย่อย</h1>
-                                </span>
-                                <div class="subTask-input" id="subTask-input">
-                                    <form action="/addSubtask" method="POST" class="subTask-form">
-                                        <input type="text" id="subTask" name="subTask"
-                                            placeholder="+ เพิ่มงานย่อยของคุณเลย" />
-                                        <input type="hidden" name="taskId" value="<%= task._id %>" />
-                                        <button type="submit">เพิ่มงานย่อย</button>
-                                    </form>
-                                </div>
-                            </div>
-
-                            <div class="showSubtask">
-                                <span class="headshowsubtask">
-                                    <i class="bx bx-detail"></i>
-                                    <p>รายละเอียดของงานย่อย</p>
-                                </span>
-                                <div class="detailshowsubtask">
-                                    <ul>
-                                        <% subtasks.forEach(subtask=> { %>
-                                            <li style="width: fit-content"
-                                                class="subtask-item <%= subtask.completed ? 'completed' : '' %>">
-                                                <input type="checkbox" class="checkbox" id="checkbox_<%= subtask._id %>"
-                                                    name="completedSubtask" value="<%= subtask._id %>"
-                                                    onchange="toggleCompletion('<%= subtask._id %>', this)"
-                                                    <%=subtask.completed ? 'checked' : '' %> />
-                                                <div class="condetailshow">
-                                                    <span>
-                                                        <%= subtask.subtask_Name %>
-                                                    </span>
-                                                    <span class="date">
-                                                        (<%= new Date(subtask.createdAt).toLocaleDateString('th-TH') %>)
-                                                    </span>
-                                                </div>
-                                            </li>
-                                            <% }) %>
-                                    </ul>
-                                </div>
-                            </div>
-
                         </div>
                     </div>
                 </div>
@@ -671,6 +649,106 @@
         </div>
 
         <script>
+            // task status //
+            document.querySelectorAll('.taskStatuses .dropdown-item').forEach(item => {
+                item.addEventListener('click', async function (e) {
+                  e.preventDefault(); // Prevent default link behavior
+                  const selectedStatus = this.getAttribute('data-status');
+                  const taskId = document.getElementById('taskId').value; // Get the task ID
+              
+                  document.querySelector('.taskStatuses .nav-link').textContent = selectedStatus;
+              
+                  try {
+                    const response = await fetch('/updateTask', {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({ taskId, taskStatuses: selectedStatus }), // Send updated status
+                    });
+              
+                    if (!response.ok) {
+                      throw new Error('Network response was not ok');
+                    }
+              
+                    // Optionally, refresh the page or display a success message
+                    window.location.reload(); // Reload the page to reflect changes
+                  } catch (error) {
+                    console.error('Error updating task status:', error);
+                  }
+                });
+              });
+            document.getElementById('nextStatus').addEventListener('click', async function () {
+                const currentStatus = document.querySelector('.taskStatuses .nav-link').textContent.trim(); // Get current status
+                const taskId = document.getElementById('taskId').value; // Get task ID
+              
+                // Define the order of statuses
+                const statusOrder = ['กำลังทำ', 'เสร็จสิ้น', 'แก้ไข'];
+              
+                // Find the current status index in the order
+                const currentIndex = statusOrder.indexOf(currentStatus);
+              
+                // Determine the next status (loop back to the beginning if necessary)
+                const nextStatus = statusOrder[(currentIndex + 1) % statusOrder.length];
+              
+                // Update the displayed text in the dropdown
+                document.querySelector('.taskStatuses .nav-link').textContent = nextStatus;
+              
+                try {
+                  // Send an AJAX request to update the task status
+                  const response = await fetch('/updateTask', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ taskId, taskStatuses: nextStatus }), // Send updated status
+                  });
+              
+                  if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                  }
+              
+                  // Optionally, refresh the page or display a success message
+                  window.location.reload(); // Reload the page to reflect changes
+                } catch (error) {
+                  console.error('Error updating task status:', error);
+                }
+              });
+            // task status //
+
+            // task priority //
+            document.querySelectorAll('.taskPriority .dropdown-item').forEach(item => {
+                item.addEventListener('click', async function (e) {
+                  e.preventDefault(); // Prevent default link behavior
+                  const selectedPriority = this.getAttribute('data-priority');
+                  const taskId = document.getElementById('taskId').value; // Get the task ID
+              
+                  // Update the displayed text in the dropdown
+                  document.querySelector('.taskPriority .nav-link').textContent = selectedPriority;
+              
+                  try {
+                    // Send an AJAX request to update the task priority
+                    const response = await fetch('/updateTask', {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({ taskId, taskPriority: selectedPriority }),
+                    });
+              
+                    if (!response.ok) {
+                      throw new Error('Network response was not ok');
+                    }
+              
+                    // Optionally, refresh the page or display a success message
+                    window.location.reload(); // Reload the page to reflect changes
+                  } catch (error) {
+                    console.error('Error updating task priority:', error);
+                  }
+                });
+              });
+            // task priority //
+
             document.addEventListener('DOMContentLoaded', function () {
                 // Array of Thai month names
                 const thaiMonths = [
@@ -724,40 +802,10 @@
             // Close button event listener
             document.getElementById('close_btn').addEventListener('click', function () {
                 const urlParams = new URLSearchParams(window.location.search);
-                const subjectId = urlParams.get('subjectId');
-                window.location.href = `/subject/item/${subjectId}/task_list`;
+                const spacesId = urlParams.get('spacesId');
+                window.location.href = `/space/item/${spacesId}/task_list`;
             });
 
-            // Function to get a random color
-            function getRandomColor() {
-                const letters = "0123456789ABCDEF";
-                let color = "#";
-                for (let i = 0; i < 6; i++) {
-                    color += letters[Math.floor(Math.random() * 16)];
-                }
-                return color;
-            }
-
-            // Get the container element for tags
-            const tagContainer = document.getElementById('inf2_tag');
-
-            // Get the task tags as an array
-            const taskTags = '<%= taskTag %>'.split(',');
-
-            // Define colors for each tag
-            const tagColors = ['#FF5733', '#33FF57', '#5733FF', '#FF3357', '#57FF33'];
-
-            // Create and append tag elements
-            taskTags.forEach((tag, index) => {
-                const tagElement = document.createElement('span');
-                tagElement.textContent = tag.trim(); // Remove extra spaces
-                tagElement.style.backgroundColor = tagColors[index % tagColors.length]; // Apply color
-                tagElement.style.padding = '2px 6px';
-                tagElement.style.marginRight = '5px';
-                tagElement.style.borderRadius = '5px';
-                tagElement.style.color = 'white';
-                tagContainer.appendChild(tagElement);
-            });
 
             document.addEventListener('DOMContentLoaded', () => {
                 const dueDateDisplay = document.getElementById('dueDateDisplay');
@@ -786,84 +834,8 @@
                 });
             });
 
-            function toggleCompletion(subtaskId, radioBtn) {
-                fetch('/toggleSubTaskCompletion', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    body: JSON.stringify({ subtaskId })
-                })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Network response was not ok.');
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        if (data.message === 'Subtask completion status toggled') {
-                            // Refresh the page to reflect the updated status
-                            location.reload();
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                    });
-            }
-
-            document.addEventListener('DOMContentLoaded', function () {
-                const addUserBtn = document.getElementById('addUserBtn');
-                const userListModal = document.getElementById('userListModal');
-                const userList = document.getElementById('userList');
-
-                addUserBtn.addEventListener('click', async () => {
-                    userListModal.style.display = 'block';
-
-                    try {
-                        const response = await fetch('/task/users');
-                        if (!response.ok) {
-                            throw new Error('Network response was not ok');
-                        }
-                        const users = await response.json();
-
-                        userList.innerHTML = '';
-                        users.forEach(user => {
-                            const li = document.createElement('li');
-                            li.textContent = user.displayName || user.firstName + ' ' + user.lastName;
-                            li.dataset.userId = user._id;
-                            li.addEventListener('click', async () => {
-                                const taskId = '<%= task._id %>';
-                                const userId = li.dataset.userId;
-
-                                const response = await fetch('/task/addUserToTask', {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json'
-                                    },
-                                    body: JSON.stringify({ taskId, userId })
-                                });
-
-                                if (response.ok) {
-                                    alert('User added to task');
-                                } else {
-                                    alert('Failed to add user to task');
-                                }
-
-                                userListModal.style.display = 'none';
-                            });
-                            userList.appendChild(li);
-                        });
-                    } catch (error) {
-                        console.error('Fetch error:', error);
-                        alert('Failed to fetch users');
-                    }
-                });
-            });
-
         </script>
         <script src="/script/taskScsript/task-item.js"></script>
         <script src="/script/taskScsript/task-alert.js"></script>
-        <script src="/script/taskScsript/task-changBackground.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 </body>

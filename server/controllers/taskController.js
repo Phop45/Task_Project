@@ -1,12 +1,11 @@
 /// task controller
 const Task = require("../models/Task");
+const Spaces = require('../models/Space');
 const Subject = require("../models/Subject");
 const SubTask = require('../models/SubTask');
 const User = require("../models/User");
 const Notes = require("../models/Notes");
 const moment = require('moment');
-const multer = require('multer');
-const path = require('path');
 moment.locale('th');
 
 const extractTaskParameters = async (tasks) => {
@@ -34,21 +33,21 @@ const extractTaskParameters = async (tasks) => {
 exports.addTask = async (req, res) => {
   try {
     const assignedUsers = req.body.assignedUsers || [];
-    const dueDate = req.body.dueDate ? new Date(req.body.dueDate) : undefined; // Define dueDate
+    const dueDate = req.body.dueDate ? new Date(req.body.dueDate) : undefined;
 
     const newTask = new Task({
       taskName: req.body.taskName,
-      dueDate: dueDate, // Use the defined dueDate
+      dueDate: dueDate,
       taskTag: req.body.taskTag,
       detail: req.body.detail,
       taskType: req.body.taskType,
       user: req.user.id,
-      subject: req.body.subjectId,
+      space: req.body.spaceId, // Change subjectId to spaceId
       assignedUsers: assignedUsers
     });
 
     await newTask.save();
-    res.redirect(`/subject/item/${req.body.subjectId}`);
+    res.redirect(`/space/item/${req.body.spaceId}`); // Change URL accordingly
     console.log(newTask);
   } catch (error) {
     console.log(error);
@@ -64,10 +63,10 @@ exports.addTask_list = async (req, res) => {
       taskTag: req.body.taskTag,
       detail: req.body.detail,
       user: req.user.id,
-      subject: req.body.subjectId
+      space: req.body.spaceId 
     });
     await newTask.save();
-    res.redirect(`/subject/item/${req.body.subjectId}/task_list`);
+    res.redirect(`/space/item/${req.body.spaceId}/task_list`);
     console.log(newTask);
   } catch (error) {
     console.log(error);
@@ -78,42 +77,65 @@ exports.addTask_list = async (req, res) => {
 /// popup เพิ่มงาน จากหน้า list
 exports.addTask2 = async (req, res) => {
   try {
-    const { dueDate, taskName, taskTag, detail, taskType, subjectId } = req.body;
+    const { dueDate, taskName, taskTag, detail, taskType, spaceId } = req.body; 
     const assignedUsers = req.body.assignedUsers || [];
     const parsedDueDate = dueDate ? new Date(dueDate) : undefined;
 
     const newTask = new Task({
       taskName: taskName,
-      dueDate: parsedDueDate,  
+      dueDate: parsedDueDate,
       taskTag: taskTag,
       detail: detail,
       taskType: taskType,
       user: req.user.id,
-      subject: subjectId,
+      space: spaceId,
       assignedUsers: assignedUsers
     });
 
-    // Save the task to the database
     await newTask.save();
 
-    // Redirect to the task list page of the subject
-    res.redirect(`/subject/item/${subjectId}/task_list`);
+    res.redirect(`/space/item/${spaceId}/task_list`); 
   } catch (error) {
     console.log(error);
     res.status(500).send("Internal Server Error");
   }
 };
 
+exports.addTask_board = async (req, res) => {
+  try {
+    const { dueDate, taskName, taskTag, detail, taskType, spaceId } = req.body; 
+    const assignedUsers = req.body.assignedUsers || [];
+    const parsedDueDate = dueDate ? new Date(dueDate) : undefined;
+
+    const newTask = new Task({
+      taskName: taskName,
+      dueDate: parsedDueDate,
+      taskTag: taskTag,
+      detail: detail,
+      taskType: taskType,
+      user: req.user.id,
+      space: spaceId,
+      assignedUsers: assignedUsers
+    });
+
+    await newTask.save();
+
+    res.redirect(`/space/item/${spaceId}/task_board`); 
+  } catch (error) {
+    console.log(error);
+    res.status(500).send("Internal Server Error");
+  }
+};
 
 /// หน้าแดชบอร์ดสรุปงาน
 exports.task_dashboard = async (req, res) => {
   try {
-    const subjectId = req.params.id;
+    const spaceId = req.params.id;
     const userId = req.user.id;
 
-    // Fetch the subject
-    const subject = await Subject.findOne({
-      _id: subjectId,
+    // Fetch the space
+    const space = await Spaces.findOne({
+      _id: spaceId,
       $or: [
         { user: userId },
         { collaborators: userId }
@@ -122,12 +144,12 @@ exports.task_dashboard = async (req, res) => {
     .populate('collaborators', 'displayName profileImage')
     .lean();
 
-    if (!subject) {
-      return res.status(404).send('Subject not found');
+    if (!space) {
+      return res.status(404).send('Space not found');
     }
 
-    // Fetch the tasks with populated user details
-    const tasks = await Task.find({ subject: subjectId })
+    // Fetch tasks related to the space
+    const tasks = await Task.find({ space: spaceId }) // Using spaceId
       .populate({
         path: 'assignedUsers',
         select: 'displayName profileImage'
@@ -139,7 +161,7 @@ exports.task_dashboard = async (req, res) => {
       .lean();
 
     // Collect all unique users (task owners + assigned users)
-    const usersSet = new Map(); // Using Map to avoid duplicates by `_id`
+    const usersSet = new Map();
 
     tasks.forEach(task => {
       // Add task owner if not already in the map
@@ -157,22 +179,27 @@ exports.task_dashboard = async (req, res) => {
       });
     });
 
-    const users = Array.from(usersSet.values()); // Convert map values to an array
+    const users = Array.from(usersSet.values());
 
-    const subtasksCount = await SubTask.countDocuments({ subject: subjectId });
+    // Count subtasks and completed tasks
+    const subtasksCount = await SubTask.countDocuments({ space: spaceId }); // Change subject to space
     const completedTasksCount = tasks.filter(task => task.status === 'เสร็จสิ้น').length;
 
+    // Extract task parameters
     const { taskNames, dueDate, taskStatuses, taskTypes } = await extractTaskParameters(tasks);
 
+    // Format due dates for Thai locale
     const thaiDueDate = dueDate.map(date => moment(date, 'MMMM DD, YYYY').format('LL'));
-    subject.createdAt = moment(subject.createdAt).format('LL');
+    space.createdAt = moment(space.createdAt).format('LL'); // Use space instead of subject
 
+    // Status counts
     const statusCounts = {
       working: tasks.filter(task => task.status === 'กำลังทำ').length,
       complete: tasks.filter(task => task.status === 'เสร็จสิ้น').length,
       fix: tasks.filter(task => task.status === 'แก้ไข').length,
     };
 
+    // Calculate user workload
     const userWorkload = {};
     tasks.forEach(task => {
       task.assignedUsers.forEach(user => {
@@ -183,8 +210,10 @@ exports.task_dashboard = async (req, res) => {
       });
     });
 
+    // Generate colors for chart
     const colors = Object.keys(userWorkload).map(() => `#${Math.floor(Math.random() * 16777215).toString(16)}`);
 
+    // Workload chart data
     const workloadChartData = {
       labels: Object.values(userWorkload).map(user => user.name),
       datasets: [{
@@ -196,8 +225,9 @@ exports.task_dashboard = async (req, res) => {
       }]
     };
 
+    // Render the dashboard
     res.render("task/task-dashboard", {
-      subjects: subject,
+      spaces: space, // Use space instead of subjects
       tasks: tasks,
       taskNames: taskNames,
       taskStatuses: taskStatuses,
@@ -223,37 +253,36 @@ exports.task_dashboard = async (req, res) => {
 
 exports.task_board = async (req, res) => {
   try {
-    const subjectId = req.params.id;
+    const spaceId = req.params.id; // Changed subjectId to spaceId
     const userId = req.user.id;
 
-    // Fetch the subject, allowing access if the user is the owner or a collaborator
-    const subject = await Subject.findOne({
-      _id: subjectId,
+    // Fetch the space, allowing access if the user is the owner or a collaborator
+    const space = await Spaces.findOne({
+      _id: spaceId,
       $or: [
         { user: userId },
         { collaborators: userId }
       ]
-    })
-    .lean();
+    }).lean();
 
-    if (!subject) {
-      return res.status(404).send("Subject not found");
+    if (!space) {
+      return res.status(404).send("Space not found"); // Changed message accordingly
     }
 
     // Fetch the tasks and populate the assignedUsers field with user details
-    const tasks = await Task.find({ subject: subjectId })
-      .populate('assignedUsers', 'profileImage displayName')  // Populate with user profile image and display name
+    const tasks = await Task.find({ space: spaceId }) // Changed subject to space
+      .populate('assignedUsers', 'profileImage displayName')
       .lean();
     
     // Format task creation dates if needed
     tasks.forEach(task => {
-      task.createdAtFormatted = moment(task.createdAt).format('DD-MM'); // Format to 'DD-MM' if required
+      task.createdAtFormatted = moment(task.createdAt).format('DD-MM');
     });
 
     const users = await User.find();
 
     res.render("task/task-board", {
-      subjects: subject,
+      spaces: space, // Changed subjects to spaces
       tasks: tasks,
       users: users,
       user: userId,
@@ -268,46 +297,42 @@ exports.task_board = async (req, res) => {
   }
 };
 
-/// หน้าแสดงงานเป็นลิสต์
+// Task list page
 exports.task_list = async (req, res) => {
   try {
-    const subject = await Subject.findOne({ 
-      _id: req.params.id, 
+    // Fetch the space with collaborators and owner
+    const space = await Spaces.findOne({
+      _id: req.params.id,
       $or: [
-          { user: req.user._id },
-          { collaborators: req.user._id }
+        { user: req.user._id },
+        { collaborators: req.user._id }
       ]
     })
     .populate({
-        path: 'user',
-        select: 'displayName profileImage'
+      path: 'user',
+      select: 'displayName profileImage'
     })
     .lean();
 
-    const tasks = await Task.find({ subject: req.params.id })
-            .populate({
-                path: 'assignedUsers',
-                select: 'displayName profileImage'
-            })
-            .lean();
+    // Fetch the tasks associated with the space
+    const tasks = await Task.find({ space: req.params.id })
+      .populate({
+        path: 'assignedUsers',
+        select: 'displayName profileImage'
+      })
+      .lean();
 
-    // Extract task parameters
-    const { taskNames, taskDetail, taskStatuses, taskTypes, dueDate, createdAt } = await extractTaskParameters(tasks);
+    // Extract the parameters
+    const { taskNames, taskDetail, taskStatuses, taskTypes, dueDate, createdAt, taskPriority, taskTag } = await extractTaskParameters(tasks);
+
+    // Format the dates in Thai
     const thaiDueDate = dueDate.map(date => moment(date).format('DD MMMM'));
     const thaiCreatedAt = createdAt.map(date => moment(date).format('DD MMMM'));
 
-    // Handle specific task details if provided
-    const taskId = req.query.taskId;
-    if (taskId) {
-      const task = await Task.findById(taskId).lean();
-      // Do something with the task if needed
-    }
-
+    // Render the task list page, passing all extracted data
     res.render("task/task-list", {
-      subjects: subject, // Ensure 'subject' is properly passed
-      subjectId: req.params.id,
-      SubName: req.body.SubName,
-      SubDescription: req.body.SubDescription,
+      spaces: space, 
+      spaceId: req.params.id,
       tasks: tasks,
       taskNames: taskNames,
       taskDetail: taskDetail,
@@ -315,7 +340,9 @@ exports.task_list = async (req, res) => {
       taskTypes: taskTypes,
       dueDate: thaiDueDate,
       createdAt: thaiCreatedAt,
-      users: tasks.flatMap(task => task.assignedUsers), // Flatten user details from tasks
+      taskPriority: taskPriority,  // New addition
+      taskTag: taskTag,  // New addition
+      users: tasks.flatMap(task => task.assignedUsers),
       user: req.user.id,
       userName: req.user.firstName,
       userImage: req.user.profileImage,
@@ -334,12 +361,12 @@ exports.deleteTasks = async (req, res) => {
     let taskIds = req.body.taskIds;
     taskIds = taskIds.split(',').filter(id => id);
 
-    const subjectId = req.params.id;
-    const subject = await Subject.findOne({ _id: subjectId, user: req.user.id });
+    const spaceId = req.params.id; 
+    const space = await Spaces.findOne({ _id: spaceId, user: req.user.id });
 
-    await Task.deleteMany({ _id: { $in: taskIds }, subject: subjectId });
+    await Task.deleteMany({ _id: { $in: taskIds }, space: spaceId });
 
-    res.redirect(`/subject/item/${subjectId}/task_list`);
+    res.redirect(`/space/item/${spaceId}/task_list`); 
   } catch (error) {
     console.log(error);
     res.status(500).send("Internal Server Error");
@@ -348,9 +375,9 @@ exports.deleteTasks = async (req, res) => {
 
 exports.ItemDetail = async (req, res) => {
   try {
-    const subject = await Subject.findById({ _id: req.params.id, user: req.user.id }).lean();
+    const spaces = await Spaces.findById({ _id: req.params.id, user: req.user.id }).lean(); // Changed subject to space
     const taskId = req.params.id;
-    const task = await Task.findById(taskId).populate('assignedUsers', 'displayName profileImage').lean(); // Populate assigned users
+    const task = await Task.findById(taskId).populate('assignedUsers', 'displayName profileImage').lean();
     const subtasks = await SubTask.find({ task: taskId }).sort({ createdAt: -1 }).exec();
     const { taskNames, dueDate, taskStatuses, taskTypes, taskDetail, taskPriority, taskTag } = await extractTaskParameters([task]);
     const thaiDueDate = dueDate.map(date => new Date(date).toLocaleDateString('th-TH', {
@@ -374,9 +401,8 @@ exports.ItemDetail = async (req, res) => {
       createdAt: thaiCreatedAt,
       taskPriority: taskPriority,
       taskTag: taskTag,
-      subjects: subject,
-      SubName: req.body.SubName,
-      subjectId: req.query.subjectId,
+      spaces: spaces, 
+      spaceId: req.query.spaceId,
       userName: req.user.firstName,
       userImage: req.user.profileImage,
       layout: "../views/layouts/task",
@@ -395,7 +421,7 @@ const formatDateTime = (date) => {
 
 exports.updateTask = async (req, res) => {
   try {
-    const { taskId, taskName, taskType, taskStatuses, taskPriority, dueDate, taskDetail } = req.body;
+    const { taskId, taskName, taskStatuses, taskPriority, dueDate, taskDetail } = req.body;
     const task = await Task.findById(taskId);
 
     if (!task) {
@@ -405,7 +431,7 @@ exports.updateTask = async (req, res) => {
     let activityLogs = [];
     const now = new Date();
 
-    // Handle updates to task attributes other than due date
+    // Handle updates to task attributes
     if (taskName && taskName !== task.taskName) {
       activityLogs.push(`ชื่อของงานถูกเปลี่ยนเป็น ${taskName} เมื่อ ${formatDateTime(now)}`);
       task.taskName = taskName;
@@ -416,16 +442,12 @@ exports.updateTask = async (req, res) => {
       task.detail = taskDetail;
     }
 
-    if (taskType && taskType !== task.taskType) {
-      activityLogs.push(`ประเภทของงานเปลี่ยนเป็น ${taskType} เมื่อ ${formatDateTime(now)}`);
-      task.taskType = taskType;
-    }
-
     if (taskStatuses && taskStatuses !== task.status) {
       activityLogs.push(`สถานะของงานถูกเปลี่ยนเป็น ${taskStatuses} เมื่อ ${formatDateTime(now)}`);
       task.status = taskStatuses;
     }
 
+    // Handle updates to the task priority
     if (taskPriority && taskPriority !== task.taskPriority) {
       activityLogs.push(`ความสำคัญของงานถูกเปลี่ยนเป็น ${taskPriority} เมื่อ ${formatDateTime(now)}`);
       task.taskPriority = taskPriority;
@@ -436,12 +458,10 @@ exports.updateTask = async (req, res) => {
       task.dueDate = dueDate;
     }
 
-
     task.activityLogs = task.activityLogs.concat(activityLogs);
-
     await task.save();
 
-    res.redirect(`/task/${task._id}/detail`);
+    res.redirect(`/task/${taskId}/detail`);
   } catch (error) {
     console.log(error);
     res.status(500).send("Internal Server Error");
@@ -472,7 +492,7 @@ exports.deleteActivityLog = async (req, res) => {
 
 /// Note
 exports.addNotes = async (req, res) => {
-  const { title, content, noteId, subjectId } = req.body;
+  const { title, content, noteId, spaceId } = req.body; // Changed subjectId to spaceId
 
   try {
     if (noteId) {
@@ -488,12 +508,12 @@ exports.addNotes = async (req, res) => {
         title,
         content,
         user: req.user.id,
-        subject: subjectId
+        space: spaceId // Changed subject to space
       });
       await newNote.save();
     }
 
-    res.redirect(`/subject/item/${subjectId}/task_notes`);
+    res.redirect(`/space/item/${spaceId}/task_notes`); // Changed subject to space
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal Server Error");
@@ -503,27 +523,26 @@ exports.addNotes = async (req, res) => {
 exports.task_notes = async (req, res) => {
   const { id } = req.params;
   try {
-    // Fetch subject details, including collaborators
-    const subject = await Subject.findOne({
+    // Fetch space details, including collaborators
+    const space = await Space.findOne({
       _id: id,
       $or: [
-        { user: req.user.id }, // Owner
-        { collaborators: req.user.id } // Collaborator
+        { user: req.user.id },
+        { collaborators: req.user.id }
       ]
     }).lean();
 
-    // Check if subject was found
-    if (!subject) {
-      return res.status(403).send("Access denied"); // Or redirect to a "not authorized" page
+    if (!space) {
+      return res.status(403).send("Access denied");
     }
 
-    // Fetch all notes related to the subject
-    const notes = await Notes.find({ subject: id })
-      .populate('user', 'profileImage displayName') // Populate user details
+    // Fetch all notes related to the space
+    const notes = await Notes.find({ space: id }) // Changed subject to space
+      .populate('user', 'profileImage displayName')
       .lean();
 
     res.render("task/task-notes", {
-      subjects: subject,
+      spaces: space, // Changed subjects to spaces
       notes: notes,
       user: req.user.id,
       userName: req.user.firstName,
@@ -577,6 +596,7 @@ exports.deleteNote = async (req, res) => {
   }
 };
 
+// Update task status
 exports.updateTaskStatus = async (req, res) => {
   try {
     const { taskId, newStatus } = req.body;

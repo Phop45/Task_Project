@@ -7,9 +7,9 @@ const taskSchema = new Schema({
         type: Schema.ObjectId,
         ref: 'User'
     },
-    subject: {
+    space: {
         type: Schema.ObjectId,
-        ref: 'Subject'
+        ref: 'Space'
     },
     taskName: {
         type: String,
@@ -42,14 +42,9 @@ const taskSchema = new Schema({
         enum: ['กำลังทำ', 'เสร็จสิ้น', 'แก้ไข'],
         default: 'กำลังทำ'
     },
-    taskType: {
-        type: String,
-        enum: ['งานทั่วไป','การบ้าน', 'งานกลุ่ม', 'งานแลป', 'สอบ'],
-        default: 'งานทั่วไป'
-    },
     taskPriority: {
         type: String,
-        enum: ['เร่งด่วน', 'ปกติ'],
+        enum: ['ด่วน', 'ปกติ', 'ต่ำ'],
         default: 'ปกติ'
     },
     activityLogs: {

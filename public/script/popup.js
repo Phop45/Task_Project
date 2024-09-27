@@ -11,7 +11,6 @@ document.getElementById("close-task-btn").addEventListener("click", function() {
     document.getElementById("overlay").classList.add("hide-overlay");
 });
 
-
 // input script
 function validateForm() {
     var subName = document.getElementById("SubName").value;
