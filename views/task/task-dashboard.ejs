@@ -1,818 +1,603 @@
 <head>
-    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" />
+  
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/date-fns/2.25.0/date-fns.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-
+  
     <style>
-        :root {
-            --body-color: #e4e9f7;
-            --sidebar-colot: #fff;
-            --primary-color-light: #f6f5f7;
-            --toggle-color: #ddd;
-            --text-color: #707070;
-            --line: #D7D9DD;
-
-            --color1: #7952B3;
-            --color2: #a788d4;
-            --color3: #E4E9F6;
-            --text: #37352F;
-
-            --text2: #515761;
-            --light: #37352FA6;
-            --more-light: #222220d7;
-            --notYet: #B5C0D0;
-
-            --cancle: #FF004D;
-        }
-
-        .contant {
-            background-color: white;
-            margin: 20px 20px 20px 130px;
-            border-radius: 20px;
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-        }
-
-        .SubName {
-            padding: 30px 0 20px 50px;
-            font-size: 40px;
-        }
-
-        .nav-tabs {
-            padding-left: 50px;
-            font-size: 16px;
-            font-weight: 400;
-        }
-
-        .task-content {
-            display: flex;
-            flex-direction: row;
-            height: 90vh;
-        }
-
-        .task-content .right-bar {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            width: calc(35% - 10px);
-            margin: 30px 0 20px 50px;
-            gap: 40px;
-        }
-
-        .task-content .right-bar .shortcut {
-            display: flex;
-            flex-direction: column;
-            height: fit-content;
-            width: 100%;
-        }
-
-        #SubDescription {
-            padding: 10px 20px;
-            border: 1px solid rgba(55, 53, 47, 0.16);
-            border-radius: 5px;
-            width: 96%;
-            max-height: 20vh;
-            min-height: 20vh;
-            overflow: scroll;
-        }
-
-        #sub-datil {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-        }
-
-        #sub-datil p {
-            margin: 0;
-        }
-
-        #sub-datil p#text {
-            font-weight: 600;
-            padding: 10px;
-            padding-bottom: 0;
-            width: 45%;
-            color: var(--color1);
-        }
-
-        #sub-datil p#detail {
-            width: max-content;
-            padding: 10px;
-            padding-bottom: 0;
-            width: 60%;
-            border-bottom: 1px solid rgba(55, 53, 47, 0.16);
-        }
-
-        .shortcut h1 {
-            font-size: 1.25em;
-            padding-bottom: 10px;
-            padding-left: 10px;
-            border-bottom: 1px solid rgba(55, 53, 47, 0.16);
-            margin-bottom: 0;
-        }
-
-        .shortcut .short-link {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .shortcut a {
-            display: flex;
-            align-items: center;
-            text-decoration: none;
-            min-width: 50px;
-            max-width: calc(100% - 28px);
-            height: 40px;
-            white-space: nowrap;
-            justify-content: flex-start;
-            color: black;
-            border: 1px solid rgba(55, 53, 47, 0.16);
-            border-radius: 5px;
-            font-size: 14px;
-            font-weight: 200;
-            padding: 8px 12px;
-            text-overflow: ellipsis;
-            overflow: hidden;
-            transition: 0.3s;
-        }
-
-        .shortcut a:hover {
-            background-color: var(--primary-color);
-            color: white;
-            font-weight: 400;
-        }
-
-        .shortcut i {
-            padding-right: 15px;
-            font-size: 20px;
-        }
-
-        .task-content {
-            flex: 1;
-            overflow-y: hidden;
-            margin-bottom: 50px;
-        }
-
-        .dashboard {
-            display: flex;
-            flex-direction: column;
-            padding: 0 50px 0 50px;
-            gap: 60px;
-            width: 100%;
-        }
-
-        .dashboard .top-info {
-            height: 220px;
-        }
-
-        .dashboard .row {
-            height: 180px;
-        }
-
-        .dashboard .card {
-            border: none;
-            width: 260px;
-            height: 100px;
-        }
-
-        .dashboard .card-body {
-            border-radius: 5px;
-            background-color: var(--color3);
-            color: var(--text);
-        }
-
-        .card-body .row {
-            padding: 10px 0 10px 10px;
-        }
-
-        .card-body .card-text {
-            font-size: 1.5em;
-            font-weight: 600;
-            padding-top: 20px;
-        }
-
-        .card-body h3 {
-            font-size: 1.5em;
-            font-weight: 600;
-            font-weight: 200;
-        }
-
-        .card-body span {
-            font-weight: 200;
-            font-size: 0.8em;
-        }
-
-        .card-body i {
-            position: relative;
-            font-size: 1.25em;
-            background-color: var(--color1);
-            color: white;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .second-table {
-            display: flex;
-            flex-direction: row;
-            width: 100%;
-        }
-
-        .second-table .donut,
-        .second-table .task-table {
-            border: 1px solid rgba(55, 53, 47, 0.16);
-            border-radius: 10px;
-            padding: 30px;
-        }
-
-        .task-table {
-            max-width: 470px;
-        }
-
-        .donut h1,
-        .task-table h1,
-        .workloadChart h1 {
-            font-size: 1.5em;
-            font-weight: 400;
-            margin-bottom: 20px;
-        }
-
-        .task-table {
-            width: 60%;
-            height: 55vh;
-            margin-left: 20px;
-        }
-
-        .table tbody tr td {
-            vertical-align: middle;
-            max-width: 50px;
-        }
-
-        .table tbody tr td .status {
-            color: white;
-            background-color: #EB5251;
-            padding: 5px;
-            border-radius: 10px;
-            font-size: 14px;
-        }
-
-        .table-responsive {
-            width: 100%;
-            height: 45vh;
-            overflow: auto;
-        }
-
-        .table th {
-            width: 25%;
-            /* Adjust percentage based on the number of columns */
-            text-align: left;
-            /* Adjust text alignment as needed */
-            box-sizing: border-box;
-            /* Ensures padding and border are included in the width */
-        }
-
-
-
-        .sidebar.close {
-            z-index: 0
-        }
-
-        .sidebar-popup {
-            width: 600px;
-            height: 100vh;
-            background-color: white;
-            position: fixed;
-            top: 0;
-            right: -600px;
-            transition: right 1s ease;
-            z-index: 1;
-        }
-
-        .show-sidebar {
-            right: 0;
-        }
-
-        .overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            display: none;
-            z-index: 0;
-        }
-
-        .show-overlay {
-            display: block;
-        }
-
-        .side-top {
-            display: flex;
-            padding: 30px;
-            font-size: 1.25em;
-            color: var(--light);
-            cursor: pointer;
-        }
-
-        .side-top i:hover {
-            background-color: rgba(55, 53, 47, 0.08);
-            color: var(--text);
-        }
-
-        .side-top i {
-            margin-right: 15px;
-            width: 30px;
-            height: 30px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border-radius: 5px;
-            transition: 0.3s;
-        }
-
-        .add-task-form .top-form {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            padding-left: 35px;
-        }
-
-        .top-form p {
-            font-size: 2em;
-            font-weight: 600;
-            padding-left: 20px;
-            margin: 0;
-            color: var(--text);
-        }
-
-        .top-form i {
-            font-size: 1.5em;
-        }
-
-        .add-task-form form {
-            margin-top: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .add-input {
-            padding-left: 35px;
-            display: flex;
-            flex-direction: row;
-        }
-
-        .add-input tbody {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            color: var(--more-light);
-            width: 500px;
-            border-bottom: 1px solid rgba(55, 53, 47, 0.16);
-            padding-bottom: 30px;
-        }
-
-        .add-input td {
-            width: 150px;
-            height: 40px;
-            font-size: 1em;
-        }
-
-        .add-input td i {
-            margin-right: 10px;
-            color: var(--light);
-        }
-
-        .table tbody tr td img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            margin-right: 10px;
-        }
-
-        .add-input input {
-            width: 350px;
-            height: 40px;
-            padding-left: 10px;
-            border-radius: 5px;
-            color: var(--text-color);
-            border: 1px solid var(--line);
-            transition: 0.2s;
-            outline: none;
-            margin-bottom: 5px;
-
-        }
-
-        .add-input input::placeholder,
-        .add-input textarea::placeholder {
-            color: var(--light-text-color);
-            font-weight: 200;
-        }
-
-        .add-input input:hover,
-        .add-input textarea:hover {
-            background-color: rgba(55, 53, 47, 0.08);
-        }
-
-        .add-input textarea {
-            width: 350px;
-            padding-left: 10px;
-            padding-top: 5px;
-            border-radius: 5px;
-            outline: none;
-            text-overflow: ellipsis;
-            color: var(--text-color);
-            transition: 0.2s;
-            border: 1px solid var(--line);
-        }
-
-        .form .all-btn {
-            display: flex;
-            flex-direction: row;
-            justify-content: flex-end;
-            gap: 20px;
-            margin-left: 35px;
-            margin-right: 60px;
-        }
-
-        .form button {
-            height: 40px;
-            width: 100px;
-            border: none;
-            outline: none;
-            border-radius: 5px;
-            font-size: 1em;
-            font-weight: 400;
-            background-color: var(--color2);
-            color: white;
-            transition: 0.2s ease-in;
-            vertical-align: middle;
-        }
-
-        .form button:first-child {
-            background-color: transparent;
-            border: 1px solid rgba(55, 53, 47, 0.16);
-            font-weight: 200;
-            color: var(--text);
-            transition: 0.2s ease-in;
-        }
-
-        .form button:first-child:hover {
-            background-color: rgba(55, 53, 47, 0.16);
-        }
-
-        .form button:hover {
-            background-color: var(--color1);
-        }
-
-        .all-btn button i {
-            font-size: 1.25em;
-            margin-right: 10px;
-            vertical-align: middle;
-        }
-
-
-        #taskType {
-            width: 150px;
-            height: 40px;
-            padding-left: 10px;
-            border: none;
-            border-radius: 5px;
-            color: var(--text);
-            transition: 0.2s;
-            outline: none;
-            text-overflow: ellipsis;
-            border: 1px solid rgba(55, 53, 47, 0.16);
-        }
-
-        .dropdown-clicked {
-            /* Add your custom styles here */
-            /* For example: */
-            border: 2px solid red;
-            background-color: black;
-        }
-
-        .card-dashboard {
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .user-info {
-            display: flex;
-            /* Aligns image and text on the same line */
-            align-items: center;
-            /* Vertically centers the items */
-            overflow: hidden;
-            /* Hides any overflow content */
-        }
-
-        .user-info img {
-            width: 30px;
-            /* Sets width of the image */
-            height: 30px;
-            /* Sets height of the image */
-            border-radius: 50%;
-            /* Makes the image circular */
-            margin-right: 10px;
-            /* Adds space between the image and text */
-        }
-
-        .user-info .ellipsis {
-            white-space: nowrap;
-            /* Prevents text from wrapping */
-            overflow: hidden;
-            /* Hides overflowed content */
-            text-overflow: ellipsis;
-            /* Adds ellipsis for overflowed text */
-            max-width: calc(100% - 40px);
-            /* Adjusts the maximum width considering image width and margin */
-        }
-
-        .table td {
-            max-width: 200px;
-            /* Limits the width of the table cell */
-            overflow: hidden;
-            /* Hides any overflowed content */
-            white-space: nowrap;
-            /* Prevents text from wrapping */
-        }
-
-        .workloadChart {
-            border: 1px solid rgba(55, 53, 47, 0.16);
-            border-radius: 10px;
-            padding: 30px;
-        }
+      @import url("https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+  
+      * {
+        font-family: "Kanit", sans-serif;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+  
+      :root {
+        --body-color: #e4e9f7;
+        --sidebar-colot: #fff;
+        --primary-color-light: #f6f5f7;
+        --toggle-color: #ddd;
+        --text-color: #707070;
+        --line: #d7d9dd;
+  
+        --color1: #7952b3;
+        --color2: #a788d4;
+        --color3: #e4e9f6;
+        --text: #37352f;
+  
+        --text2: #515761;
+        --light: #37352fa6;
+        --more-light: #222220d7;
+        --notYet: #b5c0d0;
+  
+        --cancle: #ff004d;
+      }
+  
+      .contant {
+        background-color: white;
+        margin: 20px 20px 20px 130px;
+        border-radius: 20px;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+      }
+  
+      .SubName {
+        padding: 30px 0 20px 50px;
+        font-size: 40px;
+      }
+  
+      .nav-tabs {
+        padding-left: 50px;
+        font-size: 16px;
+        font-weight: 400;
+      }
+  
+      .task-content {
+        display: flex;
+        flex-direction: row;
+        height: 90vh;
+      }
+  
+      .task-content .right-bar {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        width: calc(35% - 10px);
+        margin: 30px 0 20px 50px;
+        gap: 40px;
+      }
+  
+      .task-content .right-bar .shortcut {
+        display: flex;
+        flex-direction: column;
+        height: fit-content;
+        width: 100%;
+      }
+  
+      #SubDescription {
+        padding: 10px 20px;
+        border: 1px solid rgba(55, 53, 47, 0.16);
+        border-radius: 5px;
+        width: 96%;
+        max-height: 20vh;
+        min-height: 20vh;
+        overflow: scroll;
+      }
+  
+      #sub-datil {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+      }
+  
+      #sub-datil p {
+        margin: 0;
+      }
+  
+      #sub-datil p#text {
+        font-weight: 600;
+        padding: 10px;
+        padding-bottom: 0;
+        width: 45%;
+        color: var(--color1);
+      }
+  
+      #sub-datil p#detail {
+        width: max-content;
+        padding: 10px;
+        padding-bottom: 0;
+        width: 60%;
+        border-bottom: 1px solid rgba(55, 53, 47, 0.16);
+      }
+  
+      .shortcut h1 {
+        font-size: 1.25em;
+        padding-bottom: 10px;
+        padding-left: 10px;
+        border-bottom: 1px solid rgba(55, 53, 47, 0.16);
+        margin-bottom: 0;
+      }
+  
+      .shortcut .short-link {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 15px;
+      }
+  
+      .shortcut a {
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+        min-width: 50px;
+        max-width: calc(100% - 28px);
+        height: 40px;
+        white-space: nowrap;
+        justify-content: flex-start;
+        color: black;
+        border: 1px solid rgba(55, 53, 47, 0.16);
+        border-radius: 5px;
+        font-size: 14px;
+        font-weight: 200;
+        padding: 8px 12px;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        transition: 0.3s;
+      }
+  
+      .shortcut a:hover {
+        background-color: var(--primary-color);
+        color: white;
+        font-weight: 400;
+      }
+  
+      .shortcut i {
+        padding-right: 15px;
+        font-size: 20px;
+      }
+  
+      .task-content {
+        flex: 1;
+        overflow-y: hidden;
+        margin-bottom: 50px;
+      }
+  
+      .dashboard {
+        display: flex;
+        flex-direction: column;
+        padding: 0 50px 0 50px;
+        gap: 60px;
+        width: 100%;
+      }
+  
+      .sidebar.close {
+        z-index: 0;
+      }
+  
+      .sidebar-popup {
+        width: 600px;
+        height: 100vh;
+        background-color: white;
+        position: fixed;
+        top: 0;
+        right: -600px;
+        transition: right 1s ease;
+        z-index: 1;
+      }
+  
+      .dashboard {
+        display: grid;
+        grid-template-areas:
+          'top-dash'
+          'last-dash';
+        gap: 10px;
+      }
+  
+      .top-dash {
+        width: 100%;
+        height: 350px;
+        margin-top: 50px;
+        display: flex;
+      }
+  
+      .status-task {
+        margin: 0 4% 0 0;
+        width: 28%;
+        border: #E9EBEF solid 2px;
+        border-radius: 20px;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+  
+      .status-task h5 {
+        align-items: start;
+        margin: 20px 0 0 30px;
+      }
+  
+      .pie {
+        padding: 0 20px 20px 20px;
+        width: 100%;
+        height: 300px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+  
+      .workload-task {
+        margin: 0 4% 0 0;
+        width: 68%;
+        border: #E9EBEF solid 2px;
+        border-radius: 20px;
+        position: relative;
+      }
+  
+      .workload-task h5 {
+        margin: 20px 0 0 30px;
+      }
+  
+      .maxgraph {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 20px;
+      }
+  
+      .member-workload {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border: 1px solid #E9EBEF;
+        border-radius: 5px;
+        padding: 10px;
+        font-size: 14px;
+        position: relative;
+      }
+  
+      .progress-bar {
+        height: 20px;
+        border-radius: 5px;
+        position: relative;
+        width: 80%;
+        background-color: #E9EBEF;
+      }
+  
+      .progress-bar span {
+        display: block;
+        height: 100%;
+        background-color: #9BCF53;
+        border-radius: 5px;
+      }
+  
+      .progress-text {
+        font-weight: bold;
+        color: #37352f;
+        padding-left: 10px;
+        width: 20%;
+      }
+  
+      .member-workload {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        border: 1px solid #E9EBEF;
+        border-radius: 5px;
+        padding: 10px;
+        font-size: 14px;
+        position: relative;
+        gap: 10px;
+        /* เพิ่มช่องว่างระหว่างรูปภาพกับแถบ */
+      }
+  
+      .profile-picture {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 1px solid #E9EBEF;
+      }
+  
+      .progress-bar {
+        height: 20px;
+        border-radius: 5px;
+        position: relative;
+        width: 90%;
+        /* ปรับขนาดแถบ */
+        background-color: #E9EBEF;
+      }
+  
+      .progress-text {
+        font-weight: bold;
+        color: #37352f;
+        padding-left: 10px;
+        width: 5%;
+      }
+  
+      .last-dash {
+        width: 100%;
+        margin: 50px 0;
+        display: flex;
+      }
+  
+      .left-graph {
+        width: 27%;
+        margin: 0 4% 0 0;
+      }
+  
+      .left-graph-sub {
+        height: 350px;
+        border: #E9EBEF solid 2px;
+        border-radius: 20px;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+      }
+  
+      .left-graph-sub h5 {
+        margin: 20px 0 0 30px;
+      }
+  
+      .left-graph-sub .priority-graph {
+        padding: 0 20px 0 20px;
+        width: 100%;
+        height: 300px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+  
+      .sum-work {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+  
+      .sum-work #sum-work {
+        padding: 10px;
+        margin: 20px 0;
+        border: #E9EBEF solid 2px;
+        border-radius: 20px;
+        display: flex;
+      }
+  
+      .sum-work img {
+        width: 50px;
+      }
+  
+      .sum-work .textwork {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        position: relative;
+      }
+  
+      .sum-work label {
+        margin-left: 10px;
+      }
+  
+      .count {
+        font-weight: bold;
+        position: absolute;
+        right: 0;
+        /* ติดขอบขวาของ container */
+      }
+  
+      .right-table {
+        margin: 0 4% 0 0;
+        width: 68%;
+        border: #E9EBEF solid 2px;
+        border-radius: 20px;
+        position: relative;
+      }
+  
+      .right-table .work-table {
+        padding: 20px;
+        display: contents;
+        height: 100%;
+      }
+  
+  
+      .right-table h5 {
+        margin: 20px 0 0 30px;
+      }
+  
+      .right-table img {
+        margin: 10px;
+        width: 90%;
+        object-fit: cover;
+      }
     </style>
-</head>
-
-<div class="contant">
-    <h1 class="SubName">
-        <%= spaces.SpaceName %>
-    </h1>
+  </head>
+  
+  <div class="contant">
+    <h1 class="SubName"><%= spaces.SpaceName %></h1>
     <%- include('../task/task_component/task-navbar.ejs') %>
-
-            <div class="dashboard">
-                <div class="top-info">
-                    <div class="row">
-                        <div class="card-dashboard">
-                            <div class="card">
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-3">
-                                            <div class="icon icon-box-success ">
-                                                <i class='bx bx-task'></i>
-                                            </div>
-                                        </div>
-                                        <h6 class="card-text">งานทั้งหมด</h6>
-                                        <div class="col-9">
-                                            <div class="d-flex align-items-center align-self-start">
-                                                <h3 class="mb-0">
-                                                    <%= tasks.length %> <span>งาน</span>
-                                                </h3>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="card">
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-3">
-                                            <div class="icon icon-box-success ">
-                                                <i class='bx bx-sitemap' style="background-color: #E89271;"></i>
-                                            </div>
-                                        </div>
-                                        <h6 class="card-text">งานย่อยทั้งหมด</h6>
-                                        <div class="col-9">
-                                            <div class="d-flex align-items-center align-self-start">
-                                                <h3 class="mb-0">
-                                                    <%= subtasksCount %> <span>งาน</span>
-                                                </h3>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="card">
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-3">
-                                            <div class="icon icon-box-success ">
-                                                <i class='bx bx-check' style="background-color: #9BCF53;"></i>
-                                            </div>
-                                        </div>
-                                        <h6 class="card-text">งานที่เสร็จสิ้น</h6>
-                                        <div class="col-9">
-                                            <div class="d-flex align-items-center align-self-start">
-                                                <h3 class="mb-0">
-                                                    <%= completedTasksCount %> <span>ชม</span>
-                                                </h3>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="second-table">
-                    <div class="donut">
-                        <h1>ชาร์ตแสดงปริมาณงาน</h1>
-                        <canvas id="statusChart" width="300" height="350"></canvas>
-                    </div>
-
-                    <div class="task-table">
-                        <h1>ตารางงาน</h1>
-                        <div class="table-responsive">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th>ชื่องาน</th>
-                                        <th>ผู้รับมอบหมาย</th>
-                                        <th>สถานะ</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <% for (let i=taskNames.length - 1; i>= 0; i--) { %>
-                                        <tr class="task-row" data-task-id="<%= tasks[i]._id %>"
-                                            onclick="redirectToTaskDetail('<%= tasks[i]._id %>')">
-                                            <td>
-                                                <%= taskNames[i] %>
-                                            </td>
-                                            <td>
-                                                <% if (tasks[i].assignedUsers.length> 0) { %>
-                                                    <% tasks[i].assignedUsers.forEach(user=> { %>
-                                                        <div class="user-info" style="margin: 5px 0 10px;">
-                                                            <img src="<%= user.profileImage %>"
-                                                                style="width: 30px; height: 30px; border-radius: 50%; object-fit: cover;">
-                                                            <span class="ellipsis">
-                                                                <%= user.displayName %>
-                                                            </span>
-                                                        </div>
-                                                        <% }) %>
-                                                            <% } else { %>
-                                                                <div class="user-info" style="margin: 5px 0 10px;">
-                                                                    <img src="<%= spaces.user.profileImage %>"
-                                                                        alt="<%= spaces.user.displayName %>"
-                                                                        style="width: 30px; height: 30px; border-radius: 50%; object-fit: cover;">
-                                                                    <span class="ellipsis">
-                                                                        <%= spaces.user.displayName %>
-                                                                    </span>
-                                                                </div>
-                                                                <% } %>
-                                            </td>
-                                            <td>
-                                                <% let backgroundColor; %>
-                                                    <% if (taskStatuses[i]==='กำลังทำ' ) { %>
-                                                        <% backgroundColor='#B4B4B8' ; %>
-                                                            <% } else if (taskStatuses[i]==='เสร็จสิ้น' ) { %>
-                                                                <% backgroundColor='#9BCF53' ; %>
-                                                                    <% } else if (taskStatuses[i]==='แก้ไข' ) { %>
-                                                                        <% backgroundColor='#FF6868' ; %>
-                                                                            <% } %>
-                                                                                <div class="status"
-                                                                                    style="background-color: <%= backgroundColor %>;">
-                                                                                    <%= taskStatuses[i] %>
-                                                                                </div>
-                                            </td>
-                                        </tr>
-                                        <% } %>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-
-                </div>
-
-            </div>
+    <div class="dashboard">
+      <div class="top-dash">
+        <div class="status-task">
+          <h5>สถานะของงาน</h5>
+          <div class="pie">
+            <canvas id="statusChart"></canvas>
+          </div>
         </div>
-<%- include('../task/task_component/dashboard_addPopup.ejs') %>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const workloadData = <% - workloadChartData %>;
-
-            // Function to generate a random pastel color
-            function getRandomPastelColor() {
-                const r = Math.floor(Math.random() * 127 + 128);
-                const g = Math.floor(Math.random() * 127 + 128);
-                const b = Math.floor(Math.random() * 127 + 128);
-                return `rgba(${r}, ${g}, ${b}, 0.6)`;
-            }
-
-            // Assign a unique random pastel color to each dataset and remove borders
-            workloadData.datasets.forEach((dataset) => {
-                dataset.backgroundColor = dataset.data.map(() => getRandomPastelColor());
-                dataset.borderWidth = 0; // Remove the outlines
-            });
-
-            // Workload Chart (Bar Chart)
-            const ctxWorkload = document.getElementById('workloadChart').getContext('2d');
-            new Chart(ctxWorkload, {
-                type: 'bar',
-                data: workloadData,
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                            align: 'start'
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function (tooltipItem) {
-                                    return `ภาระงาน: ${tooltipItem.raw} งาน`;
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            stacked: true,
-                            title: {
-                                display: true,
-                                text: 'ผู้ใช้'
-                            },
-                            grid: {
-                                display: false // Remove x-axis grid lines
-                            }
-                        },
-                        y: {
-                            stacked: true,
-                            title: {
-                                display: true,
-                                text: 'ภาระงาน'
-                            },
-                            ticks: {
-                                stepSize: 1,
-                                callback: function (value) {
-                                    return value;
-                                }
-                            },
-                            grid: {
-                                display: false // Remove y-axis grid lines
-                            }
-                        }
+        <div class="workload-task">
+          <h5>ปริมาณงานของสมาชิก</h5>
+          <div class="maxgraph">
+            <div class="member-workload">
+              <img src="/img/images.jpeg" alt="User 1" class="profile-picture"> <!-- รูปภาพของผู้ใช้ -->
+              <div class="progress-bar">
+                <span style="width: 60%;"></span> <!-- เปอร์เซ็นต์งานที่เสร็จ -->
+              </div>
+              <div class="progress-text">60%</div> <!-- แสดงเปอร์เซ็นต์งานที่เสร็จ -->
+            </div>
+  
+            <div class="member-workload">
+              <img src="/img/images.jpeg" alt="User 2" class="profile-picture">
+              <div class="progress-bar">
+                <span style="width: 80%;"></span>
+              </div>
+              <div class="progress-text">80%</div>
+            </div>
+  
+            <div class="member-workload">
+              <img src="/img/images.jpeg" alt="User 3" class="profile-picture">
+              <div class="progress-bar">
+                <span style="width: 45%;"></span>
+              </div>
+              <div class="progress-text">45%</div>
+            </div>
+          </div>
+  
+        </div>
+      </div>
+      <div class="last-dash">
+        <div class="left-graph">
+          <div class="left-graph-sub">
+            <h5>การแบ่งลำดับความสำคัญ</h5>
+            <div class="priority-graph">
+              <canvas id="priorityChart" width="300" height="290"></canvas>
+            </div>
+          </div>
+          <div class="sum-work">
+            <div class="allwork" id="sum-work">
+                <img src="/img/allwork.jpg" alt="งานทั้งหมด">
+              <div class="textwork">
+                <label>งานทั้งหมด</label>
+                <div class="count"><%= tasks.length %><span>งาน</span></div>
+  
+              </div>
+            </div>
+            <div class="subtask" id="sum-work">
+                <img src="/img/subtask.jpg" alt="งานย่อยทั้งหมด">
+              <div class="textwork">
+                <label>งานย่อยทั้งหมด</label>
+                <div count><%= subtasksCount %><span>งาน</span></div>
+              </div>
+            </div>
+            <div class="succeedtask" id="sum-work">
+                <img src="/img/succeedtask.jpg" alt="งานที่เสร็จสิ้น">
+              <div class="textwork">
+                <label>งานที่เสร็จสิ้น</label>
+                <div class="count"><%= completedTasksCount %><span>งาน</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+  
+        <div class="right-table">
+          <h5>ลิสต์งานทั้งหมดภายในพื้นที่</h5>
+          <div class="work-table"> <img src="/img/task-dash.jpg" alt="Task Dashboard">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <%- include('../task/task_component/dashboard_addPopup.ejs') %>
+  <script src="public/script/taskScript/task-dashboard.js"></script>
+  <script src="/script/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const statusData = {
+            labels: ['กำลังทำ', 'เสร็จสิ้น', 'แก้ไข'],
+            datasets: [{
+              data: [
+                <%= statusCounts.working %>,
+                <%= statusCounts.complete %>,
+                <%= statusCounts.fix %>
+              ],
+              backgroundColor: ['#B4B4B8', '#9BCF53', '#FF6868'],
+              hoverBackgroundColor: ['#C7C8CC', '#BFEA7C', '#FF8F8F']
+            }]
+          };
+        
+          // ตรวจสอบว่าข้อมูลทั้งหมดเป็น 0 หรือไม่
+          function isDataEmpty(dataArray) {
+            return dataArray.every(value => value === 0);
+          }
+        
+          // สร้างกราฟ
+          const ctxStatus = document.getElementById('statusChart').getContext('2d');
+          const chartConfig = {
+            type: 'pie', // เปลี่ยนเป็น Pie Chart
+            data: statusData,
+            options: {
+              responsive: true,
+              plugins: {
+                legend: {
+                  position: 'top',
+                },
+                tooltip: {
+                  callbacks: {
+                    label: function(tooltipItem) {
+                      return `สถานะ: ${tooltipItem.label} (${tooltipItem.raw})`;
                     }
+                  }
                 }
-            });
-
-            // Data for status chart
-            const statusData = {
-                labels: ['กำลังทำ', 'เสร็จสิ้น', 'แก้ไข'],
-                datasets: [{
-                    data: [
-              <%= statusCounts.working %>,
-              <%= statusCounts.complete %>,
-              <%= statusCounts.fix %>
-            ],
-                    backgroundColor: ['#B4B4B8', '#9BCF53', '#FF6868'],
-                    hoverBackgroundColor: ['#C7C8CC', '#BFEA7C', '#FF8F8F']
-                }]
+              }
+            }
+          };
+        
+          // หากข้อมูลเป็น 0 ทั้งหมด แสดงข้อความบอกว่าไม่มีงาน
+          if (isDataEmpty(statusData.datasets[0].data)) {
+            chartConfig.data = {
+              labels: ['ไม่มีข้อมูล'],
+              datasets: [{
+                data: [1], // ค่าข้อมูลกราฟที่ทำให้แสดงวงกลมว่าง
+                backgroundColor: ['#E0E0E0'], // สีของกราฟที่ไม่มีข้อมูล
+                hoverBackgroundColor: ['#E0E0E0']
+              }]
             };
-
-            function isDataEmpty(dataArray) {
-                return dataArray.every(value => value === 0);
-            }
-
-            // Status Chart (Doughnut Chart)
-            const ctxStatus = document.getElementById('statusChart').getContext('2d');
-            new Chart(ctxStatus, {
-                type: 'doughnut',
-                data: statusData,
-                options: {
-                    cutout: '60%',
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function (tooltipItem) {
-                                    return `สภานะ: ${tooltipItem.label} (${tooltipItem.raw})`;
-                                }
-                            }
-                        }
+            chartConfig.options.plugins.tooltip.enabled = false; // ปิด tooltip เพราะไม่มีข้อมูลจริง
+          }
+        
+          new Chart(ctxStatus, chartConfig);
+          const priorityData = {
+            labels: ['ยังไม่ได้กำหนด', 'สูง', 'ปกติ', 'ต่ำ'],
+            datasets: [{
+              label: 'งาน',
+              data: [4, 2, 1, 3], // จำนวนงานในแต่ละระดับ
+              backgroundColor: ['#d3d3d3', '#ff4c4c', '#ffa500', '#800080'], // สีของแต่ละระดับ
+              borderColor: ['#c0c0c0', '#e60000', '#cc8400', '#660066'], // สีขอบ
+              borderWidth: 1
+            }]
+          };
+        
+          const priorityConfig = {
+            type: 'bar',
+            data: priorityData,
+            options: {
+              scales: {
+                y: {
+                  beginAtZero: true,
+                  max: 10
+                },
+                x: {
+                  ticks: {
+                    font: {
+                      size: 9 // กำหนดขนาดฟอนต์สำหรับป้ายชื่อในแกน X
                     }
+                  }
                 }
-            });
-        });
-    </script>
-    <script src="/script/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+              },
+              plugins: {
+                legend: {
+                  display: false // ซ่อนคำอธิบายใต้กราฟ
+                }
+              }
+            }
+          };
+        
+          const ctxPriority = document.getElementById('priorityChart').getContext('2d');
+          ctxStatus.canvas.height = 250; // กำหนดความสูงของกราฟ
+          new Chart(ctxPriority, priorityConfig);
+    });
+  </script>

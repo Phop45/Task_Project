@@ -3,14 +3,6 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const subTaskSchema = new Schema({
-    user: {
-        type: Schema.ObjectId,
-        ref: 'User'
-    },
-    subject: {
-        type: Schema.ObjectId,
-        ref: 'Subject'
-    },
     task: {
         type: Schema.ObjectId,
         ref: 'Task'
@@ -19,10 +11,6 @@ const subTaskSchema = new Schema({
         type: String,
         required: true
     },
-    subtaskDetail: {
-        type: String,
-        default: ''
-    },
     subTask_dueDate: {
         type: Date
     },
@@ -30,14 +18,10 @@ const subTaskSchema = new Schema({
         type: Date,
         default: Date.now()
     },
-    taskPriority: {
+    subTask_status: {
         type: String,
-        enum: ['เร่งด่วน', 'ปกติ'],
-        default: 'ปกติ'
-    },
-    completed: {
-        type: Boolean,
-        default: false
+        enum: ['กำลังทำ', 'เสร็จสิ้น'],
+        default: 'กำลังทำ'
     },
     activityLogs: {
         type: [String],

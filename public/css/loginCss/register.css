@@ -23,8 +23,8 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
   background: var(--body-color);
+  
 }
 
 .warpper {
@@ -36,7 +36,7 @@ body {
 }
 
 .warpper .title {
-  font-size: 30px;
+  font-size: 25px;
   text-align: center;
 }
 
@@ -53,7 +53,7 @@ body {
 .warpper .input-box {
   position: relative;
   width: 100%;
-  margin: 20px 0 5px 0;
+  margin: 10px 0 5px 0;
 }
 
 .input-box input {
@@ -130,7 +130,7 @@ body {
   background: var(--primary-color);
   border: none;
   outline: none;
-  border-radius: 10px;
+  border-radius: 100px;
   cursor: pointer;
   font-size: 16px;
   color: white;
@@ -164,7 +164,7 @@ body {
   /* Adjust the height as needed */
   border: 2px solid var(--text-color);
   outline: none;
-  border-radius: 10px;
+  border-radius: 100px;
   cursor: pointer;
   font-size: 16px;
   color: var(--text-color);

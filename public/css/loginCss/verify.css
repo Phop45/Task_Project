@@ -25,6 +25,7 @@ body {
   align-items: center;
   height: 100vh;
   background: var(--body-color);
+  
 }
 
 .header-wrapper {
@@ -62,13 +63,13 @@ body {
   text-align: center;
 }
 
-.input-group {
+.inputgroup {
   position: relative;
   width: 100%;
   margin: 20px 0;
 }
 
-.input-group input {
+.inputgroup input {
   width: 100%;
   background: white;
   border: none;
@@ -80,15 +81,15 @@ body {
   margin-top: 10px;
 }
 
-.input-group input::placeholder {
+.inputgroup input::placeholder {
   color: var(--text-color);
 }
 
-.button-group {
+.buttongroup {
   margin-top: 20px;
 }
 
-.button-group button {
+.buttongroup button {
   width: 100%;
   height: 50px;
   background: var(--primary-color);
@@ -101,16 +102,16 @@ body {
   font-weight: 600;
   transition: 0.3s;
 }
-.button-group button:hover,
-.button-group button:focus {
+.buttongroup button:hover,
+.buttongroup button:focus {
   background-color: #000000;
   color: #ffffff;
 }
-.button-group button:active {
+.buttongroup button:active {
   background: #000000;
   color: rgba(255, 255, 255, 0.7);
 }
-.button-group button:disabled {
+.buttongroup button:disabled {
   cursor: not-allowed;
   background: rgba(0, 0, 0, 0.08);
   color: rgba(0, 0, 0, 0.3);
@@ -164,14 +165,8 @@ body {
   color: #155724;
   border: 1px solid #c3e6cb;
 }
-/* Tooltip styles */
-.tooltip {
-  position: relative;
-  display: inline-block;
-  cursor: pointer;
-}
 
-.tooltip .tooltiptext {
+.tooltiptext {
   visibility: hidden;
   width: 160px;
   background-color: #333;
@@ -189,7 +184,7 @@ body {
   font-size: 14px;
 }
 
-.tooltip .tooltiptext::after {
+.tooltiptext::after {
   content: "";
   position: absolute;
   top: 100%; /* At the bottom of the tooltip */
@@ -200,7 +195,7 @@ body {
   border-color: #333 transparent transparent transparent;
 }
 
-.tooltip:hover .tooltiptext {
+.tooltiptext {
   visibility: visible;
   opacity: 1;
 }

@@ -1,10 +1,16 @@
-// sub task routes
+// server/routes/subtaskRoutes.js
 const express = require('express');
 const router = express.Router();
 const subTaskController = require('../controllers/subtaskController');
 const { isLoggedIn } = require('../middleware/checkAuth');
 
+// Route to add a subtask
 router.post('/addSubtask', isLoggedIn, subTaskController.createSubTask);
-router.post('/toggleSubTaskCompletion', isLoggedIn, subTaskController.toggleSubTaskCompletion);
+
+// Route to toggle the status of a subtask
+router.put('/toggleSubTaskStatus', isLoggedIn, subTaskController.toggleSubTaskStatus);
+router.delete('/deleteSubtask/:id',isLoggedIn, subTaskController.deleteSubtask);
+router.get('/api/subtask/:id', isLoggedIn, subTaskController.getSubtaskDetails);
+router.post('/updateSubtask'),isLoggedIn, subTaskController.updateSubtask;
 
 module.exports = router;

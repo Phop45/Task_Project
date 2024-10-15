@@ -10,18 +10,24 @@
         </a>
     </li>
     <li class="nav-item">
-        <a class="nav-link <%= currentPage === 'task_list' ? 'active' : '' %>" href="/space/item/<%= spaces._id %>/task_list">
-            <i class='bx bx-list-ul' ></i> ลิสต์
-        </a>
-    </li>
-    <li class="nav-item">
         <a class="nav-link <%= currentPage === 'board' ? 'active' : '' %>" href="/space/item/<%= spaces._id %>/task_board">
             <i class='bx bxs-dashboard' ></i> บอร์ด
         </a>
     </li>
     <li class="nav-item">
-        <a class="nav-link <%= currentPage === 'notes' ? 'active' : '' %>" href="/space/item/<%= spaces._id %>/task_notes">
-            <i class='bx bxs-cog' ></i> โน้ต
+        <a class="nav-link <%= currentPage === 'task_list' ? 'active' : '' %>" href="/space/item/<%= spaces._id %>/task_list">
+            <i class='bx bx-list-ul' ></i> ลิสต์
+        </a>
+    </li>
+    
+    <li class="nav-item">
+        <a class="nav-link <%= currentPage === 'task_member' ? 'active' : '' %>" href="/space/item/<%= spaces._id %>/member">
+            <i class='bx bxs-cog' ></i> สมาชิก
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link <%= currentPage === 'pedding-taskr' ? 'active' : '' %>" href="/space/item/<%= spaces._id %>/pedding">
+            <i class='bx bxs-cog' ></i> ตรวจงาน
         </a>
     </li>
     <li class="nav-item">

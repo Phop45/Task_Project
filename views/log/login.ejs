@@ -18,7 +18,11 @@
     <div class="warpper">
         <form action="/login" method="POST">
             <h1 class="title">เข้าสู่ระบบ</h1>
-
+            <% if (locals.error.length > 0) { %>
+                <div class="alert alert-danger">
+                    <%= locals.error %>
+                </div>
+            <% } %>
             <div class="input-box">
                 <span class="span-text">ชื่อผู้ใช้:</span>
                 <input type="text" name="username" placeholder="ชื่อผู้ใช้" required>
@@ -35,9 +39,8 @@
             <!-- Remember me and forgot password -->
             <div class="forgot">
                 <label>
-                    <input type="checkbox" name="remember" id="remember">จดจำฉัน
                 </label>
-                <a href="#">ลืมรหัสผ่าน</a>
+                <a href="/forgot-password">ลืมรหัสผ่าน</a>
             </div>
 
             <button type="submit" class="btn">เข้าสู่ระบบ</button>

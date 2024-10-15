@@ -26,7 +26,6 @@
     <div class="sidebar-popup" id="sidebar-popup">
         <div class="side-top">
             <i class='bx bxs-chevrons-right' id="close-task-btn"></i>
-            <i class='bx bx-expand'></i>
         </div>
 
         <div class="add-task-form">
@@ -45,7 +44,6 @@
                             </td>
                             <td id="td" style="min-width: 350px;">
                                 <input type="text" id="taskName" name="taskName" placeholder="กรอกชื่องาน" required>
-                                <span id="notiAlert">* กรุณากรอกชื่อรายวิชาโดยไม่ใช้อักขระพิเศษ</span>
                             </td>
                         </tr id="tr">
 
@@ -61,23 +59,6 @@
                                 </div>
                             </td>
                         </tr>
-
-
-                        <tr id="tr">
-                            <td id="td">
-                                <i class='bx bxs-purchase-tag-alt'></i>
-                                ประเภทงาน
-                            </td>
-                            <td id="td" style="min-width: 350px;">
-                                <select id="taskType" name="taskType">
-                                    <option value="งานทั่วไป">งานทั่วไป</option>
-                                    <option value="การบ้าน">การบ้าน</option>
-                                    <option value="งานกลุ่ม">งานกลุ่ม</option>
-                                    <option value="งานแลป">งานแลป</option>
-                                    <option value="สอบ">สอบ</option>
-                                </select>
-                            </td>
-                        </tr>
                         <tr id="tr">
                             <td id="td" style="vertical-align: top; padding-top: 5px;">
                                 <i class='bx bxs-receipt'></i>
@@ -88,23 +69,6 @@
                                     placeholder="กรอกรายละเอียดงาน"></textarea>
                             </td>
                         </tr>
-
-                        <tr id="tr">
-                            <td id="td">
-                                <i class='bx bx-user-plus'></i>
-                                เพิ่มบุคคล
-                            </td>
-                            <td id="td" style="min-width: 350px;">
-                                <select id="assignedUsers" name="assignedUsers" multiple>
-                                    <% users.forEach(user=> { %>
-                                        <option value="<%= user._id %>" style="margin-bottom: 10px;">
-                                            > <%= user.displayName %>
-                                        </option>
-                                        <% }) %>
-                                </select>
-                            </td>
-                        </tr>
-
                     </tbody>
                 </table>
                 <input type="hidden" name="spaceId" id="spaceId" value="<%= spaces._id %>">
@@ -119,52 +83,3 @@
     <div class="overlay" id="overlay"></div>
 
 </body>
-<script>
-    document.getElementById('new-task-btn').addEventListener('click', function(event) {
-        event.preventDefault();
-        document.getElementById('sidebar-popup').classList.toggle('show-sidebar');
-        document.getElementById('overlay').classList.toggle('show-overlay');
-    });
-    
-    document.getElementById("close-task-btn").addEventListener("click", function() {
-        document.getElementById("sidebar-popup").classList.remove("show-sidebar");
-        document.getElementById("sidebar-popup").classList.add("hide-sidebar");
-        document.getElementById("overlay").classList.remove("show-overlay");
-        document.getElementById("overlay").classList.add("hide-overlay");
-    });
-
-    function validateForm() {
-        var taskName = document.getElementById("taskName").value;
-
-        if (taskName.trim() === "" || !isAlphanumeric(taskName.charAt(0))) {
-            document.getElementById("notiAlert").style.display = "block";
-            return false;
-        }
-        return true;
-    }
-    function isAlphanumeric(char) {
-        return /^[a-zA-Z0-9ก-๙]+$/.test(char);
-    }
-    document.getElementById("taskName").addEventListener("focus", function () {
-        document.getElementById("notiAlert").style.display = "none";
-    });
-    document.addEventListener('DOMContentLoaded', function () {
-        const dueDateInput = document.getElementById('dueDate');
-
-        // Function to format the date to "day month" in Thai
-        function formatDateToThai(date) {
-            const options = { day: 'numeric', month: 'long' };
-            return new Date(date).toLocaleDateString('th-TH', options);
-        }
-
-        // Event listener for when the user selects a date
-        dueDateInput.addEventListener('change', function () {
-            const selectedDate = this.value;
-            if (selectedDate) {
-                // Update the placeholder with the formatted date
-                this.placeholder = formatDateToThai(selectedDate);
-            }
-        });
-    });
-
-</script>

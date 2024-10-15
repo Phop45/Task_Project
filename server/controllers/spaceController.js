@@ -1,5 +1,6 @@
-//subjectController.js
+//Space Controller
 const Spaces = require('../models/Space');
+const User = require('../models/User');
 const mongoose = require("mongoose");
 const moment = require("moment");
 moment.locale('th');
@@ -140,5 +141,84 @@ exports.recoverSpace = async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ success: false, error: 'Internal Server Error' });
+    }
+};
+
+
+exports.addMember = async (req, res) => {
+    const { searchQuery, role } = req.body;
+    const spaceId = req.spaceId;  // Assuming spaceId is available from the middleware or session
+
+    try {
+        const user = await User.findOne({
+            $or: [
+                { email: searchQuery },
+                { username: searchQuery },
+                { userid: searchQuery }
+            ]
+        });
+
+        if (!user) {
+            return res.json({ success: false, message: 'User not found' });
+        }
+
+        const space = await Space.findById(spaceId);
+
+        if (!space) {
+            return res.json({ success: false, message: 'Space not found' });
+        }
+
+        // Check if user is already a member
+        if (space.members.some(member => member._id.equals(user._id))) {
+            return res.json({ success: false, message: 'User is already a member' });
+        }
+
+        // Add member to space
+        space.members.push({ user: user._id, role });
+        await space.save();
+
+        res.json({ success: true, message: 'Member added successfully' });
+    } catch (error) {
+        console.error(error);
+        res.json({ success: false, message: 'An error occurred' });
+    }
+};
+
+exports.updateMemberRole = async (req, res) => {
+    const { memberId, newRole } = req.body;
+    const spaceId = req.spaceId;
+
+    try {
+        const space = await Space.findById(spaceId);
+
+        const member = space.members.find(member => member._id.equals(memberId));
+        if (!member) {
+            return res.json({ success: false, message: 'Member not found' });
+        }
+
+        member.role = newRole;
+        await space.save();
+
+        res.json({ success: true, message: 'Role updated successfully' });
+    } catch (error) {
+        console.error(error);
+        res.json({ success: false, message: 'Failed to update role' });
+    }
+};
+
+// Remove Member from Space
+exports.removeMember = async (req, res) => {
+    const { memberId } = req.body;
+    const spaceId = req.spaceId;
+
+    try {
+        const space = await Space.findById(spaceId);
+        space.members = space.members.filter(member => !member._id.equals(memberId));
+
+        await space.save();
+        res.json({ success: true, message: 'Member removed successfully' });
+    } catch (error) {
+        console.error(error);
+        res.json({ success: false, message: 'Failed to remove member' });
     }
 };

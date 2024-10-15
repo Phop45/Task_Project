@@ -1,841 +1,516 @@
-<head>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <script src="https://kit.fontawesome.com/3f3f24edf3.js" crossorigin="anonymous"></script>
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
-    <style>
-        :root {
-            --line: #d7d9dd;
-            --more-line: #9a9a9a;
-            --text1: #515761;
-            --color1: #7952b3;
-            --color2: #a788d4;
-            --color4: #906fc3;
-            --color3: #e4e9f6;
-            --text2: #37352f;
-            --light: #37352fa6;
-            --more-light: #0a0a03d7;
-            --notYet: #b5c0d0;
-        }
-
-        /* content page */
-        .content {
-            background-color: white;
-            margin: 20px 20px 20px 120px;
-            border-radius: 20px;
-            display: flex;
-            flex-direction: column;
-            max-width: 1320px;
-            max-height: max-content;
-            min-height: 95vh;
-        }
-
-        .breadcomes {
-            display: flex;
-            align-items: center;
-            font-size: 0.9em;
-            color: var(--more-light);
-            gap: 2px;
-        }
-
-        .breadcomes a {
-            color: var(--text1);
-            text-decoration: none;
-            padding: 4px 8px;
-            border-radius: 4px;
-            transition: color 0.3s ease, background-color 0.3s ease;
-        }
-
-        .breadcomes a:hover {
-            background-color: var(--color1);
-            color: white;
-        }
-
-        .breadcomes .active-detail {
-            background-color: var(--color1);
-            color: #fff;
-        }
-
-        .breadcomes span {
-            font-size: small;
-        }
-
-        .content .top-option {
-            display: flex;
-            border-bottom: solid 1px #00000049;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .top-option .btn-option {
-            align-self: self-end;
-            display: flex;
-            margin-left: auto;
-            align-items: center;
-        }
-
-        .btn-option p {
-            margin: 0 20px 0 0;
-        }
-
-        #close_btn_link {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            text-decoration: none;
-            background-color: var(--more-light);
-            color: white;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            font-size: 1.2em;
-            transition: background-color 0.3s ease, transform 0.3s ease;
-        }
-
-        #close_btn_link:hover {
-            background-color: #d04848;
-            transform: scale(1.1);
-            cursor: pointer;
-        }
-
-        #close_btn {
-            display: inline-block;
-            line-height: 1;
-        }
-
-        .content-Wrap #firstLine {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            gap: 25px;
-            position: relative;
-        }
-
-        .section {
-            display: flex;
-            align-items: stretch;
-        }
-
-        .firstsec,
-        .seccondsec {
-            min-height: 300px;
-            max-height: 900px;
-        }
-
-        .firstsec {
-            width: 60%;
-            padding: 40px;
-        }
-
-        .firstsec .seccondLine .taskName {
-            font-size: 2em;
-            font-weight: 400;
-            color: var(--color1);
-            margin: 20px 0;
-            margin-top: 40px;
-        }
-
-        #taskName {
-            font-size: 2em;
-            width: 100%;
-            font-weight: 400;
-            color: #a8aaad;
-            border: none;
-            border-bottom: 2px solid #7952b3;
-            margin: 20px 0;
-            margin-top: 40px;
-        }
-
-        #taskName:focus {
-            outline: none;
-        }
-
-        .seccondLine .item-detailInfo {
-            display: flex;
-            gap: 30px;
-            width: 100%;
-        }
-
-        .item-detailInfo #info {
-            display: flex;
-            padding: 10px 20px;
-            width: 150px;
-            height: 95px;
-            border: 1px solid var(--line);
-            border-radius: 10px;
-            flex-direction: column;
-            justify-content: flex-start;
-            gap: 10px;
-        }
-
-        .item-detailInfo #info #inf1 {
-            font-size: 1em;
-            font-weight: 500;
-            color: var(--color4);
-        }
-
-        .item-detailInfo #info #inf2_tag {
-            display: flex;
-            overflow: auto;
-        }
-
-        #submitButtonContainer {
-            
-            width: 100%;
-        }
-
-        #updateDetail {
-            margin-top: 10px;
-            padding: 10px 20px;
-            border-radius: 5px;
-            background-color: #9571cc;
-            color: white;
-            border: 1px solid #d7d9dd;
-            font-size: 1em;
-            margin-left: 630px;
-        }
-
-        #updateDetail:hover {
-            background-color: #7952b3;
-            transition: 0.3s ease;
-        }
-
-        .select-warpper {
-            border-radius: 5px;
-            background-color: #f2f2f2;
-            color: #515761;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 120px;
-            height: 40px;
-            font-size: 1em;
-            text-align: center;
-            border: 1px solid #d7d9dd;
-            cursor: pointer;
-        }
-
-        .seccondLine #desText,
-        .thridLine #desText {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            margin: 20px 0 10px;
-        }
-
-        .seccondLine span .bxs-detail,
-        .thridLine span .bx-calendar-check,
-        .showSubtask span .bx-detail,
-        .updateTaskForm1 .bx {
-            color: var(--color1);
-            font-size: 25px;
-            margin-right: 10px;
-            transition: none;
-        }
-
-        .seccondLine span .bxs-detail:hover,
-        .thridLine span .bx-calendar-check:hover,
-        .showSubtask span .bx-detail:hover {
-            background-color: transparent;
-            color: var(--color1);
-        }
-
-        .taskDes {
-            font-size: 16px;
-            font-weight: 400;
-            width: fit-content;
-            margin: 0;
-        }
-
-        .description {
-            width: 100%;
-            height: 200px;
-            border-radius: 10px;
-            border: 1px solid var(--line);
-        }
-
-        .description #taskDescription {
-            width: 95%;
-            height: 170px;
-            margin: 15px 20px;
-            resize: none;
-            border: none;
-        }
-
-        .description #taskDescription:focus {
-            outline: none;
-        }
-
-        /* Third Line */
-        .thridLine {
-            width: 100%;
-        }
-
-        .thridLine h1 {
-            font-size: 16px;
-            font-weight: 400;
-        }
-
-        .thridLine .subTask-input #subTask {
-            width: 100%;
-            height: 50px;
-            padding: 20px;
-            border: 2px solid var(--line);
-            border-radius: 10px;
-        }
-
-        .thridLine .subTask-input #subTask:focus {
-            outline: none;
-            border-color: var(--light);
-        }
-
-        .thridLine button {
-            display: none;
-        }
-
-        /* Third Line */
-        .showSubtask {}
-
-        .showSubtask .headshowsubtask {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            margin: 20px 0 10px 0;
-        }
-
-        .headshowsubtask p {
-            font-size: 16px;
-            font-weight: 400;
-            width: fit-content;
-            margin: 0;
-        }
-
-        .showSubtask .detailshowsubtask {
-            width: 100%;
-            height: 150px;
-            padding: 20px;
-            border: 2px solid var(--line);
-            border-radius: 10px;
-        }
-
-        .showSubtask .detailshowsubtask {
-            overflow: auto;
-        }
-
-        .showSubtask .detailshowsubtask ul {
-            padding: 0;
-            list-style-type: none;
-        }
-
-        .detailshowsubtask ul button {
-            padding-top: 10px;
-        }
-
-        .detailshowsubtask ul .subtask-item {
-            display: flex;
-            align-items: self-start;
-            margin-bottom: 10px;
-            width: fit-content;
-        }
-
-        .detailshowsubtask ul .checkbox {
-            margin-top: 5px;
-        }
-
-        .detailshowsubtask ul .subtask-item span {
-            white-space: normal;
-            word-break: break-word;
-            margin-left: 8px;
-            display: inline-block;
-        }
-
-        .seccondsec {
-            width: 40%;
-            height: 900px;
-            border-left: var(--line) solid 1px;
-        }
-
-        .seccondsec .topAct p {
-            font-size: larger;
-            padding: 20px;
-            border-bottom: solid var(--line) 1px;
-        }
-
-        .seccondsec .activity .activityUpdate {
-            padding: 0px 20px;
-            overflow: auto;
-            height: 720px;
-        }
-
-        .seccondsec .activity .comment {
-            margin-top: 10px;
-            border-top: solid var(--line) 1px;
-            padding: 10px;
-            align-items: center;
-        }
-
-        .comment .commentsec {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin: 10px;
-        }
-
-        .comment .commentsec input {
-            flex-grow: 1;
-            padding: 8px;
-            border: 1px solid var(--line);
-            border-radius: 5px;
-            font-size: 1em;
-        }
-
-        .comment .commentsec button {
-            padding: 8px 12px;
-            background-color: var(--color1);
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        .comment .commentsec button:hover {
-            background-color: var(--color2);
-        }
-
-        .updateTaskForm1 {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 20px;
-        }
-
-        #taskType,
-        #taskStatuses,
-        #taskPriority {
-            text-align: center;
-            width: 120px;
-            height: 40px;
-            font-size: 1em;
-            color: #515761;
-            border: 1px solid #d7d9dd;
-            border-radius: 5px;
-            background-color: transparent;
-            appearance: none;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-        }
-
-        #statusText{
-            font-size: 1em;
-            margin-bottom: 0;
-        }
-
-        #taskType:focus,
-        #taskStatuses:focus,
-        #taskPriority:focus {
-            outline: none;
-        }
-
-        .option {
-            padding: 10px;
-            cursor: pointer;
-        }
-
-        .subtask-item.completed {
-            text-decoration: line-through;
-            color: grey;
-            opacity: 0.5;
-        }
-
-        .subtask-item {
-            margin-bottom: 10px;
-            margin-left: 10px;
-        }
-
-        .date {
-            font-size: smaller;
-            color: grey;
-            margin-left: 10px;
-        }
-
-
-
-
-        #dueDate {
-            border: none;
-            width: 100px;
-        }
-
-        #dueDate:focus {
-            outline: none;
-        }
-
-    </style>
-</head>
-
+<link rel="stylesheet" href="/css/taskCss/list-itemDetail.css">
 <body>
-    <%- include('../partials/nav_menu.ejs') %>
-        <div class="content">
-            <div class="top-option">
-                <div class="breadcomes">
-                    <a href="/space">subject</a> <span>/</span>
-                    <a href="/space/item/<%= spaceId %>/task_list">list</a>
+    <div class="content">
+        <div class="topOption">
+            <div class="breadcomes">
+                <a href="/space">พื้นที่</a> 
                     <span>/</span>
-                    <a class="active-detail">
-                        <%= taskNames %>
-                    </a>
-                </div>
-                <div class="btn-option">
-                    <p>สร้างเมื่อวันที่ <span id="createAt">
-                            <%= createdAt %>
-                        </span></p>
-                    <a href="#" id="close_btn_link"><span id="close_btn">&times;</span></a>
+                <a href="/space/item/<%= spaceId %>">แดชบอร์ด</a>
+                    <span>/</span>
+                <a href="/space/item/<%= spaceId %>/task_board">บอร์ดงาน</a>
+                    <span>/</span>
+                <a class="active-detail">
+                    <%= taskNames %>
+                </a>
+            </div>
+            <div class="btn-option">
+                <p>สร้างเมื่อวันที่ <span id="createAt"> <%= createdAt %> </span></p>
+                <a href="/space/item/<%= spaceId %>/task_board" id="close_btn_link">
+                    <span id="close_btn">&times;</span>
+                  </a>
+            </div>
+        </div>
+
+        <div class="taskSection">
+            <div class="subtask">
+                <div class="textTopic"> <h1>งานย่อยภายในงาน</h1> </div>
+                <div class="subtaskItem">
+                    <ul class="item" id="subtaskList">
+                        <% inProgressSubtasks.forEach((subtask) => { %>
+                            <li class="itemDetail" data-subtask-id="<%= subtask._id %>" onclick="showSubtaskFullView('<%= subtask._id %>')">
+                                <i class="fa-regular fa-circle-dot"></i>
+                                <span class="subName"><%= subtask.subtask_Name %></span>
+                                <div class="subtask-options">
+                                    <a class="subtask-nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="bx bx-dots-horizontal-rounded"></i>
+                                    </a>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <a class="dropdown-item rename-subtask" href="#">
+                                                <i class="fa-solid fa-pen"></i> เปลี่ยนชื่อ
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item delete-subtask" href="#" style="color: red;">
+                                                <i class="fa-solid fa-trash" style="color: red;"></i> ลบงานย่อย
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+                        <% }); %>
+                        <li class="itemDetail" id="subtaskForm" style="display: none;"> 
+                            <form id="addSubtaskForm">
+                                <i class="fa-regular fa-circle-dot"></i>
+                                <input type="hidden" id="taskId" value="<%= task._id %>">
+                                <input type="text" id="addSubtask" placeholder="Subtask Name" required>
+                                <input type="hidden" id="mainTaskDueDate" value="<%= mainTaskDueDate.toISOString() %>"> 
+                            </form>
+                        </li>
+                    </ul>
+
+                    <div class="addSubtask">
+                        <button id="addSub-btn">
+                            <span>+ เพิ่มงานย่อยใหม่</span>
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <div class="section">
-                <div class="firstsec">
-                    <div class="content-Wrap">
-                        <div class="itemDetail">
-                            <div id="firstLine">
-                                <form id="updateTaskForm" action="/updateTask" method="post" class="updateTaskForm1">
-                                    <input type="hidden" name="spaceId" value="<%= spaceId %>">
-                                    <!-- แก้ไขเพิ่ม -->
-                                    <div class="nav-item dropdown taskStatuses">
-                                        <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button"
-                                            data-bs-toggle="dropdown" aria-expanded="false">
-                                            <%= taskStatuses %>
-                                        </a>
-                                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownStatus">
-                                            <li><a class="dropdown-item task-status" href="#" data-status="กำลังทำ">
-                                                <i class="fa-regular fa-circle"></i> กำลังทำ </a>
-                                            </li>
-                                            <li><hr class="dropdown-divider"></li>
-                                            <li><a class="dropdown-item task-status" href="#" data-status="เสร็จสิ้น">
-                                                <i class="fa-solid fa-circle"></i> เสร็จสิ้น </a>
-                                            </li>
-                                            <li><hr class="dropdown-divider"></li>
-                                            <li><a class="dropdown-item task-status" href="#" data-status="แก้ไข">
-                                                <i class="fa-solid fa-circle-half-stroke"></i> แก้ไข </a>
-                                            </li>
-                                        </ul>
-                                        <!-- Next Status Button -->
-                                        <div class="nextStatus" id="nextStatus" style="cursor: pointer;">
-                                            <i class="fa-solid fa-forward"></i>
-                                        </div>
-                                      </div>
+            <div class="detail">
+                <form id="updateTaskForm" action="/updateTask" method="post" class="updateTaskForm1">
+                    <input type="hidden" id="taskId" name="taskId" value="<%= task._id %>">
+                    <input type="hidden" id="taskPriority" name="taskPriority" value="<%= task.taskPriority %>">
+                    <input type="hidden" id="taskName" name="taskName" value="<%= taskNames %>">
+                    <input type="hidden" id="taskDetail" name="taskDetail" value="<%= taskDetail %>">
+                    <input type="hidden" id="taskStatus" name="taskStatuses" value="<%= task.taskStatuses %>">
 
+                    <!-- Task Name -->
+                     <div class="firstSec">
+                        <div class="nameSec">
+                            <h1 class="taskName" id="taskName-text" onclick="editTaskName()">
+                                <%= taskNames %> 
+                            </h1>
+                            <input type="text" id="taskName" name="taskName" value="<%= taskNames %>" style="display: none;" onblur="saveTaskName()">
+                            <span id="notiAlert" style="font-size: 14px; color: #FF004D; display: none; margin-top: 5px;">
+                                * กรุณากรอกชื่อโดยไม่ใช้อักขระพิเศษ หรือค่าว่าง
+                            </span>
+                       </div>
+                       <div class="checkTask">
+                            <button type="button" id="checkTask" onclick="checkWork()">
+                                <span>ส่งงาน</span>
+                                <i class="fa-solid fa-paper-plane"></i>
+                            </button>
+                        </div>
+                     </div>
+                       
+                    <!-- Task Name -->
+
+                    <!-- Task Detail -->
+                    <div class="detailSec">
+                        <div class="grid-container">
+                            <div class="grid-item topic">
+                                <div class="detail-name">
+                                    <i class="fa-solid fa-circle-half-stroke"></i>
+                                    สถานะ
+                                </div>
+                                <div class="detail-data" id="detail-data-status">
+                                    <div class="status-div" data-status="<%= taskStatuses %>">
+                                        <i class="fa-solid fa-spinner spinner-icon" style="display: none;"></i>
+                                        <span class="status-text"><%= taskStatuses %></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="grid-item topic">
+                                <div class="detail-name">
+                                    <i class="fa-regular fa-circle-user"></i>
+                                    ผู้รับผิดชอบ
+                                </div>
+                                <div class="detail-data">
+                                    <img src="<%= userImage %>" width="40px" height="40px">
+                                </div>
+                            </div>
+                    
+                            <form action="/updateDueDate" method="POST" id="updateDueDateForm">
+                                <div class="grid-item topic">
+                                    <div class="detail-name">
+                                        <i class="fa-regular fa-calendar-check"></i> วันครบกำหนด
+                                    </div>
+                                    <div class="detail-data clickable" id="dueDateText">
+                                        <%= dueDate ? new Date(dueDate).toLocaleDateString('th-TH', { day: 'numeric' , month: 'long' ,
+                                            year: 'numeric' }) : 'ไม่มีวันครบกำหนด' %>
+                                    </div>
+                                    <!-- Visible input for flatpickr to work on but hidden -->
+                                    <input type="text" id="dueDateInput" name="dueDate"
+                                        value="<%= dueDate && !isNaN(new Date(dueDate).getTime()) ? 
+                                                            new Date(new Date(dueDate).getTime() - new Date(dueDate).getTimezoneOffset() * 60000).toISOString().split('T')[0] : '' %>"
+                                        style="visibility: hidden; position: absolute;">
+                                    <input type="hidden" name="taskId" value="<%= task._id %>">
+                                </div>
+                            </form>
+                    
+                            <div class="grid-item topic">
+                                <div class="detail-name">
+                                    <i class="fa-regular fa-flag"></i>
+                                    ระดับความสำคัญ
+                                </div>
+                                <div class="detail-data">
                                     <div class="nav-item dropdown taskPriority">
-                                        <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button"
-                                            data-bs-toggle="dropdown" aria-expanded="false">
+                                        <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="margin-left: -10px;">
                                             <%= task.taskPriority %>
                                         </a>
                                         <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                            <li><a class="dropdown-item task-priority" href="#" data-priority="ด่วน">
-                                                <i class="fa-solid fa-flag"></i> ด่วน </a>
-                                                <span class="pri_dis">
-                                                    งานที่มีลำดับความสำคัญสูงมีความสำคัญต่อความคืบหน้าของงานโดยรวมและควรดำเนินการโดยเร็วที่สุด
-                                                </span>
+                                            <li class="item">
+                                                <a class="dropdown-item task-priority priority-urgent" href="#" data-priority="ด่วน">
+                                                    <i class="fa-solid fa-flag"></i> <span class="text">ด่วน</span>
+                                                    <div class="pri_dis">งานที่มีลำดับความสำคัญสูง...</div>
+                                                </a>
                                             </li>
-                                            <li><hr class="dropdown-divider"></li>
-
-                                            <li><a class="dropdown-item task-priority" href="#" data-priority="ปกติ">
-                                                <i class="fa-solid fa-flag"></i> ปกติ </a>
-                                                <span class="pri_dis">
-                                                    งานที่มีลำดับความสำคัญปานกลางมีความสำคัญแต่ไม่เร่งด่วนเท่างานที่มีลำดับความสำคัญสูง
-                                                </span>
+                                            <li class="item">
+                                                <a class="dropdown-item task-priority priority-normal" href="#" data-priority="ปกติ">
+                                                    <i class="fa-solid fa-flag"></i> <span class="text">ปกติ</span>
+                                                    <div class="pri_dis">งานที่มีลำดับความสำคัญปานกลาง...</div>
+                                                </a>
                                             </li>
-                                            <li><hr class="dropdown-divider"></li>
-
-                                            <li><a class="dropdown-item task-priority" href="#" data-priority="ต่ำ">
-                                                <i class="fa-solid fa-flag"></i> ต่ำ </a>
-                                                <span class="pri_dis">
-                                                    งานที่มีลำดับความสำคัญต่ำสามารถดำเนินการในภายหลังได้
-                                                </span>
+                                            <li class="item">
+                                                <a class="dropdown-item task-priority priority-low" href="#" data-priority="ต่ำ">
+                                                    <i class="fa-solid fa-flag"></i> <span class="text">ต่ำ</span>
+                                                    <div class="pri_dis">งานที่มีลำดับความสำคัญต่ำ...</div>
+                                                </a>
                                             </li>
                                         </ul>
-                                      </div>
-                                    <!-- แก้ไขเพิ่ม -->
-
-                                    <input type="hidden" id="taskId" value="<%= task._id %>">
-                                    <input type="hidden" id="taskPriority" name="taskPriority" value="<%= task.taskPriority %>">
-                                </form>
+                                    </div>
+                                </div>
                             </div>
-
-                            <div class="seccondLine">
-                                <form action="/updateTask" method="post" id="updateTaskForm" onsubmit="return validateForm()">
-                                    <h1 class="taskName" id="taskName-text"><%= taskNames %></h1>
-                                    <input type="text" id="taskName" name="taskName" value="<%= taskNames %>" style="display: none;">
-                                    <span id="notiAlert" style="font-size: 14px; color: #FF004D; display: none; margin-top: 5px;">
-                                        * กรุณากรอกชื่อโดยไม่ใช้อักขระพิเศษ
-                                    </span>
-                                
-
-                                    <div class="item-detailInfo">
+                    
+                            <div class="grid-item topic">
+                                <div class="detail-name">
+                                    <i class="fa-regular fa-clock" style="margin-right: 5px;"></i>
+                                    เวลาครบกำหนด
+                                </div>
+                                <div class="detail-data">
+                                    <form action="/updateDueTime" method="POST" id="updateDueTimeForm">
                                         <div id="info">
-                                            <span id="inf1">ผู้รับผิดชอบ</span>
-                                            <span id="inf2" style="display: flex; align-items: center; margin: 5px 0;">
-                                                <% if (tasks && tasks.length > 0) { %>
-                                                    <% tasks.forEach(task => { %>
-                                                        <% if (task.assignedUsers && task.assignedUsers.length > 0) { %>
-                                                            <% task.assignedUsers.forEach(user => { %>
-                                                                <div class="user-info">
-                                                                    <img src="<%= user.profileImage %>" style="width: 30px; height: 30px; border-radius: 50%; margin-right: 10px;">
-                                                                </div>
-                                                            <% }) %>
-                                                        <% } else { %>
-                                                            <span>ไม่พบผู้รับผิดชอบในงานนี้</span>
+                                            <div class="custom-select-container">
+                                                <select id="dueTimeSelect" name="dueTime">
+                                                    <option value="" <%=!dueTime ? 'selected' : '' %>>ตลอดทั้งวัน</option>
+                                                    <% for (let hour=0; hour < 24; hour++) { let hourString=hour < 10 ? '0' + hour : hour;
+                                                        let isSelected00=dueTime===`${hourString}:00` ? 'selected' : '' ; let
+                                                        isSelected30=dueTime===`${hourString}:30` ? 'selected' : '' ; %>
+                                                        <option value="<%= hourString %>:00" <%=isSelected00 %>><%= hourString %>:00
+                                                        </option>
+                                                        <option value="<%= hourString %>:30" <%=isSelected30 %>><%= hourString %>:30
+                                                        </option>
                                                         <% } %>
-                                                    <% }) %>
-                                                <% } else { %>
-                                                    <span>ไม่มีงานที่เกี่ยวข้อง</span>
-                                                <% } %>
-                                            </span>
+                                                </select>
+                                            </div>
+                                            <input type="hidden" name="taskId" value="<%= task._id %>">
                                         </div>
-                                        <div id="info">
-                                            <span id="inf1">วันครบกำหนด</span>
-                                            <span id="dueDateText">
-                                                <%= dueDate %>
-                                            </span>
-                                            <input type="date" id="dueDate" name="dueDate" value="<%= dueDate %>" placeholder="<%= dueDate %>" style="display: none;">
-
-                                        </div>
-                                        
-                                    </div>
-                                    <span id="desText">
-                                        <i class='bx bxs-detail'></i>
-                                        <h1 class="taskDes">รายละเอียดของงาน</h1>
-                                    </span>
-                                    <div class="description">
-                                        <textarea name="taskDetail" id="taskDescription" cols="30"
-                                            rows="10"><%= taskDetail %></textarea>
-                                    </div>
-                                    <div id="submitButtonContainer" style="display: none;">
-                                           <button type="submit" id="updateDetail">บันทึก</button>
-                                    </div>
-                                    <input type="hidden" name="taskId" id="taskId" value="<%= task._id %>">
-                                </form>
-
+                                    </form>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="seccondsec">
-                    <div class="activity">
-                        <div class="topAct">
-                            <p>กิจกรรมที่เกิดขึ้น</p>
-                        </div>
-                        <div class="messageAct">
-                            <div class="activityUpdate">
-                                <% task.activityLogs.forEach(log=> { %>
-                                    <p>
-                                        <%= log %>
-                                    </p>
-                                    <% }) %>
-                            </div>
-                            <div class="comment">
-                                <div class="commentsec">
-                                    <input type="text" placeholder="add comment" />
-                                    <button id="sendComment">ส่ง</button>
+                            <div class="grid-item topic">
+                                <div class="detail-name">
+                                    <i class="fa-solid fa-tags"></i>
+                                    Tags
+                                </div>
+                                <div class="detail-data">
+                                    <span class="tag">homework</span>
+                                    <span class="tag">more</span>
+                                    <span class="tag">+1</span>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    <!-- Task Detail -->
+
+                    <!-- Task Description -->
+                        <div class="descriptSec">
+                            <div class="description-box">
+                                <textarea name="taskDescription" id="taskDescription" placeholder="เพิ่มคำอธิบายของงานได้ที่นี่..."></textarea>
+                                <div class="expand-icon" onclick="openFullView()">
+                                    <i class="fa-solid fa-expand"></i>
+                                </div>
+                            </div>
+                        </div>
+                    <!-- Task Description -->
+                </form>
+
+
+                <div class="attachments-section">
+                    <h3><i class="fa-solid fa-paperclip" style="padding-right: 10px;"></i> แนบไฟล์</h3>
+                    <form action="/uploadDocument/<%= task._id %>?spaceId=<%= spaceId %>" method="POST" enctype="multipart/form-data"
+                        id="uploadInput">
+                        <div class="attachment">
+                            <div id="attach">
+                                <label class="attachmentLabel" for="fileUpload">เลือกไฟล์</label>
+                                <input type="file" id="fileUpload" name="documents" multiple
+                                    accept=".jpg, .jpeg, .png, .docx, .doc, .pdf" />
+                                <span id="fileName">ไม่ได้เลือกไฟล์ใด</span>
+                            </div>
+                            <button type="submit" class="btn btn-primary">อัพโหลด</button>
+                        </div>
+                        <p class="file_input_help"" id=" file_input_help" style="margin-top: 10px; ">
+                            jpg, jpeg, png, docx, doc, pdf (ไม่เกิน 5 MB).
+                        </p>
+                    </form>
+                    <div class="fileItemSec">
+                        <% if (attachments.length > 0) { %>
+                            <ul id="fileItemlist">
+                                <% task.attachments.forEach(attachment => { %>
+                                    <li id="fileItem">
+                                        <a href="<%= attachment.path %>" target="_blank" download>
+                                            <% const ext = attachment.originalName.split('.').pop().toLowerCase(); %>
+                                            <% if (ext === 'pdf') { %>
+                                                <i class="fa-solid fa-file-pdf" style="color: #d9534f;"></i>
+                                            <% } else if (['doc', 'docx'].includes(ext)) { %>
+                                                <i class="fa-solid fa-file-word" style="color: #337ab7;"></i>
+                                            <% } else if (['jpg', 'jpeg', 'png'].includes(ext)) { %>
+                                                <i class="fa-solid fa-file-image" style="color: #5cb85c;"></i>
+                                            <% } else { %>
+                                                <i class="fa-solid fa-file" style="color: #6c757d;"></i>
+                                            <% } %>
+                                            <div class="fileName">
+                                                <span class="file-text"><%= attachment.originalName %></span>
+                                            </div>
+                                        </a>
+                                    </li>
+                                <% }) %>
+                            </ul>
+                            
+                          <% } else { %>
+                            <p>ไม่มีไฟล์ที่อัปโหลด</p>
+                          <% } %>
+                          
+                    </div>
+                
+                </div>
+
+                <div class="subtaskSec">
+                    <h1 class="subText"><i class="fa-solid fa-list-check" style="padding-right: 10px;"></i> งานย่อย</h1>
+                
+                    <!-- Table for Subtasks (hidden initially if no data) -->
+                    <div id="subtaskTableContainerNew" class="subtask-table" style="display: none;">
+                        <table id="subtaskTableNew">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>ชื่องาน</th>
+                                    <th>วันครบกำหนด</th>
+                                    <th>สถานะ</th>
+                                    <th>ผู้รับผิดชอบ</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="subtaskTableBodyNew">
+                                <% subtasks.forEach((subtask) => { %>
+                                    <tr 
+                                        class="task-row" 
+                                        data-subtask-id="<%= subtask._id %>" 
+                                        style="opacity: <%= subtask.subTask_status === 'เสร็จสิ้น' ? '0.5' : '1' %>;"
+                                        onclick="showSubtaskFullView('<%= subtask._id %>')"
+                                    >
+                                        <td class="inputCheck">
+                                            <input 
+                                                type="checkbox" 
+                                                class="checkbox" 
+                                                <%= subtask.subTask_status === 'เสร็จสิ้น' ? 'checked' : '' %> 
+                                                onchange="toggleSubtaskStatus('<%= subtask._id %>', this)" 
+                                                onclick="event.stopPropagation()" 
+                                            >
+                                        </td>
+                                        <td><%= subtask.subtask_Name %></td>
+                                        <td><%= subtask.subTask_dueDate %></td>
+                                        <td><div class="statusWrape"><%= subtask.subTask_status %></div></td>
+                                        <td>
+                                            <img src="<%= userImage %>">
+                                            <%= userName %>
+                                        </td>
+                                        <td class="deleteSubtask" onclick="deleteSubtask('<%= subtask._id %>', this)">
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Single Subtask Form -->
+                    <form action="/addSubtask" id="subtaskFormMainNew" style="display: none;">
+                        <input type="text" id="subtaskNameInputMainNew" placeholder="เพิ่มงานย่อยที่คุณต้องการทำให้เสร็จสิ้นเลย" required>
+                    
+                        <!-- Assignee input -->
+                        <div class="assigneeInputNew" id="assigneeWrapper">
+                            <a class="assignee-nav-link dropdown-toggle" id="individual-space-dropdown-main" role="button" aria-expanded="false">
+                                <i class="fa-solid fa-circle-user"></i>
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="individual-space-dropdown-main" id="assigneeInput">
+                                <li><a class="dropdown-item" data-username="User 1" data-userimg="/pic/images.jpeg" href="#"><img src="/pic/images.jpeg" alt="User 1"> User 1</a></li>
+                                <li><a class="dropdown-item" data-username="User 2" data-userimg="/pic/NKZ_7411.JPG" href="#"><img src="/pic/NKZ_7411.JPG" alt="User 2"> User 2</a></li>
+                            </ul>
+                            <div class="selected-assignees" id="selectedAssignees"></div>
+                        </div>
+                    
+                        <!-- Due date input -->
+                        <div class="dueDateInputNew" id="dueDateWrapper">
+                            <i class="fa-regular fa-calendar-check" id="calendarIcon"></i>
+                            <input type="text" id="dueDateInputNew" required>
+                        </div>
+                    
+                        <!-- Buttons for the Form -->
+                        <button type="button" id="cancelSubtaskNew">ยกเลิก</button>
+                        <button type="button" id="addSubtaskNew">บันทึก</button>
+                        <input type="hidden" name="taskId" id="taskId" value="<%= task._id %>">
+                    </form>
+                
+                    <!-- Add Subtask Button (Initially visible when there's no data) -->
+                    <button id="addSubtaskBtnMainNew" class="add-subtask-btn-detail">+ เพิ่มงานย่อยใหม่</button>
+                </div>
+
+
+                <!-- Full detail Page View -->
+                <div class="full-page-view" id="fullPageView">
+                    <div class="back-button">
+                        <button onclick="closeFullView()"> 
+                            <i class="fa-solid fa-arrow-left"></i>
+                            กลับไปที่งาน
+                        </button>
+                    </div>
+                    <div class="full-content">
+                        <!-- Full content goes here -->
+                        <h1 class="taskName" id="taskName-text">
+                            <%= taskNames %> 
+                        </h1>
+                        <textarea name="taskDescription" id="taskDescription" placeholder="เพิ่มคำอธิบายของงานได้ที่นี่..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Subtask Full Page View -->
+                <div class="full-subtask-page-view" id="fullPageViewSubtask" style="display: none;" data-subtask-id="">
+                <div class="back-button">
+                    <button onclick="closeSubtaskFullView()">
+                        <i class="fa-solid fa-arrow-left"></i> กลับไปที่งาน
+                    </button>
+                    <button onclick="deleteSubtask()" class="deleteSub">
+                        <i class="fa-solid fa-trash-can"></i> ลบงานย่อย
+                    </button>
+                </div>
+                <div class="full-content">
+                    <form id="updateSubtaskForm" action="/updateSubtask" method="POST">
+                        <div class="nameSec">
+                            <h1 class="SubtaskName" id="taskName-text">
+                                <span id="subtaskNameText">subtask_Name</span>
+                            </h1>
+                            <input type="text" id="SubtaskName" name="SubtaskName" value="" style="display: none;" onblur="saveSubTaskName()">
+                        </div>
+                        <div class="SubTaskdetailSec">
+                            <div class="grid-container">
+                                <div class="grid-item topic">
+                                    <div class="sub-detail-name"><i class="fa-solid fa-circle-half-stroke"></i> สถานะ</div>
+                                    <div class="detail-data">
+                                        <button type="button" class="status-btn" id="subtaskStatusText" onclick="toggleStatus()">กำลังทำ</button>
+                                    </div>
+                                </div>
+                                <div class="grid-item topic">
+                                    <div class="sub-detail-name"><i class="fa-regular fa-calendar-check"></i> วันครบกำหนด</div>
+                                    <div class="sub-detail-data" id="subtaskDueDateText">subTask_dueDate</div>
+                                </div>
+                                <div class="grid-item topic">
+                                    <div class="sub-detail-name"><i class="fa-regular fa-circle-user"></i> ผู้รับผิดชอบ</div>
+                                    <div class="sub-detail-data">
+                                        <img src="<%= userImage %>">
+                                            <%= userName %>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="SubDescription-box">
+                                <textarea name="subtaskDescription" id="subtaskDescription" placeholder="เพิ่มคำอธิบายของงานได้ที่นี่..."></textarea>
+                            </div>
+                            <input type="hidden" id="subtaskId" name="subtaskId" value="">
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            </div>
+
+            <div class="activity">
+                    <div class="textTopic"> <h1>กิจกรรมที่เกิดขึ้น</h1> </div>
+
+                    <div class="messageAct">
+                        <div class="activityUpdate">
+                            <% task.activityLogs.forEach(log=> { %>
+                                <p class="log"> <%= log %> </p>   
+                            <% }) %>
+                        </div>
                 </div>
             </div>
         </div>
+        
+        
 
-        <script>
-            // task status //
-            document.querySelectorAll('.taskStatuses .dropdown-item').forEach(item => {
-                item.addEventListener('click', async function (e) {
-                  e.preventDefault(); // Prevent default link behavior
-                  const selectedStatus = this.getAttribute('data-status');
-                  const taskId = document.getElementById('taskId').value; // Get the task ID
-              
-                  document.querySelector('.taskStatuses .nav-link').textContent = selectedStatus;
-              
-                  try {
-                    const response = await fetch('/updateTask', {
-                      method: 'POST',
-                      headers: {
-                        'Content-Type': 'application/json',
-                      },
-                      body: JSON.stringify({ taskId, taskStatuses: selectedStatus }), // Send updated status
-                    });
-              
-                    if (!response.ok) {
-                      throw new Error('Network response was not ok');
-                    }
-              
-                    // Optionally, refresh the page or display a success message
-                    window.location.reload(); // Reload the page to reflect changes
-                  } catch (error) {
-                    console.error('Error updating task status:', error);
-                  }
-                });
-              });
-            document.getElementById('nextStatus').addEventListener('click', async function () {
-                const currentStatus = document.querySelector('.taskStatuses .nav-link').textContent.trim(); // Get current status
-                const taskId = document.getElementById('taskId').value; // Get task ID
-              
-                // Define the order of statuses
-                const statusOrder = ['กำลังทำ', 'เสร็จสิ้น', 'แก้ไข'];
-              
-                // Find the current status index in the order
-                const currentIndex = statusOrder.indexOf(currentStatus);
-              
-                // Determine the next status (loop back to the beginning if necessary)
-                const nextStatus = statusOrder[(currentIndex + 1) % statusOrder.length];
-              
-                // Update the displayed text in the dropdown
-                document.querySelector('.taskStatuses .nav-link').textContent = nextStatus;
-              
-                try {
-                  // Send an AJAX request to update the task status
-                  const response = await fetch('/updateTask', {
-                    method: 'POST',
-                    headers: {
-                      'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ taskId, taskStatuses: nextStatus }), // Send updated status
-                  });
-              
-                  if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                  }
-              
-                  // Optionally, refresh the page or display a success message
-                  window.location.reload(); // Reload the page to reflect changes
-                } catch (error) {
-                  console.error('Error updating task status:', error);
-                }
-              });
-            // task status //
+    </div>
 
-            // task priority //
-            document.querySelectorAll('.taskPriority .dropdown-item').forEach(item => {
-                item.addEventListener('click', async function (e) {
-                  e.preventDefault(); // Prevent default link behavior
-                  const selectedPriority = this.getAttribute('data-priority');
-                  const taskId = document.getElementById('taskId').value; // Get the task ID
-              
-                  // Update the displayed text in the dropdown
-                  document.querySelector('.taskPriority .nav-link').textContent = selectedPriority;
-              
-                  try {
-                    // Send an AJAX request to update the task priority
-                    const response = await fetch('/updateTask', {
-                      method: 'POST',
-                      headers: {
-                        'Content-Type': 'application/json',
-                      },
-                      body: JSON.stringify({ taskId, taskPriority: selectedPriority }),
-                    });
-              
-                    if (!response.ok) {
-                      throw new Error('Network response was not ok');
-                    }
-              
-                    // Optionally, refresh the page or display a success message
-                    window.location.reload(); // Reload the page to reflect changes
-                  } catch (error) {
-                    console.error('Error updating task priority:', error);
-                  }
-                });
-              });
-            // task priority //
-
-            document.addEventListener('DOMContentLoaded', function () {
-                // Array of Thai month names
-                const thaiMonths = [
-                    'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
-                    'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
-                ];
-
-                // Function to format date as "d month" in Thai
-                function formatThaiDate(date) {
-                    const day = date.getDate();
-                    const month = thaiMonths[date.getMonth()];
-                    return `${day} ${month}`;
-                }
-
-                // Initialize flatpickr for dueDate with auto-submit
-                const flatpickrInstance = flatpickr("#dueDate", {
-                    dateFormat: "Y-m-d",
-                    onChange: function (selectedDates, dateStr, instance) {
-                        if (dateStr) {
-                            // Create a new Date object from the selected date string
-                            const date = new Date(dateStr);
-
-                            // Format the selected date to "d month" in Thai
-                            const formattedDate = formatThaiDate(date);
-
-                            // Update the dueDate text
-                            const dueDateText = document.getElementById('dueDateText');
-                            dueDateText.innerText = formattedDate;
-
-                            // Update the dueDate input field value and placeholder
-                            const dueDateInput = document.getElementById('dueDate');
-                            dueDateInput.value = dateStr;
-                            dueDateInput.placeholder = formattedDate; // Update placeholder
-
-                            // Submit the form to save the data immediately
-                            document.getElementById('updateTaskForm').submit(); // Trigger form submission
-                        }
-                    }
-                });
-
-                // Event listener to toggle dueDate input visibility and open date picker
-                document.getElementById('dueDateText').addEventListener('click', function () {
-                    this.style.display = 'none'; // Hide the date display span
-                    const dueDateInput = document.getElementById('dueDate');
-                    dueDateInput.style.display = 'inline'; // Show the date input field
-                    dueDateInput.focus(); // Focus the input field
-                    flatpickrInstance.open(); // Open the date picker
-                });
+    <script>
+        // Function to assign icons based on file type
+        function setFileIcons() {
+            const fileItems = document.querySelectorAll('#fileItemlist li');
+        
+            fileItems.forEach(item => {
+            const iconElement = item.querySelector('.file-icon'); // Target the icon element
+            const fileName = item.querySelector('span').innerText.toLowerCase(); // Get the file name
+        
+            if (fileName.endsWith('.pdf')) {
+                iconElement.className = 'fa-solid fa-file-pdf'; // Set PDF icon
+                iconElement.style.color = '#e74c3c'; // Red color for PDFs
+            } else if (fileName.endsWith('.doc') || fileName.endsWith('.docx')) {
+                iconElement.className = 'fa-solid fa-file-word'; // Set Word icon
+                iconElement.style.color = '#2e86de'; // Blue color for Word docs
+            } else if (fileName.endsWith('.jpg') || fileName.endsWith('.jpeg') || fileName.endsWith('.png')) {
+                iconElement.className = 'fa-solid fa-file-image'; // Set Image icon
+                iconElement.style.color = '#27ae60'; // Green color for images
+            } else {
+                iconElement.className = 'fa-solid fa-file'; // Default file icon
+                iconElement.style.color = '#7f8c8d'; // Grey color for unknown types
+            }
             });
+        }
+        
+        // Call the function when the page loads
+        document.addEventListener('DOMContentLoaded', setFileIcons);
 
-            // Close button event listener
-            document.getElementById('close_btn').addEventListener('click', function () {
-                const urlParams = new URLSearchParams(window.location.search);
-                const spacesId = urlParams.get('spacesId');
-                window.location.href = `/space/item/${spacesId}/task_list`;
-            });
+  
+        const fileUpload = document.getElementById('fileUpload');
+        const fileName = document.getElementById('fileName');
 
+        fileUpload.addEventListener('change', (event) => {
+        const files = event.target.files;
+        if (files.length > 0) {
+            fileName.textContent = Array.from(files).map(file => file.name).join(', ');
+        } else {
+            fileName.textContent = 'ไม่ได้เลือกไฟล์ใด';
+        }
+        });
 
-            document.addEventListener('DOMContentLoaded', () => {
-                const dueDateDisplay = document.getElementById('dueDateDisplay');
-                const dueDateInput = document.getElementById('dueDate');
-
-                // Toggle visibility on click
-                dueDateDisplay.addEventListener('click', () => {
-                    dueDateDisplay.style.display = 'none'; // Hide the span
-                    dueDateInput.style.display = 'block'; // Show the input
-                    dueDateInput.focus(); // Optionally, focus the input
-                });
-
-                // Update the span and hide input when a new date is selected
-                dueDateInput.addEventListener('change', () => {
-                    const selectedDate = dueDateInput.value;
-                    dueDateDisplay.textContent = new Date(selectedDate).toLocaleDateString('th-TH', {
-                        day: 'numeric',
-                        month: 'long',
-                        year: 'numeric'
-                    });
-                    dueDateDisplay.style.display = 'block'; // Show the span
-                    dueDateInput.style.display = 'none'; // Hide the input
-
-                    // Submit the form to save the new date immediately
-                    document.getElementById('updateTaskForm').submit(); // Trigger form submission
-                });
-            });
-
-        </script>
-        <script src="/script/taskScsript/task-item.js"></script>
-        <script src="/script/taskScsript/task-alert.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const statusDiv = document.querySelector('.status-div');
+            const statusText = statusDiv.getAttribute('data-status');
+            const spinnerIcon = statusDiv.querySelector('.spinner-icon');
+        
+            console.log('Status:', statusText);  // Check what status is received
+        
+            switch (statusText) {
+                case 'กำลังทำ': // In Progress
+                    statusDiv.style.backgroundColor = '#6EACDA';
+                    break;
+        
+                case 'รอตรวจ': // Pending
+                    statusDiv.style.backgroundColor = '#919191';
+                    spinnerIcon.style.display = 'inline'; // Show spinner icon
+                    break;
+        
+                case 'แก้ไข': // Edited
+                    statusDiv.style.backgroundColor = '#FF4C4C';
+                    break;
+        
+                case 'เสร็จสิ้น': // Completed
+                    statusDiv.style.backgroundColor = '#4CAF50';
+                    break;
+        
+                default:
+                    console.warn('Unhandled status:', statusText); // Warn for any unhandled status
+                    statusDiv.style.backgroundColor = '#FFFFFF'; // Optional default color
+            }
+        });
+    </script>
 </body>

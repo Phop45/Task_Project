@@ -8,6 +8,25 @@
     --line: #D7D9DD;
     --text: #515761;
 }
+.contant {
+    background-color: white;
+    margin: 20px 20px 20px 130px;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+.SubName {
+    padding: 30px 0 20px 50px;
+    font-size: 40px;
+}
+
+.nav-tabs {
+    padding-left: 50px;
+    font-size: 16px;
+    font-weight: 400;
+}
+
 .tasklist-top{
     display: flex;
     justify-content: space-between;

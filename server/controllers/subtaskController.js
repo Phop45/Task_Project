@@ -2,77 +2,114 @@ const Task = require("../models/Task");
 const SubTask = require("../models/SubTask");
 
 exports.createSubTask = async (req, res) => {
+    const { taskId, subTask, dueDate } = req.body;
+
+    console.log("Received data:", { taskId, subTask, dueDate }); // Log incoming data
+
     try {
-        const { subTask, taskId } = req.body;
-
-        if (!subTask || !taskId) {
-            return res.status(400).send({ message: 'Subtask name and task ID are required' });
+        // Validate incoming data
+        if (!taskId || !subTask || !dueDate) {
+            return res.status(400).json({ message: 'Missing required fields' });
         }
 
-        const task = await Task.findById(taskId);
-
-        if (!task) {
-            return res.status(404).send({ message: 'Task not found' });
-        }
-
+        // Create a new subtask instance
         const newSubTask = new SubTask({
-            subtask_Name: subTask,
             task: taskId,
-            user: req.user._id,
-            subject: task.subject,
-            taskPriority: 'ปกติ',
+            subtask_Name: subTask,
+            subTask_dueDate: dueDate ? new Date(dueDate) : null // Ensure proper date format
         });
 
+        // Save to the database
         await newSubTask.save();
 
-        res.redirect(`/task/${taskId}/detail`);
+        // Respond with success
+        res.status(200).json({ message: 'Subtask created successfully' });
     } catch (error) {
-        console.log(error);
-        res.status(500).send("Internal Server Error");
+        console.error('Error creating subtask:', error);
+        res.status(500).json({ message: 'Error creating subtask' });
     }
 };
 
-exports.toggleSubTaskCompletion = async (req, res) => {
+exports.deleteSubtask = async (req, res) => {
     try {
-      const { subtaskId } = req.body;
-  
-      if (!subtaskId) {
-          return res.status(400).send({ message: 'Subtask ID is required' });
-      }
-  
-      const subtask = await SubTask.findById(subtaskId);
-      const task = await Task.findById(subtask.task);
-  
-      if (!subtask || !task) {
-          return res.status(404).send({ message: 'Subtask or Task not found' });
-      }
-  
-      const now = new Date();
-      let activityLogMessage = '';
-
-      if (subtask.completed) {
-          subtask.completed = false;
-          activityLogMessage = `"${subtask.subtask_Name}" ถูกแก้ไขเมื่อ ${formatDateTime(now)}`;
-      } else {
-          subtask.completed = true;
-          activityLogMessage = `"${subtask.subtask_Name}" เสร็จสิ้นเมื่อ ${formatDateTime(now)}`;
-      }
-  
-      subtask.activityLogs.push(activityLogMessage);
-      await subtask.save();
-  
-      task.activityLogs.push(activityLogMessage);
-      await task.save();
-  
-      res.status(200).send({ message: 'Subtask completion status toggled' });
+        const subtaskId = req.params.id;
+        await SubTask.findByIdAndDelete(subtaskId);
+        res.status(200).json({ message: 'Subtask deleted successfully.' });
     } catch (error) {
-      console.log(error);
-      res.status(500).send("Internal Server Error");
+        console.error('Error deleting subtask:', error);
+        res.status(500).json({ message: 'Failed to delete subtask.' });
     }
-  };
-  
-  // Helper function to format date and time
-  function formatDateTime(date) {
-    const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-    return date.toLocaleDateString('th-TH', options);
-  }
+};
+
+// Toggle subtask status
+exports.toggleSubTaskStatus = async (req, res) => {
+    const { subtaskId } = req.body;
+
+    if (!subtaskId) {
+        return res.status(400).json({ message: 'Subtask ID is required' });
+    }
+
+    try {
+        const subtask = await SubTask.findById(subtaskId);
+
+        if (!subtask) {
+            return res.status(404).json({ message: 'Subtask not found' });
+        }
+
+        subtask.subTask_status = subtask.subTask_status === 'กำลังทำ' ? 'เสร็จสิ้น' : 'กำลังทำ';
+        await subtask.save();
+
+        res.status(200).json({
+            message: 'Status updated successfully',
+            status: subtask.subTask_status,
+        });
+    } catch (error) {
+        console.error('Error toggling status:', error);
+        res.status(500).json({ message: 'Error updating status' });
+    }
+};
+
+
+exports.getSubtaskDetails = async (req, res) => {
+    try {
+        const subtask = await SubTask.findById(req.params.id);
+
+        if (!subtask) {
+            return res.status(404).json({ message: 'Subtask not found' });
+        }
+
+        res.status(200).json(subtask);
+    } catch (error) {
+        console.error('Error fetching subtask details:', error);
+        res.status(500).json({ message: 'Failed to fetch subtask details' });
+    }
+};
+
+exports.updateSubtask = async (req, res) => {
+    try {
+        const { subtaskId, SubtaskName, subtaskDescription } = req.body;
+        const newStatus = req.body.subtaskStatus; // Get the new status
+
+        // Update the subtask in the database
+        const updatedSubtask = await SubTask.findByIdAndUpdate(
+            subtaskId,
+            {
+                subtask_Name: SubtaskName, // Update the name if needed
+                description: subtaskDescription, // Update description
+                subTask_status: newStatus // Update status
+            },
+            { new: true } // Return the updated subtask
+        );
+
+        if (!updatedSubtask) {
+            return res.status(404).json({ message: 'Subtask not found' });
+        }
+
+        // Respond with success
+        res.status(200).json({ message: 'Subtask updated successfully', subtask: updatedSubtask });
+    } catch (error) {
+        console.error('Error updating subtask:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
+

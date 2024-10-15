@@ -1,10 +1,10 @@
-document.getElementById('new-task-btn').addEventListener('click', function(event) {
+document.getElementById('new-task-btn').addEventListener('click', function (event) {
     event.preventDefault();
     document.getElementById('sidebar-popup').classList.toggle('show-sidebar');
     document.getElementById('overlay').classList.toggle('show-overlay');
 });
 
-document.getElementById("close-task-btn").addEventListener("click", function() {
+document.getElementById("close-task-btn").addEventListener("click", function () {
     document.getElementById("sidebar-popup").classList.remove("show-sidebar");
     document.getElementById("sidebar-popup").classList.add("hide-sidebar");
     document.getElementById("overlay").classList.remove("show-overlay");
@@ -30,7 +30,7 @@ function clearFields() {
     document.getElementById("SubDescription").value = "";
     document.getElementById("notiSubName").style.display = "none";
 }
-document.getElementById("SubName").addEventListener("focus", function() {
+document.getElementById("SubName").addEventListener("focus", function () {
     document.getElementById("notiAlert").style.display = "none";
 });
 
