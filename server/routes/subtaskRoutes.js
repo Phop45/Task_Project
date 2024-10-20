@@ -12,5 +12,6 @@ router.put('/toggleSubTaskStatus', isLoggedIn, subTaskController.toggleSubTaskSt
 router.delete('/deleteSubtask/:id',isLoggedIn, subTaskController.deleteSubtask);
 router.get('/api/subtask/:id', isLoggedIn, subTaskController.getSubtaskDetails);
 router.post('/updateSubtask'),isLoggedIn, subTaskController.updateSubtask;
+router.post('/updateSubtaskDescription', isLoggedIn, subTaskController.updateSubtaskDescription);
 
 module.exports = router;

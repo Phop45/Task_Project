@@ -1,9 +1,11 @@
+// Task Models
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const attachmentSchema = new mongoose.Schema({
-    path: String,          // Path to the uploaded file
-    originalName: String,  // Original filename
+    path: String, 
+    originalName: String,
+    uploadedAt: { type: Date, default: Date.now },
   });
 
 const taskSchema = new Schema({
@@ -20,13 +22,12 @@ const taskSchema = new Schema({
     },
     dueDate: {
         type: Date,
-        default: null // Set default to null
+        default: null
     },
     dueTime: {
         type: String,
         validate: {
             validator: function (v) {
-                // Allow null or validate for HH:mm format
                 return v === null || /^([01]\d|2[0-3]):([0-5]\d)$/.test(v);
             },
             message: props => `${props.value} is not a valid time! Expected format is HH:mm.`
@@ -36,7 +37,8 @@ const taskSchema = new Schema({
         type: String
     }],
     detail: {
-        type: String
+        type: String,  // Keep this as 'detail'
+        default: "",   // Optional: Ensure it starts with an empty string
     },
     createdAt: {
         type: Date,
@@ -51,7 +53,7 @@ const taskSchema = new Schema({
     },
     taskStatuses: {
         type: String,
-        enum: ['กำลังทำ', 'รอตรวจ', 'เสร็จสิ้น', 'แก้ไข'], // Update the enum to include new statuses
+        enum: ['กำลังทำ', 'รอตรวจ', 'เสร็จสิ้น', 'แก้ไข'], 
         default: 'กำลังทำ'
     },
     taskPriority: {
@@ -59,10 +61,10 @@ const taskSchema = new Schema({
         enum: ['ด่วน', 'ปกติ', 'ต่ำ'],
         default: 'ปกติ'
     },
-    activityLogs: {
-        type: [String],
-        default: []
-    },
+    activityLogs: [{
+        text: { type: String },
+        type: { type: String, enum: ['normal', 'comment'], default: 'normal' }
+    }],
     attachments: [attachmentSchema],
     assignedUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
 }, { timestamps: { createdAt: 'createdAt', updatedAt: 'updatedAt' } });

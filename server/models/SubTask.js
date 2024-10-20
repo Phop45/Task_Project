@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 
 const subTaskSchema = new Schema({
     task: {
-        type: Schema.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'Task'
     },
     subtask_Name: {
@@ -13,6 +13,15 @@ const subTaskSchema = new Schema({
     },
     subTask_dueDate: {
         type: Date
+    },
+    assignee: { 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'User' 
+    },
+    creator: { 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'User', 
+        required: true 
     },
     createdAt: {
         type: Date,
@@ -29,6 +38,5 @@ const subTaskSchema = new Schema({
     }
 }, { timestamps: { createdAt: 'createdAt' } });
 
-const SubTask = mongoose.models.SubTask || mongoose.model('SubTask', subTaskSchema);
-
+const SubTask = mongoose.model('SubTask', subTaskSchema);
 module.exports = SubTask;

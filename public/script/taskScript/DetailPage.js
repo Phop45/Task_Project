@@ -111,184 +111,152 @@ document.addEventListener('DOMContentLoaded', () => {
     const mainTaskDueDate = document.getElementById('dueDateInput').value;
     const maxDate = mainTaskDueDate ? new Date(mainTaskDueDate) : null;
 
-    // Function to format date to Thai representation
+    // Retrieve current user ID from the backend
+    const currentUserId = "<%= currentUserId %>";
+
     function formatDateToThai(date) {
         const thaiMonths = [
             'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
             'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
         ];
-        const day = date.getDate();
-        const month = thaiMonths[date.getMonth()]; // Get the full name of the month
-        return `${day} ${month}`; // Return formatted Thai date string
+        return `${date.getDate()} ${thaiMonths[date.getMonth()]}`;
     }
 
-    // Initialize Flatpickr
     const flatpickrInstance = flatpickr(dateInput, {
-        dateFormat: "Y-m-d", // Set to ISO format for internal use
-        locale: "th", // Use Thai locale
+        dateFormat: "Y-m-d",
+        locale: "th",
         minDate: "today",
         maxDate: maxDate,
         onChange: function (selectedDates) {
             if (selectedDates.length > 0) {
-                const formattedDate = formatDateToThai(selectedDates[0]); // Format to Thai
-                dueDateWrapper.classList.add('expanded'); // Expand wrapper for visual feedback
-                dateInput.value = formattedDate; // Set the formatted Thai date in the input
-                // Save ISO format for backend submission
-                dateInput.setAttribute('data-iso-date', selectedDates[0].toISOString()); // Store the ISO date
+                const formattedDate = formatDateToThai(selectedDates[0]);
+                dueDateWrapper.classList.add('expanded');
+                dateInput.value = formattedDate;
+                dateInput.setAttribute('data-iso-date', selectedDates[0].toISOString());
             }
         }
     });
 
-    // Open calendar on icon click
-    calendarIcon.addEventListener('click', () => {
-        flatpickrInstance.open();
-    });
+    calendarIcon.addEventListener('click', () => flatpickrInstance.open());
 
-    // Function to create a subtask
     window.addSubtaskNew = function () {
         const subtaskName = document.getElementById('subtaskNameInputMainNew').value.trim();
-        const dueDateInput = dateInput.getAttribute('data-iso-date'); // Get the ISO date from data attribute
+        const dueDateInput = dateInput.getAttribute('data-iso-date');
         const taskId = document.getElementById('taskId').value;
+        const assigneeSelect = document.getElementById('assigneeSelect');
+        const assignee = assigneeSelect ? assigneeSelect.value : '';
 
-        // Validate required fields
-        if (!subtaskName || !taskId || !dueDateInput) {
-            alert('Subtask name, due date, and task ID are required.');
+        if (!subtaskName || !taskId || !dueDateInput || !assignee) {
+            alert('All fields are required, including assignee.');
             return;
         }
 
-        // Prepare the data payload
         const data = {
             subTask: subtaskName,
-            dueDate: dueDateInput, // Use ISO format for the backend
-            taskId: taskId
+            dueDate: dueDateInput,
+            taskId: taskId,
+            assignee: assignee
         };
 
-        // Send POST request to create a new subtask
         fetch('/addSubtask', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         })
-            .then(response => {
-                if (response.ok) {
-                    window.location.reload(); // Reload the page on success
-                } else {
-                    return response.json().then(errorData => {
-                        alert(`Failed to create subtask: ${errorData.message}`);
-                    });
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Internal Server Error');
-            });
+        .then(response => response.ok ? window.location.reload() : response.json().then(error => alert(error.message)))
+        .catch(() => alert('Internal Server Error'));
     };
 
-    // Bind the click event to the add subtask button
     const addSubtaskButton = document.getElementById('addSubtaskNew');
-    if (addSubtaskButton) {
-        addSubtaskButton.addEventListener('click', addSubtaskNew);
-    }
+    if (addSubtaskButton) addSubtaskButton.addEventListener('click', addSubtaskNew);
 
-    // Function to save subtask states to localStorage
     function saveSubtaskState() {
         const subtaskTableBody = document.getElementById('subtaskTableBodyNew');
-        const subtasks = Array.from(subtaskTableBody.children).map(subtask => {
-            return {
-                id: subtask.dataset.subtaskId,
-                status: subtask.querySelector('.checkbox').checked
-            };
-        });
+        const subtasks = Array.from(subtaskTableBody.children).map(subtask => ({
+            id: subtask.dataset.subtaskId,
+            status: subtask.querySelector('.checkbox').checked
+        }));
         localStorage.setItem('subtasks', JSON.stringify(subtasks));
     }
 
-    // Function to load subtask states from localStorage
     function loadSubtaskState() {
         const subtasks = JSON.parse(localStorage.getItem('subtasks'));
         if (subtasks) {
-            subtasks.forEach(subtaskData => {
-                const subtaskRow = document.querySelector(`tr[data-subtask-id="${subtaskData.id}"]`);
+            subtasks.forEach(({ id, status }) => {
+                const subtaskRow = document.querySelector(`tr[data-subtask-id="${id}"]`);
                 if (subtaskRow) {
                     const checkbox = subtaskRow.querySelector('.checkbox');
                     const statusElement = subtaskRow.querySelector('.statusWrape');
-                    if (subtaskData.status) {
-                        checkbox.checked = true; // Set checkbox as checked
-                        subtaskRow.style.opacity = '0.5'; // Set opacity for completed tasks
-                        statusElement.textContent = 'เสร็จสิ้น';
-                        statusElement.classList.add('completed'); // Add completed class
-                    } else {
-                        checkbox.checked = false; // Set checkbox as unchecked
-                        subtaskRow.style.opacity = '1'; // Reset opacity for ongoing tasks
-                        statusElement.textContent = 'กำลังทำ';
-                        statusElement.classList.remove('completed'); // Remove completed class
-                    }
+                    checkbox.checked = status;
+                    subtaskRow.style.opacity = status ? '0.5' : '1';
+                    statusElement.textContent = status ? 'เสร็จสิ้น' : 'กำลังทำ';
+                    statusElement.classList.toggle('completed', status);
                 }
             });
-            // Call sortSubtasks to ensure proper ordering after loading state
             sortSubtasks();
         }
     }
 
-    // Call loadSubtaskState on page load
     loadSubtaskState();
 
-    // Handle checkbox change for toggling status
-    document.querySelectorAll('.checkbox').forEach((checkbox) => {
+    document.querySelectorAll('.checkbox').forEach(checkbox => {
         checkbox.addEventListener('change', function () {
             const subtaskRow = this.closest('tr');
             const subtaskId = subtaskRow.dataset.subtaskId;
 
             fetch('/toggleSubtaskStatus', {
                 method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ subtaskId })
             })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    // Update UI based on the new status
-                    const statusElement = subtaskRow.querySelector('.statusWrape');
-                    if (data.status === 'เสร็จสิ้น') {
-                        subtaskRow.style.opacity = '0.4'; // Set opacity for completed tasks
-                        statusElement.textContent = 'เสร็จสิ้น';
-                        statusElement.classList.add('completed'); // Add completed class
-                    } else {
-                        subtaskRow.style.opacity = '1'; // Reset opacity for ongoing tasks
-                        statusElement.textContent = 'กำลังทำ';
-                        statusElement.classList.remove('completed'); // Remove completed class
-                    }
-                    // Save the status to localStorage
-                    saveSubtaskState();
-                    // Re-sort the subtasks
-                    sortSubtasks();
-                })
-                .catch(error => {
-                    console.error('Error updating subtask status:', error);
-                });
+            .then(response => {
+                if (response.status === 403) {
+                    alert('You are not authorized to change the status of this subtask.');
+                    this.checked = !this.checked; // Revert checkbox state
+                    throw new Error('Unauthorized');
+                }
+                if (!response.ok) throw new Error('Network error');
+                return response.json();
+            })
+            .then(data => {
+                const statusElement = subtaskRow.querySelector('.statusWrape');
+                if (data.status === 'เสร็จสิ้น') {
+                    subtaskRow.style.opacity = '0.4'; // Visually indicate completion
+                    statusElement.textContent = 'เสร็จสิ้น';
+                    statusElement.style.backgroundColor = '#4CAF50'; // Green for completed
+                    statusElement.classList.add('completed');
+                } else {
+                    subtaskRow.style.opacity = '1';
+                    statusElement.textContent = 'กำลังทำ';
+                    statusElement.style.backgroundColor = '#6EACDA'; // Blue for in progress
+                    statusElement.classList.remove('completed');
+                }
+            })
+            .catch(error => console.error('Error:', error));
         });
     });
 
-    // Function to sort and reorder subtasks
+    // Set initial background colors based on the status when the page loads
+    document.querySelectorAll('.statusWrape').forEach(statusElement => {
+        const status = statusElement.textContent.trim();
+        if (status === 'เสร็จสิ้น') {
+            statusElement.style.backgroundColor = '#4CAF50'; // Green for completed
+        } else if (status === 'กำลังทำ') {
+            statusElement.style.backgroundColor = '#6EACDA'; // Blue for in progress
+        }
+    });
+    
     function sortSubtasks() {
         const subtaskTableBody = document.getElementById('subtaskTableBodyNew');
         const subtasks = Array.from(subtaskTableBody.children);
-
-        // Filter out completed and uncompleted tasks
         const incomplete = subtasks.filter(task => !task.querySelector('.checkbox').checked);
         const completed = subtasks.filter(task => task.querySelector('.checkbox').checked);
-
-        // Clear the current list and append uncompleted tasks first, then completed tasks
         subtaskTableBody.innerHTML = '';
         incomplete.forEach(task => subtaskTableBody.appendChild(task));
         completed.forEach(task => subtaskTableBody.appendChild(task));
     }
 });
+
 
 function deleteSubtask(subtaskId, element) {
     if (confirm('Are you sure you want to delete this subtask?')) {
@@ -456,32 +424,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-
-// Assignee dropdown selection handling
-document.addEventListener("DOMContentLoaded", () => {
-    document.querySelectorAll('.assigneeInputNew .dropdown-item').forEach(item => {
-        item.addEventListener('click', function (e) {
-            e.preventDefault();
-            const username = this.getAttribute('data-username');
-            const userimg = this.getAttribute('data-userimg');
-            const selectedAssigneesDiv = document.getElementById('selectedAssignees');
-            const isSelected = this.classList.toggle('selected');
-
-            if (isSelected) {
-                const img = document.createElement('img');
-                img.src = userimg;
-                img.alt = username;
-                img.className = 'selected-assignee-img';
-                selectedAssigneesDiv.appendChild(img);
-            } else {
-                const imgToRemove = [...selectedAssigneesDiv.querySelectorAll('img')].find(img => img.src === userimg);
-                if (imgToRemove) {
-                    selectedAssigneesDiv.removeChild(imgToRemove);
-                }
-            }
-        });
-    });
-});
 
 async function showSubtaskFullView(subtaskId) {
     try {
@@ -799,3 +741,32 @@ async function changeTaskStatus(newStatus) {
         console.error('Error updating task status:', error);
     }
 }
+
+document.addEventListener('DOMContentLoaded', function () {
+    const taskPrioritySelect = document.getElementById('taskPrioritySelect');
+
+    taskPrioritySelect.addEventListener('change', function () {
+        const priority = this.value;
+        const taskId = document.querySelector('input[name="taskId"]').value;
+
+        console.log('Priority selected:', priority); // Check if this prints
+        console.log('Task ID:', taskId); // Check if task ID is correct
+
+        fetch('/updateTaskPriority', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ taskId, taskPriority: priority }),
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Response data:', data); // Check response in console
+                if (data.success) {
+                    alert('Task priority updated!');
+                } else {
+                    console.error('Error updating priority:', data.message);
+                }
+            })
+            .catch(error => console.error('Request error:', error));
+    });
+});
+

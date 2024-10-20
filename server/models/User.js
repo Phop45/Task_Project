@@ -31,7 +31,7 @@ const UserSchema = new Schema({
     },
     profileImage: {
       type: String,
-      default: 'img/profileImage/img-user.svg',
+      default: '/img/profileImage/Profile.jpeg',
     },
     otp: {
       type: String,

@@ -49,6 +49,8 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json()); // Middleware to parse JSON requests
 app.use(express.static(path.join(__dirname, 'public')));
+
+app.use('/public', express.static(path.join(__dirname, 'public')));
 app.use('/docUploads', express.static(path.join(__dirname, 'docUploads')));
 app.use(methodOverride('_method'));
 
@@ -85,7 +87,6 @@ app.set('view engine', 'ejs');
 // Routes setup
 app.use('/', require('./server/routes/auth'));
 app.use('/', require('./server/routes/index'));
-app.use('/', require('./server/routes/notesRoutes'));
 app.use('/', require('./server/routes/spaceRoutes'));
 app.use('/', require('./server/routes/taskRoutes'));
 app.use('/', require('./server/routes/subtaskRoutes')); // Ensure subtaskRoutes is included

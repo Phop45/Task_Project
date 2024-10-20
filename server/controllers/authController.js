@@ -32,14 +32,13 @@ exports.googleCallback = async (accessToken, refreshToken, profile, done) => {
 
       if (user && !user.googleId) {
         user.googleId = profile.id;
-        user.profileImage = profile.photos[0].value;
+        user.profileImage = profile.photos[0]?.value || '/img/profileImage/Profile.jpeg';
         await user.save();
         return done(null, user);
       } else {
         let username = generateUsername();
         let userid = generateUserId();
 
-        // Ensure both userid and username are unique
         while (await User.findOne({ username })) {
           username = generateUsername();
         }
@@ -51,8 +50,8 @@ exports.googleCallback = async (accessToken, refreshToken, profile, done) => {
           googleId: profile.id,
           googleEmail: profile.emails[0].value,
           username: username,
-          userid: userid, // Ensure userid is generated
-          profileImage: profile.photos[0].value || "img/profileImage/img-user.svg",
+          userid: userid,
+          profileImage: profile.photos[0]?.value || '/img/profileImage/Profile.jpeg',
         });
 
         user = await newUser.save();
@@ -60,7 +59,7 @@ exports.googleCallback = async (accessToken, refreshToken, profile, done) => {
       }
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return done(error, null);
   }
 };
@@ -92,7 +91,6 @@ exports.login = (req, res, next) => {
 };
 
 exports.registerUser = async (req, res) => {
-  console.log(req.body);
   const { username, password, confirmPassword, googleEmail } = req.body;
   let errors = [];
 
@@ -103,20 +101,13 @@ exports.registerUser = async (req, res) => {
   const existingUsername = await User.findOne({ username });
   const existingEmail = await User.findOne({ googleEmail });
 
-  if (existingUsername) {
-    errors.push("ชื่อผู้ใช้นี้มีอยู่แล้ว");
-  }
-
-  if (existingEmail) {
-    errors.push("อีเมลนี้มีอยู่แล้ว");
-  }
+  if (existingUsername) errors.push("ชื่อผู้ใช้นี้มีอยู่แล้ว");
+  if (existingEmail) errors.push("อีเมลนี้มีอยู่แล้ว");
 
   if (errors.length > 0) {
     req.flash("errors", errors);
     req.flash("username", username);
     req.flash("googleEmail", googleEmail);
-    req.flash("password", password);
-    req.flash("confirmPassword", confirmPassword);
     return res.redirect("/register");
   }
 
@@ -124,28 +115,22 @@ exports.registerUser = async (req, res) => {
     const newUser = new User({
       username,
       googleEmail,
-      password, // Ensure that the password is included
+      password,
+      profileImage: '/img/profileImage/Profile.jpeg', // Set default profile image here
     });
 
-    // If a password is provided, use User.register
     if (password) {
       User.register(newUser, password, (err, user) => {
         if (err) {
           req.flash("errors", [err.message]);
           return res.redirect("/register");
         }
-        passport.authenticate("local")(req, res, () => {
-          res.redirect("/space");
-        });
+        passport.authenticate("local")(req, res, () => res.redirect("/space"));
       });
-    }
-    else {
-      // No password (for Google users)
+    } else {
       const savedUser = await newUser.save();
       req.logIn(savedUser, (err) => {
-        if (err) {
-          return next(err);
-        }
+        if (err) return next(err);
         res.redirect("/space");
       });
     }

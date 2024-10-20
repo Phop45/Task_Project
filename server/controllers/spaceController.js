@@ -8,22 +8,23 @@ moment.locale('th');
 // show subject dashboard page
 exports.SpaceDashboard = async (req, res) => {
     try {
+        const userId = mongoose.Types.ObjectId(req.user.id);
+
         const spaces = await Spaces.aggregate([
             { 
                 $match: { 
                     $or: [
-                        { user: mongoose.Types.ObjectId(req.user.id) },
-                        { collaborators: mongoose.Types.ObjectId(req.user.id) }
+                        { user: userId },
+                        { collaborators: { $elemMatch: { user: userId } } }  // Adjusted to match nested user object
                     ],
                     deleted: false 
                 } 
             },
-            { $project: { SpaceName: 1, SpaceDescription: 1, createdAt: 1, collaborators: 1 } },
             {
                 $lookup: {
-                    from: "tasks",
+                    from: "tasks", 
                     localField: "_id",
-                    foreignField: "Spaces",
+                    foreignField: "space", 
                     as: "tasks"
                 }
             },
@@ -31,18 +32,27 @@ exports.SpaceDashboard = async (req, res) => {
                 $addFields: {
                     taskCount: { $size: "$tasks" }
                 }
+            },
+            {
+                $project: {
+                    SpaceName: 1,
+                    SpaceDescription: 1,
+                    taskCount: 1,
+                    createdAt: 1,
+                    collaborators: 1
+                }
             }
         ]).exec();
 
         res.render("space/space-dashboard", {
-            spaces: spaces,
+            spaces,
             userName: req.user.firstName,
             userImage: req.user.profileImage,
             currentUser: req.user,
             layout: "../views/layouts/space",
         });
     } catch (error) {
-        console.log(error);
+        console.error("Error fetching spaces:", error);
         res.status(500).send("Internal Server Error");
     }
 };
@@ -50,13 +60,19 @@ exports.SpaceDashboard = async (req, res) => {
 // create space
 exports.createSpace = async (req, res) => {
     try {
-        const { SpaceName, SpaceDescription, collaborators } = req.body;
+        const { SpaceName, SpaceDescription } = req.body;
 
+        // Create the new space with the user as the leader
         const newSpace = new Spaces({
             SpaceName,
             SpaceDescription,
             user: req.user.id,
-            collaborators: Array.isArray(collaborators) ? collaborators : [collaborators]
+            collaborators: [
+                {
+                    user: req.user.id, // User who creates the space
+                    role: 'Leader' // Assign them as Leader
+                }
+            ]
         });
 
         await newSpace.save();
@@ -66,6 +82,7 @@ exports.createSpace = async (req, res) => {
         res.status(500).send("Internal Server Error");
     }
 };
+
 
 // delete space
 exports.deleteSpace = async (req, res) => {
@@ -93,7 +110,6 @@ exports.deleteSpace = async (req, res) => {
         res.status(500).json({ success: false, error: "Internal Server Error" });
     }
 };
-
 
 // Show subkect that can Recover
 exports.ShowRecover = async (req, res) => {
@@ -128,7 +144,6 @@ exports.ShowRecover = async (req, res) => {
     }
 };
 
-
 // recover Space
 exports.recoverSpace = async (req, res) => {
     const spaceId = req.params.id;
@@ -144,81 +159,19 @@ exports.recoverSpace = async (req, res) => {
     }
 };
 
-
-exports.addMember = async (req, res) => {
-    const { searchQuery, role } = req.body;
-    const spaceId = req.spaceId;  // Assuming spaceId is available from the middleware or session
-
+exports.addMemberToSpace = async (req, res) => {
     try {
-        const user = await User.findOne({
-            $or: [
-                { email: searchQuery },
-                { username: searchQuery },
-                { userid: searchQuery }
-            ]
-        });
+        const { memberId, role, spaceId } = req.body;
 
-        if (!user) {
-            return res.json({ success: false, message: 'User not found' });
-        }
+        const space = await Spaces.findById(spaceId);
+        if (!space) return res.status(404).json({ success: false, message: 'Space not found' });
 
-        const space = await Space.findById(spaceId);
-
-        if (!space) {
-            return res.json({ success: false, message: 'Space not found' });
-        }
-
-        // Check if user is already a member
-        if (space.members.some(member => member._id.equals(user._id))) {
-            return res.json({ success: false, message: 'User is already a member' });
-        }
-
-        // Add member to space
-        space.members.push({ user: user._id, role });
+        space.collaborators.push({ user: memberId, role });
         await space.save();
 
-        res.json({ success: true, message: 'Member added successfully' });
+        res.status(200).json({ success: true, message: 'Member added successfully!' });
     } catch (error) {
         console.error(error);
-        res.json({ success: false, message: 'An error occurred' });
-    }
-};
-
-exports.updateMemberRole = async (req, res) => {
-    const { memberId, newRole } = req.body;
-    const spaceId = req.spaceId;
-
-    try {
-        const space = await Space.findById(spaceId);
-
-        const member = space.members.find(member => member._id.equals(memberId));
-        if (!member) {
-            return res.json({ success: false, message: 'Member not found' });
-        }
-
-        member.role = newRole;
-        await space.save();
-
-        res.json({ success: true, message: 'Role updated successfully' });
-    } catch (error) {
-        console.error(error);
-        res.json({ success: false, message: 'Failed to update role' });
-    }
-};
-
-// Remove Member from Space
-exports.removeMember = async (req, res) => {
-    const { memberId } = req.body;
-    const spaceId = req.spaceId;
-
-    try {
-        const space = await Space.findById(spaceId);
-        space.members = space.members.filter(member => !member._id.equals(memberId));
-
-        await space.save();
-        res.json({ success: true, message: 'Member removed successfully' });
-    } catch (error) {
-        console.error(error);
-        res.json({ success: false, message: 'Failed to remove member' });
+        res.status(500).json({ success: false, message: 'Internal Server Error' });
     }
 };

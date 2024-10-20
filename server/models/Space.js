@@ -2,6 +2,15 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
+const memberSchema = new Schema({
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' } ,
+    role: { 
+        type: String, 
+        enum: ['Leader', 'Member'], 
+        required: true 
+    }
+});
+
 const spaceSchema = new Schema({
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     SpaceName: {
@@ -18,7 +27,7 @@ const spaceSchema = new Schema({
         type: Boolean,
         default: false
     },
-    collaborators: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
+    collaborators: [memberSchema],
 }, {
     timestamps: true 
 });

@@ -1,38 +1,35 @@
-<style>
-    .nav-link{
-        color: gray;
-    }
-</style>
-<ul class="nav nav-tabs">
-    <li class="nav-item">
-        <a class="nav-link <%= currentPage === 'dashboard' ? 'active' : '' %>" href="/space/item/<%= spaces._id %>">
-            <i class='bx bxs-dashboard'></i> แดชบอร์ด
-        </a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link <%= currentPage === 'board' ? 'active' : '' %>" href="/space/item/<%= spaces._id %>/task_board">
-            <i class='bx bxs-dashboard' ></i> บอร์ด
-        </a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link <%= currentPage === 'task_list' ? 'active' : '' %>" href="/space/item/<%= spaces._id %>/task_list">
-            <i class='bx bx-list-ul' ></i> ลิสต์
-        </a>
-    </li>
-    
-    <li class="nav-item">
-        <a class="nav-link <%= currentPage === 'task_member' ? 'active' : '' %>" href="/space/item/<%= spaces._id %>/member">
-            <i class='bx bxs-cog' ></i> สมาชิก
-        </a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link <%= currentPage === 'pedding-taskr' ? 'active' : '' %>" href="/space/item/<%= spaces._id %>/pedding">
-            <i class='bx bxs-cog' ></i> ตรวจงาน
-        </a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link <%= currentPage === 'task_board' ? 'active' : '' %>" href="#">
-            <i class='bx bxs-cog' ></i> การตั้งค่า
-        </a>
-    </li>
-</ul>
+<div class="topNavlink">
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link <%= currentPage === 'dashboard' ? 'active' : '' %>" href="/space/item/<%= spaces._id %>">
+                <i class='bx bxs-dashboard'></i> แดชบอร์ด
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link <%= currentPage === 'board' ? 'active' : '' %>"
+                href="/space/item/<%= spaces._id %>/task_board">
+                <i class="fa-regular fa-clipboard"></i> บอร์ดงาน
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link <%= currentPage === 'task_member' ? 'active' : '' %>"
+                href="/space/item/<%= spaces._id %>/member">
+                <i class="fa-solid fa-users"></i> สมาชิก
+            </a>
+        </li>
+        <% if (currentUserRole==='Leader' ) { %>
+            <li class="nav-item">
+                <a class="nav-link <%= currentPage === 'pending-task' ? 'active' : '' %>"
+                    href="/space/item/<%= spaces._id %>/pedding">
+                    <i class="fa-solid fa-list-check"></i> ตรวจงาน
+                </a>
+            </li>
+            <% } %>
+                <li class="nav-item">
+                    <a class="nav-link <%= currentPage === 'task_board' ? 'active' : '' %>" href="#">
+                        <i class='bx bxs-cog'></i> การตั้งค่า
+                    </a>
+                </li>
+    </ul>
+</div>
