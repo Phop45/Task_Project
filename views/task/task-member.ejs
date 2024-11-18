@@ -36,8 +36,9 @@
                             <% allUsers.forEach(user => { %>
                                 <li class="dropdown-item" 
                                     onclick="selectMember('<%= user._id %>', '<%= user.username %>', '<%= user.profileImage %>')">
-                                    <img src="<%= user.profileImage || 'img-user.svg' %>" 
-                                        alt="Profile Image" width="30" height="30">
+                                    <img src="<%= user.profileImage %>" 
+                                        alt="Profile Image" width="30" height="30"
+                                        onerror="this.onerror=null; this.src='/public/img/profileImage/userDefalt.jpg';">
                                     <span><%= user.username %></span>
                                 </li>
                             <% }) %>
@@ -86,7 +87,8 @@
                     %>
                         <tr class="task-row">
                             <td>
-                                <img src="<%= collab.user.profileImage || 'img-user.svg' %>" alt="Profile" width="40" height="40">
+                                <img src="<%= collab.user.profileImage %>" alt="Profile" width="40" height="40"
+                                onerror="this.onerror=null; this.src='/public/img/profileImage/userDefalt.jpg';">
                                 <%= collab.user.username %>
                             </td>
                             <td><%= collab.user.email %></td>
@@ -130,7 +132,8 @@
                     <% members.forEach(collab => { %>
                         <tr class="task-row">
                             <td>
-                                <img src="<%= collab.user.profileImage || 'img-user.svg' %>" alt="Profile" width="40" height="40">
+                                <img src="<%= collab.user.profileImage %>" alt="Profile" width="40" height="40"
+                                onerror="this.onerror=null; this.src='/public/img/profileImage/userDefalt.jpg';">
                                 <%= collab.user.username %>
                             </td>
                             <td><%= collab.user.email %></td>

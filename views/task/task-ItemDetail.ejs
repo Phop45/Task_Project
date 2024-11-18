@@ -82,7 +82,8 @@
                                   <% if (assignedUsers.length > 0) { %>
                                     <% assignedUsers.forEach(user => { %>
                                       <div class="user-profile">
-                                        <img src="<%= user.profileImage %>" width="40px" height="40px" style="border-radius: 50%; cursor: pointer;">
+                                        <img src="<%= user.profileImage %>" width="40px" height="40px" style="border-radius: 50%; cursor: pointer;"
+                                        onerror="this.onerror=null; this.src='/public/img/profileImage/userDefalt.jpg';">
                                         <span class="username-tooltip"><%= user.username %></span>
                                       </div>
                                     <% }) %>
@@ -201,20 +202,23 @@
                                 <li id="fileItem">
                                     <% const ext = attachment.originalName.split('.').pop().toLowerCase(); %>
                                     <div class="file-content">
-                                        <% if (ext === 'pdf') { %>
+                                        <a href="/docUploads/<%= attachment.fileName %>" 
+                                            download="<%= attachment.originalName %>" 
+                                            class="download-link">
+                                          <% if (ext === 'pdf') { %>
                                             <i class="fa-solid fa-file-pdf" style="color: #d9534f;"></i>
-                                        <% } else if (['doc', 'docx'].includes(ext)) { %>
+                                          <% } else if (['doc', 'docx'].includes(ext)) { %>
                                             <i class="fa-solid fa-file-word" style="color: #337ab7;"></i>
-                                        <% } else if (['jpg', 'jpeg', 'png'].includes(ext)) { %>
+                                          <% } else if (['jpg', 'jpeg', 'png'].includes(ext)) { %>
                                             <i class="fa-solid fa-file-image" style="color: #5cb85c;"></i>
-                                        <% } else { %>
+                                          <% } else { %>
                                             <i class="fa-solid fa-file" style="color: #6c757d;"></i>
-                                        <% } %>
-
-                                        <div class="fileName">
+                                          <% } %>
+                                          <div class="fileName">
                                             <span class="file-text"><%= attachment.originalName %></span>
-                                        </div>
-                                    </div>
+                                          </div>
+                                        </a>
+                                      </div>
 
                                     <div class="fileWrap">
                                         <div class="file-time" data-uploaded="<%= attachment.uploadedAt %>">
@@ -277,7 +281,8 @@
                                                 <img 
                                                     src="<%= subtask.assignee.profileImage %>" 
                                                     alt="<%= subtask.assignee.username %> Profile" 
-                                                    class="user-avatar" 
+                                                    class="user-avatar"
+                                                    onerror="this.onerror=null; this.src='/public/img/profileImage/userDefalt.jpg';"
                                                 />
                                                 <%= subtask.assignee.username %>
                                             <% } else { %>
@@ -312,7 +317,8 @@
                                 <div class="dropdown-assign" id="dropdownOptions">
                                     <% assignedUsers.forEach(user => { %>
                                         <div class="dropdown-option-assign" data-value="<%= user._id %>">
-                                            <img src="<%= user.profileImage %>" alt="<%= user.username %> Profile" class="user-avatar" />
+                                            <img src="<%= user.profileImage %>" alt="<%= user.username %> Profile" class="user-avatar" 
+                                            onerror="this.onerror=null; this.src='/public/img/profileImage/userDefalt.jpg';"/>
                                             <span><%= user.username %></span>
                                         </div>
                                     <% }) %>
@@ -396,7 +402,8 @@
                                     <div class="grid-item topic">
                                         <div class="sub-detail-name"><i class="fa-regular fa-circle-user"></i> ผู้รับผิดชอบ</div>
                                         <div class="sub-detail-data">
-                                            <img src="<%= userImage %>">
+                                            <img src="<%= userImage %>" 
+                                            onerror="this.onerror=null; this.src='/public/img/profileImage/userDefalt.jpg';">
                                             <%= userName %>
                                         </div>
                                     </div>
@@ -433,6 +440,7 @@
     </div>
 
     <script>
+        
         document.addEventListener('DOMContentLoaded', function () {
             const updateTaskDescription = async (textarea) => {
                 const newDescription = textarea.value.trim();
@@ -569,75 +577,67 @@
         });
 
 
-
-        // JavaScript for handling delete actions
         document.addEventListener('DOMContentLoaded', () => {
             const deleteButtons = document.querySelectorAll('.deleteFile');
-        
+          
             // Helper function to calculate relative time in Thai
             function timeAgo(date) {
-                const now = new Date();
-                const uploadedDate = new Date(date);
-                const seconds = Math.floor((now - uploadedDate) / 1000);
-        
-                const intervals = {
-                    year: 31536000,
-                    month: 2592000,
-                    week: 604800,
-                    day: 86400,
-                    hour: 3600,
-                    minute: 60,
-                    second: 1,
-                };
-        
-                for (const [unit, value] of Object.entries(intervals)) {
-                    const interval = Math.floor(seconds / value);
-                    if (interval >= 1) {
-                        const rtf = new Intl.RelativeTimeFormat('th', { numeric: 'auto' });
-                        return rtf.format(-interval, unit); // Negative to show 'ago'
-                    }
+              const now = new Date();
+              const uploadedDate = new Date(date);
+              const seconds = Math.floor((now - uploadedDate) / 1000);
+          
+              const intervals = {
+                year: 31536000,
+                month: 2592000,
+                week: 604800,
+                day: 86400,
+                hour: 3600,
+                minute: 60,
+                second: 1,
+              };
+          
+              for (const [unit, value] of Object.entries(intervals)) {
+                const interval = Math.floor(seconds / value);
+                if (interval >= 1) {
+                  const rtf = new Intl.RelativeTimeFormat('th', { numeric: 'auto' });
+                  return rtf.format(-interval, unit); // Negative for 'ago'
                 }
-                return 'เมื่อครู่นี้'; // Just now in Thai
+              }
+              return 'เมื่อครู่นี้'; // Just now in Thai
             }
-        
+          
             // Update the relative time for each file
             document.querySelectorAll('.file-time').forEach(timeElement => {
-                const uploadedAt = timeElement.getAttribute('data-uploaded');
-                timeElement.querySelector('.time-text').textContent = timeAgo(uploadedAt);
+              const uploadedAt = timeElement.getAttribute('data-uploaded');
+              timeElement.querySelector('.time-text').textContent = timeAgo(uploadedAt);
             });
-        
-            // Handle delete button clicks with Thai alert messages
+          
+            // Handle delete button clicks with confirmation in Thai
             deleteButtons.forEach(button => {
-                button.addEventListener('click', async (event) => {
-                    event.stopPropagation();
-                    const fileId = button.getAttribute('data-id');
-        
-                    const confirmDelete = confirm('คุณแน่ใจหรือไม่ว่าต้องการลบไฟล์นี้?');
-                    if (!confirmDelete) return;
-        
-                    try {
-                        const response = await fetch(`/deleteFile/${fileId}`, { method: 'DELETE' });
-        
-                        if (response.ok) {
-                            button.closest('#fileItem').remove();
-                            alert('ลบไฟล์สำเร็จ');
-                        } else {
-                            alert('ลบไฟล์ไม่สำเร็จ');
-                        }
-                    } catch (error) {
-                        console.error('Error:', error);
-                        alert('เกิดข้อผิดพลาดระหว่างการลบไฟล์');
-                    }
-                });
+              button.addEventListener('click', async (event) => {
+                event.stopPropagation();
+                const fileId = button.getAttribute('data-id');
+          
+                const confirmDelete = confirm('คุณแน่ใจหรือไม่ว่าต้องการลบไฟล์นี้?');
+                if (!confirmDelete) return;
+          
+                try {
+                  const response = await fetch(`/deleteFile/${fileId}`, { method: 'DELETE' });
+          
+                  if (response.ok) {
+                    button.closest('#fileItem').remove();
+                    alert('ลบไฟล์สำเร็จ');
+                  } else {
+                    alert('ลบไฟล์ไม่สำเร็จ');
+                  }
+                } catch (error) {
+                  console.error('Error:', error);
+                  alert('เกิดข้อผิดพลาดระหว่างการลบไฟล์');
+                }
+              });
             });
-        
-            // Prevent file download when clicking the file name or icon
-            document.querySelectorAll('#fileItem a').forEach(anchor => {
-                anchor.addEventListener('click', event => {
-                    event.preventDefault();
-                });
-            });
-        });
+          });
+          
         
         
         // Function to assign icons based on file type

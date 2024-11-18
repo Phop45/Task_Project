@@ -1,20 +1,35 @@
 :root{
-    --color1: #7952B3;
+    --topnav: #323450;
+    --lighttopnav: #474962;
+    --select: #7952B3;
+    --lightselect: #E5E4FA;
+    --deepbackground: #F7F8F9;
+    --lightline: #E9EBEF;
+    --lightText: #fffc;
+    --btn: #5C54E5;
+
+    --line: #d7d9dd;
+    --more-line: #9a9a9a;
+    --text1: #656f7d;
+    --color1: #7952b3;
     --color2: #a788d4;
-    --color3: #E4E9F6;
-    --light: #37352FA6;
-    --more-light: #222220d7;
-    --notYet: #B5C0D0;
-    --line: #D7D9DD;
-    --text: #515761;
+    --color4: #906fc3;
+    --color3: #e4e9f6;
+    --text2: #37352f;
+    --light: #37352fa6;
+    --more-light: #0a0a03d7;
+    --notYet: #c3cad5;
+
+    --cancle: #E53935;
+    --grey: rgb(235, 237, 242) ;
 }
-.contant {
+.content {
     background-color: white;
-    margin: 20px 20px 20px 130px;
-    border-radius: 20px;
+    margin-left: 90px;
     display: flex;
     flex-direction: column;
-    height: 100%;
+    height: 92vh;
+    overflow: hidden;
 }
 .SubName {
     padding: 30px 0 20px 50px;
@@ -108,18 +123,20 @@
 }
 
 .table-head{
-    background-color: var(--color2);
+    background-color: var(--btn);
     color: white;
-    font-weight: 400;
     height: 50px;
     position: sticky;
     top: 0px;
     padding: 0;
+    font-size: 14px;
 }
 .table-head tr th{
     vertical-align: middle;
+    text-align: center;
     border-left: 1px solid rgba(55, 53, 47, 0.1);
     border-right: 1px solid rgba(55, 53, 47, 0.1);
+    font-weight: 300;
 }
 tbody tr{
     background-color: white;
@@ -134,15 +151,16 @@ tr.drag-over {
     background-color: lightgray;
 }
 tbody tr td{
-    border: 1px solid rgba(55, 53, 47, 0.1);
-}
-tbody tr td{
     width: 200px;
-    height: 50px;
+    height: 60px;
     max-width: 200px;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+    border: 1px solid rgba(55, 53, 47, 0.1);
+    font-size: 14px;
+    font-weight: 300;
+    vertical-align: middle;
 }
 tbody td:first-child,
 .table-head th:first-child{
@@ -320,4 +338,79 @@ tbody td:first-child,
     border-radius: 20px;
     font-size: 0.9em;
     font-weight: 500;
+}
+.nav-tabs .nav-link{
+    border: none;
+    
+}
+.nav-link{
+    padding: 9px 20px;
+}
+
+.nav-item:hover{
+    background-color: var(--btn);
+    transition: 0.3s;
+    border-radius: 5px;
+}
+
+.topNavlink .nav-tabs .nav-item:hover .nav-link{
+    color: white;
+}
+.TopNavigation .contain .nav-item .nav-link {
+    color: white;
+    width: 25px;
+    height: 25px;
+    border: 1px solid var(--line);
+    padding: 20px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.nav-tabs {
+    padding-left: 50px;
+    margin-top: 28px;
+    font-size: 16px;
+    font-weight: 400;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.topNavlink .nav-tabs{
+    color: black;
+}
+
+.topNavlink .nav-tabs .nav-link{
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.topNavlink .nav-tabs .nav-link.active{
+    color: var(--btn);
+    border-bottom: 4px solid var(--btn);
+    border-radius: 0;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+}
+.topNavlink .nav-tabs .nav-link.active:hover{
+    color: var(--btn);
+}
+.topNavlink .nav-item:hover::after {
+    display: none;
+}
+.add-member-container h2{
+    margin: 30px 50px 20px 50px;
+}
+#memberAll{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    margin-left: 10px;
+}
+#memberAll img{
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
 }

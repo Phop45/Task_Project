@@ -34,7 +34,11 @@
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
               aria-expanded="false">
-              <img src="/public/img/images.jpeg" />
+              <img 
+                src="<%= user.profileImage %>" 
+                alt="<%= user.username %>'s Profile Image" 
+                onerror="this.onerror=null; this.src='/public/img/profileImage/userDefalt.jpg';"
+                />
             </a>
             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
               <li>
@@ -80,11 +84,15 @@
     <header class="headInfo">
       <div class="image-text">
         <span class="image">
-          <img src="/public/img/images.jpeg" alt="User Profile" />
+          <img 
+            src="<%= user.profileImage %>" 
+            alt="<%= user.username %>'s Profile Image" 
+            onerror="this.onerror=null; this.src='/public/img/profileImage/userDefalt.jpg';"
+             />
         </span>
         <div class="text header-text">
-          <span class="name">Phop</span>
-          <span class="ีuser_id">#User_2516</span>
+          <span class="name"><%= user.username %></span>
+          <span class="user_id">#<%= user.userid %></span>
         </div>
       </div>
       <div class="arrow-close" id="arrow-btn">
@@ -94,12 +102,6 @@
     <div class="line"></div>
     <div class="menu-bar">
       <ul class="menu-link">
-        <li class="nav-links">
-          <a href="/#">
-            <i class="bx bxs-dashboard" id="icon"></i>
-            <span class="text navbar-text">แดชบอร์ด</span>
-          </a>
-        </li>
         <li class="nav-links">
           <a href="/space">
             <i class="bx bx-columns" id="icon"></i>
@@ -116,8 +118,7 @@
           <div class="spaceopt">
             <i class="bx bx-plus"></i>
             <li class="space-nav-item dropdown">
-              <a class="space-nav-link dropdown-toggle" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
-                aria-expanded="false">
+              <a class="space-nav-link dropdown-toggle" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                 <i class="bx bx-dots-horizontal-rounded"></i>
               </a>
               <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
@@ -141,45 +142,37 @@
           </div>
         </div>
         <div class="spaceitem-all">
-          <ul class="spaceitem">
-            <li class="itemDetail">
-              <div class="spaceicon">
-                <span id="spaceicon">N</span>
-                <span id="spacename">name</span>
-              </div>
-              <div class="spaceoption">
-                <a class="space-nav-link dropdown-toggle" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
-                  aria-expanded="false">
-                  <i class="bx bx-dots-horizontal-rounded"></i>
-                </a>
-                <ul class="dropdown-menu" aria-labelledby="spaceDropdown">
-                  <li>
-                    <a class="dropdown-item" href="#">
-                      <i class="fa-solid fa-pen"></i>เปลี่ยนชื่อ</a>
-                  </li>
-                  <li>
-                    <a class="dropdown-item" href="#">
-                      <i class="fa-solid fa-gear"></i>ตั้งค่าพื้นที่</a>
-                  </li>
-                  <li>
-                    <a class="dropdown-item" href="#">
-                      <i class="fa-solid fa-star"></i>ติดดาว</a>
-                  </li>
-                  <li>
-                    <hr class="dropdown-divider" />
-                  </li>
-                  <li>
-                    <a class="dropdown-item" href="#">
-                      <i class="fa-solid fa-box-archive"></i>จัดเก็บพื้นที่</a>
-                  </li>
-                  <li>
-                    <a class="dropdown-item no-hover" href="#" style="color: red">
-                      <i class="fa-solid fa-trash" style="color: red"></i>ลบพื้นที่</a>
-                  </li>
-                </ul>
-              </div>
-            </li>
-          </ul>
+          <div class="scollitem">
+            <% if (spaces && spaces.length > 0) { %>
+            <% spaces.forEach(function(space) { %>
+
+            <ul class="spaceitem">
+              <li class="itemDetail">
+                <div class="spaceicon">
+                  <span id="spaceicon"><%= space.SpaceName.charAt(0) %></span>
+                  <span id="spacename"><%= space.SpaceName %></span> <!-- Use space instead of spaces[i] -->
+                </div>
+                <div class="spaceoption">
+                  <a class="space-nav-link dropdown-toggle" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bx bx-dots-horizontal-rounded"></i>
+                  </a>
+                  <ul class="dropdown-menu" aria-labelledby="spaceDropdown">
+                    <li><a class="dropdown-item" href="#"><i class="fa-solid fa-pen"></i> เปลี่ยนชื่อ</a></li>
+                    <li><a class="dropdown-item" href="#"><i class="fa-solid fa-gear"></i> ตั้งค่าพื้นที่</a></li>
+                    <li><a class="dropdown-item" href="#"><i class="fa-solid fa-star"></i> ติดดาว</a></li>
+                    <li>
+                      <hr class="dropdown-divider" />
+                    </li>
+                    <li><a class="dropdown-item" href="#"><i class="fa-solid fa-box-archive"></i> จัดเก็บพื้นที่</a></li>
+                    <li><a class="dropdown-item no-hover" href="#" style="color: red"><i class="fa-solid fa-trash" style="color: red"></i> ลบพื้นที่</a></li>
+                  </ul>
+                </div>
+              </li>
+
+            </ul>
+            <% }); %>
+            <% } %>
+          </div>
         </div>
       </div>
     </div>
@@ -196,5 +189,86 @@
 
   toggle.addEventListener("click", () => {
     sidebar.classList.toggle("close");
+  });
+
+  const sidebar = document.querySelector('.sidebar');
+  const overlay = document.getElementById('overlay');
+  const toggleBtn = document.getElementById('arrow-btn');
+
+  toggleBtn.addEventListener('click', () => {
+    sidebar.classList.toggle('close');
+
+    // Check if the sidebar is open or closed
+    if (sidebar.classList.contains('close')) {
+      overlay.classList.remove('show');
+    } else {
+      overlay.classList.add('show');
+    }
+  });
+
+  // Hide overlay when clicked
+  overlay.addEventListener('click', () => {
+    sidebar.classList.add('close');
+    overlay.classList.remove('show');
+  });
+
+  document.addEventListener('DOMContentLoaded', function() {
+    // Log current path for debugging
+    console.log(window.location.pathname);
+
+    // ส่วนของการทำให้เมนู active ตาม path
+    const currentPath = window.location.pathname;
+    const menuItems = document.querySelectorAll('.menu-item');
+
+    menuItems.forEach(item => {
+      const link = item.querySelector('a');
+      if (link.getAttribute('href') === currentPath) {
+        item.classList.add('active');
+      }
+    });
+  });
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const currentPath = window.location.pathname;
+    const menuItems = document.querySelectorAll('.nav-links');
+
+    menuItems.forEach(item => {
+      const link = item.querySelector('a');
+      if (link.getAttribute('href') === currentPath) {
+        item.classList.add('active');
+      }
+    });
+  });
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const spaceIcons = document.querySelectorAll('#spaceicon');
+
+    // โทนสีพื้นหลังจากภาพ: สีเหลืองอ่อน, สีฟ้าอ่อน, สีน้ำเงินอ่อน, สีม่วงอ่อน
+    const colors = [{
+        background: '#FFE0B2',
+        text: '#E65100'
+      }, // สีเหลืองอ่อน - ตัวอักษรสีส้มเข้ม
+      {
+        background: '#C5CAE9',
+        text: '#1A237E'
+      }, // สีฟ้าอ่อน - ตัวอักษรสีน้ำเงินเข้ม
+      {
+        background: '#B3E5FC',
+        text: '#01579B'
+      }, // สีน้ำเงินอ่อน - ตัวอักษรสีน้ำเงินเข้ม
+      {
+        background: '#D1C4E9',
+        text: '#4A148C'
+      } // สีม่วงอ่อน - ตัวอักษรสีม่วงเข้ม
+    ];
+
+    spaceIcons.forEach(spaceIcon => {
+      const randomColor = colors[Math.floor(Math.random() * colors.length)];
+
+      // ตั้งค่าสีพื้นหลังและสีตัวอักษร
+      spaceIcon.style.backgroundColor = randomColor.background;
+      spaceIcon.style.color = randomColor.text;
+    });
   });
 </script>

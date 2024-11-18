@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@100;200;300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 
 :root {
   --body-color: #e4e9f7;
@@ -19,6 +19,30 @@
   --notYet: #b5c0d0;
   --cancel: #ff004d;
   --ft: #2c1e42;
+  --topnav: #323450;
+    
+  --lighttopnav: #474962;
+    --select: #7952B3;
+    --lightselect: #E5E4FA;
+    --deepbackground: #F7F8F9;
+    --lightline: #E9EBEF;
+    --lightText: #fffc;
+    --btn: #5C54E5;
+
+    --line: #d7d9dd;
+    --more-line: #9a9a9a;
+    --text1: #656f7d;
+    --color1: #7952b3;
+    --color2: #a788d4;
+    --color4: #906fc3;
+    --color3: #e4e9f6;
+    --text2: #37352f;
+    --light: #37352fa6;
+    --more-light: #0a0a03d7;
+    --notYet: #c3cad5;
+
+    --cancle: #E53935;
+    --grey: rgb(235, 237, 242);
 }
 * {
   box-sizing: border-box;
@@ -40,6 +64,8 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
+  margin: 0 40px;
+  width: 100%;
 }
 .contentfistpage {
   flex: 1;
@@ -50,14 +76,16 @@ body {
   width: 100%;
   height: auto;
   padding: 30px;
+  gap: 20px;
 }
 .weltext {
   font-size: 27px;
   grid-area: weltext;
 }
 .weltext a {
-  color: var(--cl1);
-  font-size: 40px;
+  color: var(--btn);
+  cursor: pointer;
+  font-size: 30px;
 }
 .imgfpage {
   grid-area: imgfpage;
@@ -68,17 +96,20 @@ body {
 .loginregiser {
   grid-area: loginregiser;
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 .loginregiser .buttonlohre {
   margin-top: 50px;
   text-align: center;
   align-items: center;
-  width: 80%;
-  font-size: 20px;
+  width: 100%;
+  font-size: 18px;
 }
 .buttonlohre .go {
   padding: 10px;
-  border-radius: 100px;
+  border-radius: 10px;
   background-color: #ffffff;
   margin-bottom: 10px;
   display: block;
@@ -87,8 +118,9 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.1)
-  
+  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.1);
+  font-weight: 300;
+  font-size: 16px;
 }
 .buttonlohre .go .google-icon {
   margin-left: 8px;
@@ -96,7 +128,8 @@ body {
 
 .buttonlohre .go:hover,
 .buttonlohre .go:focus { 
-  background-color: #09223b;
+  background-color: var(--btn);
+  transition: 0.3s;
   color: #ffffff;
 }
 
@@ -114,28 +147,34 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 10px 0;
+  margin: 20px 0;
 }
 .line div {
-  border: 1px solid var(--cl2);
+  border: 1px solid var(--btn);
   width: 100%;
 }
 .line span {
   margin: 0 10px;
+  font-size: 16px;
+  font-weight: 300;
 }
 .logtask {
   padding: 10px;
-  border-radius: 100px;
-  background-color: #7952b3;
+  border-radius: 10px;
+  background-color: var(--btn);
   color: #fff;
   display: block;
   text-decoration: none;
-  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.1)
+  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.1);
+  font-size: 16px;
+  font-weight: 500;
+  opacity: 0.8;
 }
 .logtask:hover,
 .logtask:focus { 
-  background-color: #000000;
-  color: #ffffff;
+  opacity: 1;
+  color: white;
+  transition: 0.3s;
 }
 .logtask:active {
   background: #000000;
@@ -151,21 +190,26 @@ body {
 }
 .register .textre {
   text-align: start;
+  font-size: 16px;
+  font-weight: 300;
 }
 .register .regtask {
   padding: 10px;
-  border-radius: 100px;
+  border-radius: 10px;
   background-color: var(--sidebar-color);
   margin-top: 10px;
   display: block;
   text-decoration: none;
   color: inherit;
-  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.1)
+  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.1);
+  font-weight: 300;
+  font-size: 16px;
 }
 .register .regtask:hover,
 .register .regtask:focus { 
-  background-color: #09223b;
-  color: #ffffff;
+  background-color: var(--btn);
+  color: white;
+  transition: 0.3s;
 }
 
 .register .regtask:active {
@@ -203,4 +247,8 @@ body {
     display: inline;
     font-size: 15px;
   }
+}
+.headerText{
+  text-align: center;
+  font-size: 25px;
 }

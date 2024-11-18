@@ -299,6 +299,9 @@ tbody td:last-child button:hover {
     border-left: none;
     border-right: none;
 }
+.topNavlink .nav-tabs .nav-link.active:hover{
+    color: var(--btn);
+}
 .topNavlink .nav-item:hover::after {
     display: none;
 }

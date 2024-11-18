@@ -19,7 +19,7 @@
                         <div class="column" data-status="<%= status %>">
                             <div class="status">
                                 <p>
-                                    <%= status %> <span class="span count" data-status-count="<%= status %>">0</span>
+                                    <%= status %> <span class="span count" data-status-count="<%= status %>"><%= taskCounts[status] || 0 %></span>
                                 </p>
                             </div>
                             <div class="itemStatus">
@@ -41,7 +41,8 @@
                                                       <div class="assignee-progress">
                                                         <img src="<%= progress.assignee.profileImage %>" 
                                                              alt="<%= progress.assignee.username %>" 
-                                                             style="width: 30px; height: 30px; border-radius: 50%;">
+                                                             style="width: 30px; height: 30px; border-radius: 50%;"
+                                                             onerror="this.onerror=null; this.src='/public/img/profileImage/userDefalt.jpg';">
                                   
                                                         <div class="progress-container">
                                                           <div class="progress-bar" 

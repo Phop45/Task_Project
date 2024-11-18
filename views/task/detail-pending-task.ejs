@@ -6,6 +6,9 @@
     .comment-log {
         color: red; /* Set text color for comment logs */
     }
+    .status-div{
+        color: black;
+    }
 </style>
 <body>
     <div class="content">
@@ -78,6 +81,7 @@
                                     </div>
                                 </div>
                             </div>
+
                             <div class="grid-item topic">
                                 <div class="detail-name">
                                   <i class="fa-regular fa-circle-user"></i>
@@ -87,7 +91,8 @@
                                   <% if (assignedUsers.length > 0) { %>
                                     <% assignedUsers.forEach(user => { %>
                                       <div class="user-profile">
-                                        <img src="<%= user.profileImage %>" width="40px" height="40px" style="border-radius: 50%; cursor: pointer;">
+                                        <img src="<%= user.profileImage %>" width="40px" height="40px" style="border-radius: 50%; cursor: pointer;"
+                                        onerror="this.onerror=null; this.src='/public/img/profileImage/userDefalt.jpg';">
                                         <span class="username-tooltip"><%= user.username %></span>
                                       </div>
                                     <% }) %>
@@ -217,12 +222,14 @@
                                         </div>
                                     </div>
 
-                                    <div class="file-time" data-uploaded="<%= attachment.uploadedAt %>">
-                                        <span class="time-text"></span>
-                                    </div>
-                                    <!-- Delete button with data-id for file reference -->
-                                    <div class="deleteFile" data-id="<%= attachment._id %>">
-                                        <i class="fa-solid fa-trash-can"></i>
+                                    <div class="fileWrap">
+                                        <div class="file-time" data-uploaded="<%= attachment.uploadedAt %>">
+                                            <span class="time-text"></span>
+                                        </div>
+                                        <!-- Delete button with data-id for file reference -->
+                                        <div class="deleteFile" data-id="<%= attachment._id %>">
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </div> 
                                     </div>
                                 </li>
                             <% }) %>
@@ -275,6 +282,7 @@
                                                     src="<%= subtask.assignee.profileImage %>" 
                                                     alt="<%= subtask.assignee.username %> Profile" 
                                                     class="user-avatar" 
+                                                    onerror="this.onerror=null; this.src='/public/img/profileImage/userDefalt.jpg';"
                                                 />
                                                 <%= subtask.assignee.username %>
                                             <% } else { %>
@@ -339,7 +347,8 @@
                                 <div class="grid-item topic">
                                     <div class="sub-detail-name"><i class="fa-regular fa-circle-user"></i> ผู้รับผิดชอบ</div>
                                     <div class="sub-detail-data">
-                                        <img src="<%= userImage %>">
+                                        <img src="<%= userImage %>"
+                                        onerror="this.onerror=null; this.src='/public/img/profileImage/userDefalt.jpg';">
                                             <%= userName %>
                                     </div>
                                 </div>
@@ -364,7 +373,7 @@
                     <div class="activityUpdate">
                         <% task.activityLogs.forEach(log => { %>
                             <p class="log <%= log.type === 'comment' ? 'comment-log' : '' %>">
-                                <%= log.type === 'comment' ? log.text : log %> <!-- Render text if it's a comment, otherwise render the log directly -->
+                                <%= log.text %> <!-- Directly render the text of the log -->
                             </p>
                         <% }) %>
                     </div>
@@ -373,7 +382,7 @@
                 <!-- Comment Input Section -->
                 <div class="commentSection">
                     <input type="text" id="commentInput" placeholder="เพิ่มความคิดเห็น" class="form-control">
-                    <button id="submitComment" class="btn btn-primary mt-2" onclick="addComment('<%= task._id %>')">เพิ่มความคิดเห็น</button>
+                    <button id="submitComment" class="btn btn-primary mt-2" onclick="addComment('<%= task._id %>')"><i class="fa-regular fa-paper-plane"></i></button>
                 </div>
             </div>
         </div>
@@ -653,14 +662,13 @@
             }
         }
         
-        
-        
-        function updateStatusDisplay() {
+        document.addEventListener('DOMContentLoaded', () => {
             const statusDiv = document.querySelector('.status-div');
             const statusText = statusDiv.getAttribute('data-status');
             const spinnerIcon = statusDiv.querySelector('.spinner-icon');
-            
-            // Update background color based on new status
+        
+            console.log('Status:', statusText);  // Check what status is received
+        
             switch (statusText) {
                 case 'กำลังทำ': // In Progress
                     statusDiv.style.backgroundColor = '#6EACDA';
@@ -678,8 +686,12 @@
                 case 'เสร็จสิ้น': // Completed
                     statusDiv.style.backgroundColor = '#4CAF50';
                     break;
+        
+                default:
+                    console.warn('Unhandled status:', statusText); // Warn for any unhandled status
+                    statusDiv.style.backgroundColor = '#FFFFFF'; // Optional default color
             }
-        }
+        });
         
     </script>
 </body>

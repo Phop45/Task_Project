@@ -13,7 +13,6 @@
         #assignedUsers {
             width: 320px;
             padding: 5px 0 0 10px;
-            margin-left: 30px;
             border: 1px solid rgba(55, 53, 47, 0.16);
         }
         #assignedUsers:focus {
@@ -24,15 +23,15 @@
 
 <body>
     <div class="sidebar-popup" id="sidebar-popup">
-        <div class="side-top">
-            <i class='bx bxs-chevrons-right' id="close-task-btn"></i>
-        </div>
-
         <div class="add-task-form">
-            <div class="top-form">
-                <i class='bx bx-task'></i>
-                <p>เพิ่มงานใหม่</p>
+            <div class="side-top">
+                <div class="top-form">
+                    <i class='bx bx-task'></i>
+                    <p>เพิ่มงานใหม่</p>
+                </div>
+                <i class="fa-solid fa-xmark" id="close-task-btn"></i>
             </div>
+            
 
             <form action="/addTask_board" method="POST" class="add-form">
                 <table class="add-input" id="add-input-list">

@@ -21,8 +21,9 @@ const spaceSchema = new Schema({
         type: String
     },
     SpacePicture: {
-        type: String
-    },
+        type: String,
+        default: "/public/spaceictures/defultBackground.jpg", // ตั้งค่าพื้นหลังเริ่มต้น
+      },
     deleted: {
         type: Boolean,
         default: false

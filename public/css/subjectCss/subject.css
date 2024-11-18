@@ -17,6 +17,21 @@
     --notYet: #B5C0D0;
 
     --cancle: #FF004D;
+
+    --line: #d7d9dd;
+    --more-line: #9a9a9a;
+    --text1: #656f7d;
+    --color1: #7952b3;
+    --color2: #a788d4;
+    --color4: #906fc3;
+    --color3: #e4e9f6;
+    --text2: #37352f;
+    --light: #37352fa6;
+    --more-light: #0a0a03d7;
+    --notYet: #c3cad5;
+
+    --cancle: #E53935;
+    --grey: rgb(235, 237, 242);
 }
 
 .contant{
@@ -334,7 +349,7 @@
 .add-input td{
     width: 150px;
     height: 40px;
-    font-size: 1em;
+    font-size: 16px;
 }
 .add-input td i{
     margin-right: 10px;
@@ -348,7 +363,7 @@
 }
 .add-input input{
     width: 350px;
-    height: 40px;
+    height: 35px;
     padding-left: 10px;
     border-radius: 5px;
     color: var(--text);
@@ -357,6 +372,7 @@
     outline: none;
     margin-bottom: 5px;
     outline: none;
+    font-size: 16px;
 }
 .add-input #notiAlert{
     font-size: 14px;
@@ -400,11 +416,12 @@
     border: none;
     outline: none;
     border-radius: 5px;
-    font-size: 1em;
+    font-size: 14px;
     font-weight: 400;
-    background-color: var(--color2);
+    background-color: var(--btn);
     color: white;
-    transition: 0.2s ease-in;
+    transition: 0.3s;
+    opacity: 0.8;
     vertical-align: middle;
 }
 .form button:first-child{
@@ -418,7 +435,7 @@
     background-color: rgba(55, 53, 47, 0.16);
 }
 .form button:hover{
-    background-color: var(--color1);
+    opacity: 1;
 }
 .all-btn button i {
     font-size: 1.25em;

@@ -1383,3 +1383,28 @@ button.btn:hover {
 .custom-dropdown {
     position: relative; /* Set relative positioning for dropdown placement */
 }
+
+.commentSection{
+    margin: 0 20px;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+#commentInput{
+    width: 70%;
+    font-size: 14px;
+}
+#commentInput:focus{
+    outline: none !important;
+    border: none;
+}
+#submitComment{
+    margin: 0 !important;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

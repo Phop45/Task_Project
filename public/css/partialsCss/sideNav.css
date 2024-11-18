@@ -297,10 +297,17 @@ header .image-text .header-text {
 }
 
 .header-text .name {
-    font-weight: 600;
-    margin-left: 5px;
+    font-weight: 500;
+    font-size: 16px;
+    margin-left: 10px;
+    color: var(--btn);
 }
-
+.header-text .user_id{
+    font-weight: 400;
+    font-size: 16px;
+    color: gray;
+    margin-left: 10px;
+}
 .sidebar header .toggle {
     position: absolute;
     top: 50%;
