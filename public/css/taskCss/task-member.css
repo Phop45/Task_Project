@@ -21,7 +21,7 @@
     --notYet: #c3cad5;
 
     --cancle: #E53935;
-    --grey: rgb(235, 237, 242) ;
+    --grey: rgb(235, 237, 242);
 }
 
 .content {
@@ -32,90 +32,152 @@
     height: 92vh;
     overflow: hidden;
 }
+
 .SubName {
     padding: 30px 0 20px 50px;
     font-size: 40px;
 }
 
-.add-member-container h2{
+.add-member-container h2 {
     margin: 30px 50px 0;
     width: 1240px;
 }
-.add-member-container .search-member{
+
+.add-member-container .addright {
     display: flex;
     flex-direction: row;
-    margin: 20px 50px 0;
-    width: 1240px;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
 }
-.search-member{
+
+.search-member {
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
-.search-member #userSelect{
+
+.search-member #searchMemberInput {
+    font-size: 16px;
+    font-weight: 400;
+    border: 1.5px solid rgba(151, 151, 151, .6);
+    border-radius: 5px;
+    padding: 10px 15px;
+    width: 300px;
+    height: 40px;
+    padding-right: 30px;
+    text-overflow: ellipsis;
+}
+
+#searchMemberInput:focus {
+    outline: none;
+    border: 1.5px solid var(--light);
+}
+
+.search-member #userSelect {
     width: 300px;
     border-radius: 5px;
     border: 1.5px solid rgba(55, 53, 47, 0.50);
     transition: 0.2s ease;
-    padding:0 15px;
+    padding: 0 15px;
 }
-.search-member #userSelect #select-item{
+
+.search-member #userSelect #select-item {
     color: rgba(55, 53, 47, 0.50);
 }
 
-.roleSelect{
+.roleSelect {
     border: 1.5px solid rgba(55, 53, 47, 0.50);
     border-radius: 5px;
     transition: 0.3s;
+    height: 40px;
+    width: fit-content !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
-.roleSelect #navbarDropdown:hover{
+
+.roleSelect #navbarDropdown:hover {
     color: black;
 }
-.roleSelect .dropdown-menu{
+
+.roleSelect .dropdown-menu {
     border-radius: 5px;
     padding-top: 0;
     padding-bottom: 0;
     margin-top: 23px !important;
     margin-left: -20px !important;
-    border: 1.5px solid rgba(151,151,151,.6);
-    
+    border: 1.5px solid rgba(151, 151, 151, .6);
 }
-.roleSelect .dropdown-menu .dropdown-item:hover{
+.changeRole .dropdown-menu{
+    border-radius: 5px;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-top: 10px !important;
+    border: 2px solid rgba(151, 151, 151, .6);
+}
+
+.roleSelect .dropdown-menu .dropdown-item:hover {
     background-color: var(--grey);
     transition: 0.3s;
 }
-#roleLeader span{
-    border-left: 3px solid #5C54E5;
-    padding-left: 5px;
+
+#roleLeader span {
+    border-left: 5px solid #5C54E5;
+    padding-left: 10px;
 }
-#roleMember span{
-    border-left: 3px solid #ED79AD;
-    padding-left: 5px;
+
+#roleMember span {
+    border-left: 5px solid #ED79AD;
+    padding-left: 10px;
 }
-.dropdown-menu li:first-child .dropdown-item{
-    border-radius: 10px 10px 0 0;
+
+#roleGuest span {
+    border-left: 5px solid #F6AD55;
+    padding-left: 10px;
 }
-.dropdown-menu li:first-child .dropdown-item:hover{
-    border-radius: 9px 9px 0 0;
+
+.roleLeader {
+    border: 2px solid #5C54E5;
+    color: #5C54E5;
+    padding: 5px 20px;
+    border-radius: 5px;
+    font-weight: 400;
 }
-.dropdown-menu li:last-child .dropdown-item{
-    border-radius: 0 0 10px 10px;
+
+.roleMember {
+    border: 2px solid #ED79AD;
+    color: #ED79AD;
+    padding: 5px 20px;
+    border-radius: 5px;
+    font-weight: 400;
 }
-.dropdown-menu li:last-child .dropdown-item:hover{
-    border-radius: 0 0 10px 10px;
+
+.roleGuest {
+    border: 2px solid #F6AD55;
+    color: #F6AD55;
+    padding: 5px 20px;
+    border-radius: 5px;
+    font-weight: 400;
 }
+
+
 .roleSelect .dropdown-menu .item:hover a,
-.roleSelect .dropdown-menu .item:hover .mem_dis{
+.roleSelect .dropdown-menu .item:hover .mem_dis {
     color: white;
 }
-.roleSelect .dropdown-menu .dropdown-item{
-    font-size: 14px;
-    font-weight: 400;
+
+.roleSelect .dropdown-menu .dropdown-item,
+.changeRole .dropdown-item {
+    font-size: 16px;
     padding-top: 15px;
     padding-bottom: 15px;
+    cursor: pointer;
+    transition: 0.3s;
 }
+
 .roleSelect .dropdown-menu .mem_dis {
-    width: 218px; 
+    width: 218px;
     padding-top: 5px;
     font-size: 14px;
     color: gray;
@@ -125,24 +187,25 @@
     white-space: normal;
 }
 
-#addMemberBtn{
+#addMemberBtn {
     background-color: var(--btn);
     color: white;
-    font-size: 14px;
+    font-size: 16px;
     border-radius: 5px;
     border: none;
     padding: 0 15px;
     opacity: 0.7;
-    height: 44px;
+    height: 40px;
 }
-#addMemberBtn:hover{
+
+#addMemberBtn:hover {
     opacity: 1;
     transition: 0.3s;
 }
 
 
 /* General table styling */
-.card{
+.card {
     border: none;
     margin: 0 50px;
     width: 90%;
@@ -159,7 +222,8 @@ table {
     border: rgba(55, 53, 47, 0.50) 1px solid;
 }
 
-th, td {
+th,
+td {
     padding: 12px;
     text-align: left;
     border-bottom: 1px solid #e5e5e5;
@@ -189,9 +253,10 @@ tbody td {
 
 tbody td:first-child img {
     border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    margin-right: 12px;
+    width: 50px;
+    height: 50px;
+    /* border: 2px solid #d1d5db; */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* Role dropdown styling */
@@ -207,7 +272,8 @@ tbody td select {
 
 tbody td select:focus {
     outline: none;
-    border-color: #6366F1; /* Focus color */
+    border-color: #6366F1;
+    /* Focus color */
 }
 
 /* Last accessed date styling */
@@ -216,19 +282,6 @@ tbody td:nth-child(4) {
     font-size: 14px;
 }
 
-/* Remove button styling */
-tbody td:last-child button {
-    background-color: #ff5c5c;
-    border: none;
-    padding: 8px;
-    border-radius: 50%;
-    cursor: pointer;
-    color: white;
-}
-
-tbody td:last-child button:hover {
-    background-color: #e04c4c;
-}
 
 /* No members row styling */
 .no-members {
@@ -240,28 +293,31 @@ tbody td:last-child button:hover {
     font-weight: bold;
 }
 
-.secside{
+.secside {
     position: absolute;
     height: 92vh;
     z-index: 10;
 }
-.nav-tabs .nav-link{
+
+.nav-tabs .nav-link {
     border: none;
-    
+
 }
-.nav-link{
+
+.nav-link {
     padding: 9px 20px;
 }
 
-.nav-item:hover{
+.nav-item:hover {
     background-color: var(--btn);
     transition: 0.3s;
     border-radius: 5px;
 }
 
-.topNavlink .nav-tabs .nav-item:hover .nav-link{
+.topNavlink .nav-tabs .nav-item:hover .nav-link {
     color: white;
 }
+
 .TopNavigation .contain .nav-item .nav-link {
     color: white;
     width: 25px;
@@ -273,6 +329,7 @@ tbody td:last-child button:hover {
     justify-content: center;
     align-items: center;
 }
+
 .nav-tabs {
     padding-left: 50px;
     margin-top: 28px;
@@ -281,17 +338,18 @@ tbody td:last-child button:hover {
     border-bottom: 2px solid #dee2e6;
 }
 
-.topNavlink .nav-tabs{
+.topNavlink .nav-tabs {
     color: black;
 }
 
-.topNavlink .nav-tabs .nav-link{
+.topNavlink .nav-tabs .nav-link {
     color: var(--text);
     display: flex;
     align-items: center;
     gap: 8px;
 }
-.topNavlink .nav-tabs .nav-link.active{
+
+.topNavlink .nav-tabs .nav-link.active {
     color: var(--btn);
     border-bottom: 4px solid var(--btn);
     border-radius: 0;
@@ -299,41 +357,60 @@ tbody td:last-child button:hover {
     border-left: none;
     border-right: none;
 }
-.topNavlink .nav-tabs .nav-link.active:hover{
+
+.topNavlink .nav-tabs .nav-link.active:hover {
     color: var(--btn);
 }
+
 .topNavlink .nav-item:hover::after {
     display: none;
 }
 
-.addSection{
+.addSection {
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 20px;
-    margin-left: 50px;
-    margin-top: 20px;
+    justify-content: space-between;
+    margin: 20px 50px 35px;
 }
-.addSection .memberSelect{
-    border: 1.5px solid rgba(151,151,151,.6);
+
+.addSection .addleft #filterMemberInput {
+    width: 500px;
+    height: 40px;
+    border: 1.5px solid rgba(151, 151, 151, .6);
     border-radius: 5px;
-    padding: 10px 20px;
-    width: 200px;
-    cursor: pointer;
+    font-size: 16px;
+    font-weight: 400;
+    padding: 5px 45px;
 }
-.roleSelect{
-    border: 1.5px solid rgba(151,151,151,.6);
+
+.addSection .addleft #filterMemberInput:focus {
+    outline: none;
+    border: 1.5px solid var(--light);
+}
+
+.addleft .fa-magnifying-glass {
+    position: absolute;
+    font-size: 20px;
+    transform: translateY(50%);
+    left: 155px;
+}
+
+.roleSelect {
+    border: 1.5px solid rgba(151, 151, 151, .6);
     border-radius: 5px;
     padding: 10px 20px;
     width: 150px;
     cursor: pointer;
 }
+
 .memberSelect:hover,
-.roleSelect:hover{
+.roleSelect:hover {
     background-color: var(--grey);
     transition: 0.3s;
 }
-.addSection .memberSelect #memberDropdown{
+
+.addSection .memberSelect #memberDropdown {
     text-decoration: none;
     color: var(--text2);
     font-size: 14px;
@@ -341,142 +418,362 @@ tbody td:last-child button:hover {
     display: flex;
     align-items: center;
 }
-#roleDropdown{
+
+#roleDropdown {
     text-decoration: none;
     color: var(--text2);
-    font-size: 14px;
-    width: 140px;
+    font-size: 16px;
     display: flex;
     align-items: center;
 }
-#memberDropdown::after{
+
+#memberDropdown::after {
     display: none;
 }
-#selectedMemberDisplay img{
+
+#selectedMemberDisplay img {
     width: 30px;
     height: 30px;
     border-radius: 50%;
     margin-right: 10px;
 }
-.memberSelect .dropdown-menu.show{
+
+.memberSelect .dropdown-menu.show {
     border-radius: 5px;
-    border: 1.5px solid rgba(151,151,151,.6) ;
+    border: 1.5px solid rgba(151, 151, 151, .6);
     margin-top: 20px !important;
     margin-left: -21px !important;
     width: 200px;
 }
-.memberSelect .dropdown-item{
+
+.memberSelect .dropdown-item {
     padding: 10px 15px;
+
 }
-.memberSelect .dropdown-item img{
+
+.memberSelect .dropdown-item img {
     height: 35px;
     width: 35px;
     border-radius: 50%;
     object-fit: cover;
 }
-.memberSelect .dropdown-item span{
-    font-size: 14px;
-    font-weight: 400;
-    margin-left: 10px;
-}
 
-.table thead tr{
-    height: 50px;
-    
-}
-.table thead tr th{
-    font-size: 14px;
-    font-weight: 400;
-}
-#tbody #tr #td {
-    border: none;
-}
-
-#tbody #tr #td:first-child {
-    text-align: start;
-    width: 150px;
-}
-
-#tbody #tr:hover {
-    background-color: transparent;
-}
-
-#tbody #tr #td #taskName {
-    width: 100%;
-}
-.table-head{
-    background-color: var(--btn);
-    font-weight: 400;
-    height: 50px;
-    position: sticky;
-    top: 0px;
-    padding: 0;
-}
-.table-head tr th{
-    vertical-align: middle;
-    color: white;
-}
-tbody tr{
-    background-color: white;
-    transition: background-color 0.3s ease;
-    cursor: pointer;
-}
-tbody tr:hover{
-    background-color: #efefef;
-    z-index: 1;
-}
-tr.drag-over {
-    background-color: lightgray;
-}
-tbody tr td{
-    width: 200px;
-    height: 50px;
-    max-width: 200px;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    border: 1px solid rgba(55, 53, 47, 0.1);
-}
-tbody td:first-child,
-.table-head th:first-child{
-    width: 100px;
-    text-align: center;
-}
-.table{
-    min-width: max-content;
-    border-collapse: collapse;
-    margin-bottom: 0;
-    margin: 10px 50px;
-    width: 93%;
-}
-
-.table-responsive{
-    max-height: 500px;
-    overflow-y: auto;
-    position: relative;
-}
 .shadow {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 1.5);
     transition: box-shadow 0.3s ease;
 }
-.table-striped > tbody > tr:nth-of-type(odd) {
-    background-color: inherit !important;
-  }
 
-  #deleteBtn{
+
+#deleteBtn {
     border-radius: 5px;
-  }
-.changeRole .dropdown-toggle{
+}
+
+.changeRole .dropdown-toggle {
     color: black;
     text-decoration: none;
 }
+
 .changeRole {
-    position: relative; /* Ensure the parent div is the context for absolute positioning */
+    position: relative;
+    /* Ensure the parent div is the context for absolute positioning */
 }
-#roleChang{
-    position: absolute;  /* Align dropdown relative to the parent */
-    top: 100%;            /* Place it directly below the trigger */
+
+#roleChang {
+    position: absolute;
+    /* Align dropdown relative to the parent */
+    top: 100%;
+    /* Place it directly below the trigger */
     left: 0;
-    z-index: 1050;        /* Ensure it appears above other elements */
-    min-width: 150px;     /* Set a reasonable width for the dropdown */
+    z-index: 1050;
+    /* Ensure it appears above other elements */
+    min-width: 150px;
+    /* Set a reasonable width for the dropdown */
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+#searchResultsDropdown {
+    max-height: 150px;
+    overflow-y: auto;
+    position: absolute;
+    z-index: 1000;
+    top: 120%;
+    /* Positioned below the input */
+    left: 0;
+    right: 0;
+    display: none;
+    border: 1.5px solid rgba(151, 151, 151, .6);
+    border-radius: 5px;
+}
+
+.profile-img {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin-right: 10px;
+    object-fit: cover;
+}
+
+.memberName {
+    vertical-align: middle;
+}
+
+.status-indicator {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
+.status-indicator.online {
+    background: #23bd5a;
+}
+.logStatus.online{
+    padding: 5px 15px;
+    background: #cff6dd;
+    color: #1fa750;
+    border-radius: 30px;
+    font-size: 16px;
+    font-weight: 400;
+}
+
+.status-indicator.offline {
+    background: #cc2c39;
+}
+.logStatus.offline{
+    padding: 5px 15px;
+    background: #ffaab0;
+    color: #cc2c39;
+    border-radius: 30px;
+    font-size: 16px;
+    font-weight: 400;
+}
+
+
+.table tbody td.status .active {
+    background: #cff6dd;
+    color: #1fa750;
+}
+
+.table tbody td.status .active:after {
+    background: #23bd5a;
+}
+
+.table tbody td.status .waiting {
+    background: #fdf5dd;
+    color: #cfa00c;
+    font-size: 16px;
+    font-weight: 400;
+    border-radius: 30px;
+    padding: 5px 15px;
+}
+
+
+.dropdown-item {
+    font-size: 16px;
+}
+
+.dropdown-item .resultEmail {
+    font-size: 16px;
+    color: var(--more-line);
+    margin-left: 5px;
+}
+
+.dropdown-item img {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 5px;
+}
+
+.clear-selection {
+    display: none;
+    cursor: pointer;
+    font-size: 20px;
+    color: #999;
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: 0.3s;
+}
+
+.clear-selection:hover {
+    color: var(--cancle);
+}
+
+
+/* Table section */
+.memberTable{
+    margin: 10px 50px;
+    width: 93%;
+    height: 65vh;
+    min-height: 65vh;
+    overflow: auto;
+}
+
+.table-wrap {
+    overflow-x: scroll; 
+}
+
+.table {
+    min-width: 1000px !important;
+    width: 100%;
+    -webkit-box-shadow: 0px 5px 12px -12px rgba(0, 0, 0, 0.29);
+    -moz-box-shadow: 0px 5px 12px -12px rgba(0, 0, 0, 0.29);
+    box-shadow: 0px 5px 12px -12px rgba(0, 0, 0, 0.29);
+    margin-top: 0;
+}
+
+.table thead th {
+    border: none;
+    padding: 20px 30px;
+    font-size: 16px;
+    font-weight: 400;
+    color: white;
+}
+
+.table thead tr {
+    background: var(--topnav);
+    border-bottom: 4px solid #eceffa;
+}
+
+.table tbody tr {
+    margin-bottom: 10px;
+    border-bottom: 10px solid #f8f9fd;
+    height: 50px;
+    margin: 15px 0;
+}
+
+.table tbody tr:last-child {
+    border-bottom: 0;
+}
+
+.table tbody th,
+.table tbody td {
+    border: none;
+    padding: 20px;
+    font-size: 16px;
+    font-weight: 300;
+    background: #fff;
+    vertical-align: middle;
+    text-align: center;
+}
+
+.table tbody td.status span:after {
+    position: absolute;
+    top: 9px;
+    left: 10px;
+    width: 10px;
+    height: 10px;
+    content: '';
+    border-radius: 50%;
+}
+
+.table tbody td .img {
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    gap: 20px;
+}
+
+.table tbody td .email span {
+    display: block;
+}
+
+.table tbody td .email span:last-child {
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.3);
+}
+
+.table tbody td .close span {
+    font-size: 12px;
+    color: #dc3545;
+}
+.alert {
+    position: relative;
+    padding: 0.75rem 1.25rem;
+    margin-bottom: 1rem;
+    border: 1px solid transparent;
+    border-radius: 0.25rem;
+    height: 90px;
+}
+.alert .img{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.alert-heading {
+    color: inherit;
+}
+
+.alert-link {
+    font-weight: 700;
+}
+
+.alert-dismissible {
+    padding-right: 4rem;
+}
+
+.alert-dismissible .close {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 0.75rem 1.25rem;
+    color: inherit;
+}
+.alert .name{
+    font-size: 16px;
+    font-weight: 300;
+    color: var(--text1);
+}
+#optionBtn .dropdown-toggle {
+    background-color: transparent;
+    border: none;
+    color: #333;
+    font-size: 20px;
+    padding: 0;
+    height: 40px;
+    width: 40px;
+    cursor: pointer;
+}
+
+#optionBtn .dropdown-toggle:hover {
+    color: #000;
+}
+#optionBtn .dropdown-toggle:focus{
+    outline: none;
+}
+#optionBtn .dropdown-menu {
+    min-width: 150px;
+}
+
+.dropdown-toggle::after {
+    display: none !important;
+}
+
+.add-member-container{
+    background-color: #f8f9fd;
+}
+
+.otpItem{
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: 300;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    transition: 0.3s;
+}
+.otpItem i{
+    font-size: 18px;
+    width: 25px;
+    height: 25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-right: 10px;
 }

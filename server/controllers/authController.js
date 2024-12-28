@@ -26,16 +26,21 @@ exports.googleCallback = async (accessToken, refreshToken, profile, done) => {
     let user = await User.findOne({ googleId: profile.id });
 
     if (user) {
+      user.lastActive = Date.now();
+      await user.save();
       return done(null, user);
-    } else {
+    } 
+    else {
       user = await User.findOne({ googleEmail: profile.emails[0].value });
 
       if (user && !user.googleId) {
         user.googleId = profile.id;
         user.profileImage = profile.photos[0]?.value || '/img/profileImage/Profile.jpeg';
+        user.lastActive = Date.now();
         await user.save();
         return done(null, user);
-      } else {
+      } 
+      else {
         let username = generateUsername();
         let userid = generateUserId();
 
@@ -52,6 +57,7 @@ exports.googleCallback = async (accessToken, refreshToken, profile, done) => {
           username: username,
           userid: userid,
           profileImage: profile.photos[0]?.value || '/img/profileImage/Profile.jpeg',
+          lastActive: Date.now(),
         });
 
         user = await newUser.save();
@@ -69,23 +75,31 @@ exports.loginPage = (req, res) => {
 };
 
 exports.login = (req, res, next) => {
-  passport.authenticate("local", (err, user, info) => {
+  passport.authenticate("local", async (err, user, info) => {
     if (err) {
       console.error("Authentication error:", err);
       return next(err);
     }
     if (!user) {
       console.log("User not found or incorrect credentials.");
-      req.flash('error', 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง'); // Flash error message for incorrect credentials
+      req.flash('error', 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');
       return res.redirect("/login");
     }
 
-    req.logIn(user, (err) => {
+    req.logIn(user, async (err) => {
       if (err) {
         console.error("Login error:", err);
         return next(err);
       }
-      return res.redirect("/space");
+      try {
+        user.lastActive = Date.now();
+        await user.save();
+        return res.redirect('/space');
+      }
+      catch (error) {
+        console.error('Error updating lastActive:', error);
+        return next(error);
+      }
     });
   })(req, res, next);
 };

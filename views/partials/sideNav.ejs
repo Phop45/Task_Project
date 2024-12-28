@@ -180,56 +180,42 @@
 </div>
 
 <script>
-  const body = document.querySelector("body"),
-    sidebar = body.querySelector(".sidebar"),
-    toggle = body.querySelector(".toggle"),
-    searchBtn = body.querySelector(".search-box"),
-    modeSwitch = body.querySelector(".toggle-switch"),
-    modeText = body.querySelector(".mode-text");
-
-  toggle.addEventListener("click", () => {
-    sidebar.classList.toggle("close");
-  });
-
-  const sidebar = document.querySelector('.sidebar');
-  const overlay = document.getElementById('overlay');
-  const toggleBtn = document.getElementById('arrow-btn');
-
-  toggleBtn.addEventListener('click', () => {
-    sidebar.classList.toggle('close');
-
-    // Check if the sidebar is open or closed
-    if (sidebar.classList.contains('close')) {
-      overlay.classList.remove('show');
-    } else {
-      overlay.classList.add('show');
-    }
-  });
-
-  // Hide overlay when clicked
-  overlay.addEventListener('click', () => {
-    sidebar.classList.add('close');
-    overlay.classList.remove('show');
-  });
-
   document.addEventListener('DOMContentLoaded', function() {
+    // Handle sidebar toggle
+    const body = document.querySelector("body"),
+      sidebar = body.querySelector(".sidebar"),
+      toggle = body.querySelector(".toggle"),
+      overlay = document.getElementById('overlay'),
+      toggleBtn = document.getElementById('arrow-btn'),
+      searchBtn = body.querySelector(".search-box"),
+      modeSwitch = body.querySelector(".toggle-switch"),
+      modeText = body.querySelector(".mode-text");
+
+    // Sidebar toggle button functionality
+    toggle.addEventListener("click", () => {
+      sidebar.classList.toggle("close");
+    });
+
+    toggleBtn.addEventListener('click', () => {
+      sidebar.classList.toggle('close');
+      // Check if the sidebar is open or closed
+      if (sidebar.classList.contains('close')) {
+        overlay.classList.remove('show');
+      } else {
+        overlay.classList.add('show');
+      }
+    });
+
+    // Hide overlay when clicked
+    overlay.addEventListener('click', () => {
+      sidebar.classList.add('close');
+      overlay.classList.remove('show');
+    });
+
     // Log current path for debugging
     console.log(window.location.pathname);
 
-    // ส่วนของการทำให้เมนู active ตาม path
-    const currentPath = window.location.pathname;
-    const menuItems = document.querySelectorAll('.menu-item');
-
-    menuItems.forEach(item => {
-      const link = item.querySelector('a');
-      if (link.getAttribute('href') === currentPath) {
-        item.classList.add('active');
-      }
-    });
-  });
-</script>
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
+    // Make the active menu item based on the current path
     const currentPath = window.location.pathname;
     const menuItems = document.querySelectorAll('.nav-links');
 
@@ -239,34 +225,33 @@
         item.classList.add('active');
       }
     });
-  });
 
-  document.addEventListener('DOMContentLoaded', function() {
+    // Color the space icons with random colors
     const spaceIcons = document.querySelectorAll('#spaceicon');
 
-    // โทนสีพื้นหลังจากภาพ: สีเหลืองอ่อน, สีฟ้าอ่อน, สีน้ำเงินอ่อน, สีม่วงอ่อน
+    // Background and text colors
     const colors = [{
         background: '#FFE0B2',
         text: '#E65100'
-      }, // สีเหลืองอ่อน - ตัวอักษรสีส้มเข้ม
+      }, // Light yellow - Dark orange text
       {
         background: '#C5CAE9',
         text: '#1A237E'
-      }, // สีฟ้าอ่อน - ตัวอักษรสีน้ำเงินเข้ม
+      }, // Light blue - Dark blue text
       {
         background: '#B3E5FC',
         text: '#01579B'
-      }, // สีน้ำเงินอ่อน - ตัวอักษรสีน้ำเงินเข้ม
+      }, // Light blue - Dark blue text
       {
         background: '#D1C4E9',
         text: '#4A148C'
-      } // สีม่วงอ่อน - ตัวอักษรสีม่วงเข้ม
+      } // Light purple - Dark purple text
     ];
 
     spaceIcons.forEach(spaceIcon => {
       const randomColor = colors[Math.floor(Math.random() * colors.length)];
 
-      // ตั้งค่าสีพื้นหลังและสีตัวอักษร
+      // Set background and text color
       spaceIcon.style.backgroundColor = randomColor.background;
       spaceIcon.style.color = randomColor.text;
     });

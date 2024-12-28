@@ -1,4 +1,3 @@
-// server/app.js
 require('dotenv').config();
 const express = require('express');
 const expressLayouts = require('express-ejs-layouts');
@@ -13,6 +12,8 @@ const flash = require('connect-flash');
 const LocalStrategy = require('passport-local').Strategy;
 const User = require('./server/models/User'); // Adjust the path if necessary
 const moment = require('moment');
+const bodyParser = require('body-parser');
+const lineWebhook = require('./server/routes/lineWebhook');
 
 const app = express();
 const port = process.env.PORT || 5001;
@@ -53,6 +54,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/public', express.static(path.join(__dirname, 'public')));
 app.use('/docUploads', express.static(path.join(__dirname, 'docUploads')));
 app.use(methodOverride('_method'));
+app.use(bodyParser.json());
+app.use('/webhook', lineWebhook);
 
 // Flash middleware setup
 app.use(flash());
@@ -78,6 +81,19 @@ app.use((req, res, next) => {
   next();
 });
 
+// Middleware to update lastActive on each request
+app.use(async (req, res, next) => {
+  if (req.isAuthenticated()) {
+    try {
+      req.user.lastActive = Date.now();
+      await req.user.save();
+    } catch (error) {
+      console.error('Error updating lastActive:', error);
+    }
+  }
+  next();
+});
+
 // Templating Engine setup
 app.use(expressLayouts);
 app.set('layout', './layouts/main');
@@ -88,10 +104,16 @@ app.set('view engine', 'ejs');
 app.use('/', require('./server/routes/auth'));
 app.use('/', require('./server/routes/index'));
 app.use('/', require('./server/routes/spaceRoutes'));
-app.use('/', require('./server/routes/taskRoutes'));
-app.use('/', require('./server/routes/subtaskRoutes')); // Ensure subtaskRoutes is included
+
+app.use('/', require('./server/routes/taskRou/taskRoutes'));
+app.use('/', require('./server/routes/taskRou/taskPageRoutes'));
+app.use('/', require('./server/routes/taskRou/taskDetailRoutes'));
+app.use('/', require('./server/routes/notiRoutes'));
+app.use('/', require('./server/routes/subtaskRoutes'));
 app.use('/', require('./server/routes/settingRoutes'));
 app.use('/', require('./server/routes/userRoutes'));
+app.use('/', require('./server/routes/collabRoutes'));
+
 
 // Handle 404 errors
 app.get('*', (req, res) => {
@@ -102,3 +124,4 @@ app.get('*', (req, res) => {
 app.listen(port, () => {
   console.log(`Server listening at http://localhost:${port}`);
 });
+

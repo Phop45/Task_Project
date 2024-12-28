@@ -13,6 +13,13 @@
         </li>
 
         <li class="nav-item">
+            <a class="nav-link <%= currentPage === 'granttChart' ? 'active' : '' %>"
+                href="/space/item/<%= spaces._id %>/granttChart">
+                <i class="fa-regular fa-clipboard"></i> ชาร์ท
+            </a>
+        </li>
+
+        <li class="nav-item">
             <a class="nav-link <%= currentPage === 'task_member' ? 'active' : '' %>"
                 href="/space/item/<%= spaces._id %>/member">
                 <i class="fa-solid fa-users"></i> สมาชิก

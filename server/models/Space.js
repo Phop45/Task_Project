@@ -2,13 +2,14 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const memberSchema = new Schema({
-    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' } ,
+const collaboratorSchema = new Schema({
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     role: { 
         type: String, 
-        enum: ['Leader', 'Member'], 
-        required: true 
-    }
+        enum: ['Leader', 'owner', 'admin', 'Member', 'Guest'], 
+        default: 'Member'
+    },
+    joinDate: { type: Date, default: Date.now }
 });
 
 const spaceSchema = new Schema({
@@ -22,13 +23,13 @@ const spaceSchema = new Schema({
     },
     SpacePicture: {
         type: String,
-        default: "/public/spaceictures/defultBackground.jpg", // ตั้งค่าพื้นหลังเริ่มต้น
+        default: "/public/spaceictures/defultBackground.jpg",
       },
     deleted: {
         type: Boolean,
         default: false
     },
-    collaborators: [memberSchema],
+    collaborators: [collaboratorSchema],
 }, {
     timestamps: true 
 });

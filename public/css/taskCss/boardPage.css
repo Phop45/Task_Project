@@ -284,12 +284,6 @@ ul {
     transition: 0.3s;
 }
 
-.add-task-form .top-form {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-}
-
 .top-form p {
     font-weight: 600;
     padding-left: 10px;

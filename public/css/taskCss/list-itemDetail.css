@@ -1167,7 +1167,6 @@ button.btn {
 }
 
 button.btn:hover {
-    background-color: var(--btn);
     opacity: 1;
 }
 

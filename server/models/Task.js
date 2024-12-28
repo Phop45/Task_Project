@@ -37,8 +37,8 @@ const taskSchema = new Schema({
         type: String
     }],
     detail: {
-        type: String,  // Keep this as 'detail'
-        default: "",   // Optional: Ensure it starts with an empty string
+        type: String,
+        default: "",   
     },
     createdAt: {
         type: Date,

@@ -27,80 +27,81 @@
     word-wrap: break-word;
     overflow-wrap: break-word;
     display: flex;
-}
 
-.spaceall {
-    width: 100%;
+    .spaceall {
+        width: 100%;
 
-}
+        .heard-space {
+            width: 95%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 30px 0px;
 
-.spaceall .heard-space {
-    width: 95%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin: 30px 0px;
-}
+            .textheard-space {
+                font-size: 30px;
+                font-weight: 600;
+            }
 
-.heard-space .textheard-space {
-    font-size: 30px;
-    font-weight: 600;
-}
+        }
 
-.task-space {
-    width: 95%;
-    height: 80vh;
-    overflow-y: scroll;
-    box-sizing: border-box;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-}
+        .task-space::-webkit-scrollbar {
+            display: none;
+        }
 
-.task-space::-webkit-scrollbar {
-    display: none;
-}
+        .task-space {
+            width: 95%;
+            height: 80vh;
+            overflow-y: scroll;
+            box-sizing: border-box;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
 
-.task-space .taskcardall {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    justify-content: space-between;
-}
+            .taskcardall {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 20px;
+                justify-content: space-between;
 
-.taskcard a {
-    text-decoration: none;
-}
+                .taskcard {
+                    flex-basis: calc(50% - 20px);
+                    max-width: 48%;
+                    height: 275px;
+                    border: #CFD1D6 solid 1px;
+                    border-radius: 10px;
+                    box-sizing: border-box;
+                    margin-bottom: 20px;
 
-.taskcardall .taskcard {
-    flex-basis: calc(50% - 20px);
-    max-width: 48%;
-    height: 275px;
-    border: #CFD1D6 solid 1px;
-    border-radius: 10px;
-    box-sizing: border-box;
-    margin-bottom: 20px;
-}
+                    .theme {
+                        height: 50%;
+                        width: 100%;
+                    }
 
+                    .theme img {
+                        height: 100%;
+                        width: 100%;
+                        object-fit: cover;
+                        border-radius: 10px 10px 0 0;
+                        transition: opacity 0.3s ease-in-out;
+                    }
 
-.taskcard .theme {
-    height: 50%;
-    width: 100%;
-}
+                    a {
+                        text-decoration: none;
+                    }
+                }
 
-.taskcard .theme img {
-    height: 100%;
-    width: 100%;
-    object-fit: cover;
-    border-radius: 10px 10px 0 0;
-    transition: opacity 0.3s ease-in-out;
-}
+                .taskcard:hover .theme img {
+                    opacity: 0.5;
+                }
 
-.taskcard:hover .theme img {
-    opacity: 0.5;
-}
-.taskcard:hover{
-    margin-top: -10px;
-    transition: 0.3s;
+                .taskcard:hover {
+                    margin-top: -10px;
+                    transition: 0.3s;
+                }
+            }
+        }
+
+    }
 }
 
 
@@ -143,9 +144,11 @@
     border: #bebebe solid 1px;
     margin-left: -10px;
 }
-.taskcardall-text .taskmember img:first-child{
+
+.taskcardall-text .taskmember img:first-child {
     margin-left: 0;
 }
+
 .taskcardall-text .card-last .taskceate-date p {
     align-content: center;
     font-size: 14px;
@@ -221,9 +224,11 @@
     cursor: pointer;
     transition: 0.3s;
 }
-.heard-space #new-task-btn:hover{
+
+.heard-space #new-task-btn:hover {
     opacity: 1;
 }
+
 /* Updated Dropdown Menu Styling */
 .dropdown-taskedit {
     position: absolute;
@@ -281,4 +286,13 @@
 
 .taskcardall-text input {
     padding: 0;
+}
+
+#sub-Detail {
+    display: flex;
+    gap: 15px;
+  }
+
+#spaceInfo{
+    font-size: 16px;
 }
