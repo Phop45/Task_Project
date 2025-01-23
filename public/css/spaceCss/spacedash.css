@@ -1,38 +1,37 @@
 :root {
-    --body-color: #e4e9f7;
-    --sidebar-color: #fff;
-    --primary-color-light: #f6f5f7;
-    --toggle-color: #ddd;
-    --text-color: #707070;
-    --line: #D7D9DD;
+    --topnav: #323450;
+    --lighttopnav: #474962;
+    --select: #7952B3;
+    --lightselect: #E5E4FA;
+    --deepbackground: #F7F8F9;
+    --lightline: #E9EBEF;
+    --lightText: #fffc;
+    --btn: #5C54E5;
 
-    --color1: #7952B3;
+    --line: #d7d9dd;
+    --more-line: #9a9a9a;
+    --text1: #656f7d;
+    --color1: #7952b3;
     --color2: #a788d4;
-    --color3: #E4E9F6;
-    --text: #37352F;
+    --color4: #906fc3;
+    --color3: #e4e9f6;
+    --text2: #37352f;
+    --light: #37352fa6;
+    --more-light: #0a0a03d7;
+    --notYet: #c3cad5;
 
-    --text2: #515761;
-    --light: #37352FA6;
-    --more-light: #222220d7;
-    --notYet: #B5C0D0;
-
-    --cancel: #FF004D;
+    --cancle: #E53935;
+    --grey: rgb(235, 237, 242);
 }
 
 .content {
     background-color: white;
-    margin: 0 auto;
-    border-radius: 20px;
-    margin: 0 0 0 10%;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    display: flex;
+    margin: 30px 50px 30px 150px;
 
     .spaceall {
-        width: 100%;
 
         .heard-space {
-            width: 95%;
+            width: 100%;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -50,7 +49,7 @@
         }
 
         .task-space {
-            width: 95%;
+            width: 100%;
             height: 80vh;
             overflow-y: scroll;
             box-sizing: border-box;
@@ -95,8 +94,8 @@
                 }
 
                 .taskcard:hover {
-                    margin-top: -10px;
-                    transition: 0.3s;
+                    margin-top: -5px;
+                    transition: 0.3s ease-in-out;
                 }
             }
         }
@@ -106,11 +105,12 @@
 
 
 .taskcard .taskcardall-text {
-    display: inline-grid;
-    width: 100%;
-    height: 50px;
+    
 }
-
+.spaceNameCard{
+    font-size: 22px;
+    color: #323450;
+}
 .taskcardall-text .card-title {
     width: 100%;
     font-size: 22px;
@@ -201,8 +201,9 @@
     float: left;
     display: flex;
     align-items: center;
+    justify-content: space-between;
     margin-top: 15px;
-    width: 90%;
+    width: 100%;
 }
 
 .card-last .card-last-left .taskceate-date {
@@ -295,4 +296,89 @@
 
 #spaceInfo{
     font-size: 16px;
+}
+
+#spaceCreate{
+    text-decoration: none;
+    font-weight: 400;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background-color: var(--btn);
+    color: white;
+    border-radius: 5px;
+    height: 40px;
+    width: 150px;
+    opacity: 0.7;
+}
+#spaceCreate:hover{
+    opacity: 1;
+    transition: 0.3s;
+}
+
+.detailInfo{
+    display: flex;
+    flex-direction: column;
+    padding: 20px 30px;
+}
+
+.card-last{
+    margin-top: 15px;
+}
+.taskCount{
+    padding: 5px 15px;
+    background-color: var(--btn);
+    color: white;
+    border-radius: 5px;
+    margin-right: 20px;
+    opacity: 0.7;
+    position: relative;
+    cursor: pointer;
+}
+  
+.taskCount[data-tooltip]:hover::after {
+    content: attr(data-tooltip); /* Display the tooltip text */
+    position: absolute;
+    top: -35px; /* Position above the element */
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333; /* Tooltip background color */
+    color: #fff; /* Tooltip text color */
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 14px;
+    white-space: nowrap; /* Prevent line breaks */
+    z-index: 9999; /* Ensure it appears on top */
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease-in-out;
+    pointer-events: none; /* Avoid interfering with other elements */
+}
+  
+  .taskCount[data-tooltip]:hover::before {
+    content: '';
+    position: absolute;
+    top: -10px; /* Position arrow closer to the element */
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent transparent #333 transparent; /* Tooltip arrow color */
+    z-index: 9999; /* Ensure it appears on top */
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease-in-out;
+}
+  
+.taskCount[data-tooltip]:hover::after,
+.taskCount[data-tooltip]:hover::before {
+    opacity: 1;
+    visibility: visible;
+}
+
+#sec{
+    display: flex;
+    flex-direction: row;
 }

@@ -1,37 +1,51 @@
 <div class="topNavlink">
     <ul class="nav nav-tabs">
-        <li class="nav-item">
+        <li class="nav-item top-item">
             <a class="nav-link <%= currentPage === 'dashboard' ? 'active' : '' %>" href="/space/item/<%= spaces._id %>">
                 <i class='bx bxs-dashboard'></i> แดชบอร์ด
             </a>
         </li>
-        <li class="nav-item">
+        <li class="nav-item top-item">
             <a class="nav-link <%= currentPage === 'board' ? 'active' : '' %>"
                 href="/space/item/<%= spaces._id %>/task_board">
                 <i class="fa-regular fa-clipboard"></i> บอร์ดงาน
             </a>
         </li>
 
-        <li class="nav-item">
+        <li class="nav-item top-item">
             <a class="nav-link <%= currentPage === 'granttChart' ? 'active' : '' %>"
                 href="/space/item/<%= spaces._id %>/granttChart">
-                <i class="fa-regular fa-clipboard"></i> ชาร์ท
+                <i class="fa-solid fa-chart-gantt"></i> ชาร์ท
             </a>
         </li>
 
-        <li class="nav-item">
+        <li class="nav-item top-item">
+            <a class="nav-link <%= currentPage === 'task_calenda' ? 'active' : '' %>"
+                href="#">
+                <i class="fa-solid fa-calendar-days"></i> ปฎิทิน
+            </a>
+        </li>
+        
+        <li class="nav-item top-item">
+            <a class="nav-link <%= currentPage === 'task_chat' ? 'active' : '' %>"
+                href="#">
+                <i class="fa-solid fa-comments"></i> แชท
+            </a>
+        </li>
+
+        <li class="nav-item top-item">
             <a class="nav-link <%= currentPage === 'task_member' ? 'active' : '' %>"
                 href="/space/item/<%= spaces._id %>/member">
                 <i class="fa-solid fa-users"></i> สมาชิก
             </a>
         </li>
-        <% if (currentUserRole==='Leader' ) { %>
-            <li class="nav-item">
-                <a class="nav-link <%= currentPage === 'pending-task' ? 'active' : '' %>"
-                    href="/space/item/<%= spaces._id %>/pedding">
-                    <i class="fa-solid fa-list-check"></i> ตรวจงาน
-                </a>
-            </li>
-            <% } %>
+
+        <li class="nav-item top-item">
+            <a class="nav-link <%= currentPage === 'task_setting' ? 'active' : '' %>"
+                href="#">
+                <i class="fa-solid fa-gear"></i> ตั้งค่า
+            </a>
+        </li>
+
     </ul>
 </div>

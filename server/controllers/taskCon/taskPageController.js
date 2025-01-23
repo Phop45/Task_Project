@@ -3,6 +3,7 @@ const Task = require("../../models/Task");
 const Spaces = require('../../models/Space');
 const SubTask = require('../../models/SubTask');
 const User = require("../../models/User");
+const Status = require('../../models/Status')
 const moment = require('moment');
 const mongoose = require('mongoose');
 moment.locale('th');
@@ -16,12 +17,15 @@ const extractTaskParameters = async (tasks) => {
     const taskTag = tasks.map(task => task.taskTag);
 
     const dueDate = tasks.map(task => {
-        const date = new Date(task.dueDate);
-        const options = { day: 'numeric', month: 'long', year: 'numeric', locale: 'th-TH' };
-        return date.toLocaleDateString(undefined, options);
+        const date = moment(task.dueDate).locale('th'); // Set locale to Thai
+        return {
+            day: date.format('DD'),
+            month: date.format('MMM'), // Use abbreviated Thai month names
+            year: date.format('YYYY') // Buddhist calendar year (BE)
+        };
     });
 
-    const dueTime = tasks.map(task => task.dueTime); // Extract dueTime from the task
+    const dueTime = tasks.map(task => task.dueTime);
 
     const createdAt = tasks.map(task => {
         const date = new Date(task.createdAt);
@@ -143,22 +147,18 @@ exports.task_dashboard = async (req, res) => {
     }
 };
 
-// บอร์ดรวมงาน
+// board render page controller
 exports.task_board = async (req, res) => {
     try {
         const spaceId = req.params.id;
         const userId = req.user.id;
-        const users = await User.find();
 
         // Fetch the space
         const space = await Spaces.findOne({
             _id: spaceId,
-            $or: [
-                { user: userId },
-                { collaborators: { $elemMatch: { user: userId } } },
-            ],
+            $or: [{ user: userId }, { collaborators: { $elemMatch: { user: userId } } }],
         })
-            .populate('collaborators.user', 'username profileImage role')
+            .populate('collaborators.user', 'username profileImage googleEmail ')
             .lean();
 
         if (!space) {
@@ -168,21 +168,11 @@ exports.task_board = async (req, res) => {
         const spaceCollaborators = (space.collaborators || []).filter(c => c && c.user);
         const currentUserRole = spaceCollaborators.find(c => c.user._id.toString() === userId)?.role || 'Member';
 
+        // Fetch tasks and populate required fields
         const tasks = await Task.find({ space: spaceId })
             .populate('assignedUsers', 'profileImage displayName')
             .lean();
 
-        // Count tasks by status
-        const taskCounts = {};
-        tasks.forEach(task => {
-            const status = task.taskStatuses; // Adjust the property name if necessary
-            if (!taskCounts[status]) {
-                taskCounts[status] = 0;
-            }
-            taskCounts[status]++;
-        });
-
-        // Fetch and calculate subtask details for each task
         for (const task of tasks) {
             const subtasks = await SubTask.find({ task: task._id }).populate('assignee', 'username profileImage').lean();
 
@@ -211,6 +201,25 @@ exports.task_board = async (req, res) => {
             }));
         }
 
+        // Organize tasks by status
+        const statuses = await Status.find({ space: spaceId }).lean();
+        const tasksByStatus = statuses.reduce((acc, status) => {
+            acc[status.name] = tasks.filter(task => task.taskStatus === status.name);
+            return acc;
+        }, {});
+
+        // Prepare task counts for each status category
+        const taskCounts = statuses.reduce((acc, status) => {
+            acc[status.category] = tasksByStatus[status.name]?.length || 0;
+            return acc;
+        }, {});
+
+        // Sort statuses by category
+        const sortedStatuses = statuses.sort((a, b) => {
+            const order = ['toDo', 'inProgress', 'fix', 'finished'];
+            return order.indexOf(a.category) - order.indexOf(b.category);
+        });
+
         // Calculate user workload
         const userWorkload = {};
         tasks.forEach(task => {
@@ -224,13 +233,13 @@ exports.task_board = async (req, res) => {
                     };
                 }
                 userWorkload[userId].totalTasks += 1; // Increment total tasks
-                if (task.taskStatuses === 'เสร็จสิ้น') {
+                if (task.taskStatus === 'เสร็จสิ้น') {
                     userWorkload[userId].completedTasks += 1; // Increment completed tasks
                 }
             });
         });
 
-        // Calculate completion percentages
+        // Calculate completion percentages for each user
         for (const userId in userWorkload) {
             const workload = userWorkload[userId];
             workload.percentage = workload.totalTasks > 0 ? Math.round((workload.completedTasks / workload.totalTasks) * 100) : 0;
@@ -238,23 +247,25 @@ exports.task_board = async (req, res) => {
 
         res.render("task/task-board", {
             spaces: space,
-            tasks: tasks,
+            tasks,
+            tasksByStatus,
+            statuses: sortedStatuses,
+            taskCounts,
             user: req.user,
-            users: users,
-            userName: req.user.username,
-            userImage: req.user.profileImage,
+            spaceCollaborators,
+            currentUserRole,
+            moment,
+            userWorkload: JSON.stringify(userWorkload),
             currentPage: 'board',
             layout: "../views/layouts/task",
-            spaceCollaborators, // Pass the filtered list to the view
-            currentUserRole, // Pass the current user's role
-            taskCounts, // Pass the task counts to the view
-            userWorkload: JSON.stringify(userWorkload), // Pass the user workload data
+            priority: tasks.map(task => task.taskPriority), // Pass task priorities
         });
     } catch (error) {
         console.log(error);
         res.status(500).send("Internal Server Error");
     }
 };
+
 
 // ลิสต์งาน (ยังไม่ได้ใช้)
 exports.task_list = async (req, res) => {

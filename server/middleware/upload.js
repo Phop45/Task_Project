@@ -1,14 +1,22 @@
+// upload mindelware
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
+const uploadDir = 'docUploads/';
+
+
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+}
 
 // Configure Multer storage to preserve the original filename
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, 'docUploads/'); // Ensure this folder exists or create it
+        cb(null, uploadDir);
     },
     filename: (req, file, cb) => {
         const safeFilename = file.originalname.replace(/[\s]/g, '_'); // Replace spaces with underscores
-        cb(null, safeFilename); // Store with original name, including Thai characters
+        cb(null, safeFilename);
     }
 });
 
@@ -18,12 +26,11 @@ const fileFilter = (req, file, cb) => {
     const ext = path.extname(file.originalname).toLowerCase();
 
     if (allowedTypes.includes(ext)) {
-        cb(null, true); // Accept the file
+        cb(null, true);
     } else {
-        cb(new Error('Invalid file type'), false); // Reject the file
+        cb(new Error('Invalid file type'), false);
     }
 };
-
 
 // Set up the upload middleware with size limits (e.g., 5MB)
 const upload = multer({

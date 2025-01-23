@@ -62,7 +62,7 @@
                     <div class="detailSec">
                         <div class="grid-container">
                             <div class="grid-item topic">
-                                <div class="detail-name">
+                                <div class="detail-name" id="status_dropdown">
                                     <i class="fa-solid fa-circle-half-stroke"></i>
                                     สถานะ
                                 </div>
@@ -71,8 +71,15 @@
                                         <i class="fa-solid fa-spinner spinner-icon" style="display: none;"></i>
                                         <span class="status-text"><%= taskStatuses %></span>
                                     </div>
+                                    <div class="dropdown-content" id="status-dropdown-content" style="display: none;">
+                                        <a href="#" class="status-option" data-status="กำลังทำ">กำลังทำ</a>
+                                        <a href="#" class="status-option" data-status="แก้ไข">แก้ไข</a>
+                                        <a href="#" class="status-option" data-status="เสร็จสิ้น">เสร็จสิ้น</a>
+                                    </div>
                                 </div>
                             </div>
+
+
                             <div class="grid-item topic">
                                 <div class="detail-name">
                                   <i class="fa-regular fa-circle-user"></i>
@@ -706,9 +713,40 @@
                     break;
         
                 default:
-                    console.warn('Unhandled status:', statusText); // Warn for any unhandled status
-                    statusDiv.style.backgroundColor = '#FFFFFF'; // Optional default color
+                    console.warn('Unhandled status:', statusText); 
+                    statusDiv.style.backgroundColor = '#FFFFFF'; 
             }
+        });
+
+        document.getElementById('status_dropdown').addEventListener('click', function() {
+            const dropdownContent = document.getElementById('status-dropdown-content');
+            dropdownContent.style.display = dropdownContent.style.display === 'none' ? 'block' : 'none';
+        });
+
+        document.querySelectorAll('.status-option').forEach(option => {
+            option.addEventListener('click', function(event) {
+                event.preventDefault();
+                const newStatus = this.getAttribute('data-status');
+                const taskId = '<%= task._id %>'; 
+
+                fetch(`/updateTaskStatus`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ newStatus })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.querySelector('.status-text').textContent = newStatus;
+                        document.getElementById('status-dropdown-content').style.display = 'none';
+                    } else {
+                        alert('Failed to update status');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            });
         });
     </script>
 </body>

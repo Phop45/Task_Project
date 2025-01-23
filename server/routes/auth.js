@@ -1,6 +1,5 @@
 const express = require("express");
 const passport = require("passport");
-// Add this line to import GoogleStrategy
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const authController = require("../controllers/authController");
 const router = express.Router();
@@ -52,8 +51,7 @@ router.get("/login-failure", authController.loginFailure);
 
 // Logout
 router.get("/logout", authController.logout);
-// Routes for forgot password
-router.get('/forgot-password', authController.showForgotPassword); // ไม่เปลี่ยนแปลง
+router.get('/forgot-password', authController.showForgotPassword);
 router.post('/forgot-password', authController.resendOTP);
 
 // Route for OTP verification

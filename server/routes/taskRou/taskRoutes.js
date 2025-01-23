@@ -3,11 +3,15 @@ const express = require('express');
 const router = express.Router();
 const taskController = require('../../controllers/taskCon/taskController.js');
 const { isLoggedIn } = require('../../middleware/checkAuth');
+const upload = require('../../middleware/upload'); 
 
 router.post('/addTask', isLoggedIn, taskController.addTask);
 router.post('/addTask2', isLoggedIn, taskController.addTask2);
-router.post('/addTask_board', isLoggedIn, taskController.addTask_board);
+router.post('/createTask', isLoggedIn, upload.array('attachments', 10),taskController.addTask_board);
+router.post('/addTask_board', isLoggedIn, taskController.addTask_underBoard);
 router.post('/addTask_list', isLoggedIn, taskController.addTask_list);
+
+router.get('/tags', isLoggedIn, taskController.getUserTags);
 
 router.post('/task/deleteTasks/:id', isLoggedIn, taskController.deleteTasks);
 router.post('/task/getSubtaskCount/:id', isLoggedIn, taskController.getSubtaskCount);

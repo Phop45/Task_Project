@@ -1,33 +1,24 @@
 // auth controller
 const passport = require("passport");
 const User = require("../models/User");
-const crypto = require('crypto'); // Add this line for crypto functionality
+const adminController = require('./adminController');
+const crypto = require('crypto');
 const bcrypt = require('bcrypt');
 const { sendEmail } = require("../../emailService");
 
-// ฟังก์ชันสำหรับสุ่ม userid
-function generateUserId() {
-  const characters = "abcdefghijklmnopqrstuvwxyz0123456789";
-  let userid = "";
-  for (let i = 0; i < 6; i++) {
-    userid += characters.charAt(Math.floor(Math.random() * characters.length));
-  }
-  return userid;
-}
-
-// ฟังก์ชันสำหรับสุ่ม username
-function generateUsername() {
-  const randomNum = Math.floor(1000 + Math.random() * 9000);
-  return `user_${randomNum}`;
-}
-
 exports.googleCallback = async (accessToken, refreshToken, profile, done) => {
   try {
-    let user = await User.findOne({ googleId: profile.id });
+    let user = await User.findOne({ googleId: profile.id }) || await User.findOne({ googleEmail: profile.emails[0].value });
 
     if (user) {
       user.lastActive = Date.now();
+      user.isOnline = true;
       await user.save();
+      if (!user.googleId) {
+        user.googleId = profile.id;
+        user.profileImage = profile.photos[0]?.value || '/img/profileImage/Profile.jpeg';
+        await user.save();
+      }
       return done(null, user);
     } 
     else {
@@ -37,30 +28,22 @@ exports.googleCallback = async (accessToken, refreshToken, profile, done) => {
         user.googleId = profile.id;
         user.profileImage = profile.photos[0]?.value || '/img/profileImage/Profile.jpeg';
         user.lastActive = Date.now();
+        user.isOnline = true;
         await user.save();
         return done(null, user);
       } 
       else {
-        let username = generateUsername();
-        let userid = generateUserId();
-
-        while (await User.findOne({ username })) {
-          username = generateUsername();
-        }
-        while (await User.findOne({ userid })) {
-          userid = generateUserId();
-        }
-
         const newUser = new User({
           googleId: profile.id,
           googleEmail: profile.emails[0].value,
-          username: username,
-          userid: userid,
           profileImage: profile.photos[0]?.value || '/img/profileImage/Profile.jpeg',
+          role: profile.emails[0].value === process.env.ADMIN_EMAIL ? "admin" : "user",
           lastActive: Date.now(),
+          isOnline: true
         });
 
         user = await newUser.save();
+        adminController.sendUnexpiredAnnouncementsToNewUser(newUser.googleEmail);
         return done(null, user);
       }
     }
@@ -74,29 +57,41 @@ exports.loginPage = (req, res) => {
   res.render("log/login");
 };
 
-exports.login = (req, res, next) => {
-  passport.authenticate("local", async (err, user, info) => {
+exports.login = async (req, res, next) => {
+  // Input validation
+  if (!req.body.googleEmail || !req.body.password) {
+    req.flash('error', 'Please enter email and password');
+    return res.redirect('/login');
+  }
+
+  passport.authenticate('local', async (err, user, info) => {
     if (err) {
-      console.error("Authentication error:", err);
+      console.error('Authentication error:', err);
       return next(err);
     }
+
     if (!user) {
-      console.log("User not found or incorrect credentials.");
-      req.flash('error', 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');
-      return res.redirect("/login");
+      req.flash('error', info.message || 'Invalid email or password');
+      return res.redirect('/login');
     }
 
     req.logIn(user, async (err) => {
       if (err) {
-        console.error("Login error:", err);
+        console.error('Login error:', err);
         return next(err);
       }
       try {
+        user.lastLogin = Date.now();
         user.lastActive = Date.now();
+        user.isOnline = true; 
         await user.save();
-        return res.redirect('/space');
-      }
-      catch (error) {
+
+        if (user.role === 'admin') {
+          return res.redirect('/adminPage');
+        } else {
+          return res.redirect('/space');
+        }
+      } catch (error) {
         console.error('Error updating lastActive:', error);
         return next(error);
       }
@@ -106,51 +101,30 @@ exports.login = (req, res, next) => {
 
 exports.registerUser = async (req, res) => {
   const { username, password, confirmPassword, googleEmail } = req.body;
-  let errors = [];
+  const errors = [];
 
-  if (password !== confirmPassword) {
-    errors.push("รหัสผ่านและการยืนยันรหัสผ่านไม่ตรงกัน");
-  }
+  if (password !== confirmPassword) errors.push("รหัสผ่านและการยืนยันรหัสผ่านไม่ตรงกัน");
 
-  const existingUsername = await User.findOne({ username });
-  const existingEmail = await User.findOne({ googleEmail });
-
-  if (existingUsername) errors.push("ชื่อผู้ใช้นี้มีอยู่แล้ว");
-  if (existingEmail) errors.push("อีเมลนี้มีอยู่แล้ว");
+  if (await User.findOne({ username })) errors.push("ชื่อผู้ใช้นี้มีอยู่แล้ว");
+  if (await User.findOne({ googleEmail })) errors.push("อีเมลนี้มีอยู่แล้ว");
 
   if (errors.length > 0) {
     req.flash("errors", errors);
-    req.flash("username", username);
-    req.flash("googleEmail", googleEmail);
     return res.redirect("/register");
   }
 
   try {
     const newUser = new User({
       username,
-      googleEmail,
-      password,
-      profileImage: '/img/profileImage/Profile.jpeg', // Set default profile image here
+      googleEmail
     });
 
-    if (password) {
-      User.register(newUser, password, (err, user) => {
-        if (err) {
-          req.flash("errors", [err.message]);
-          return res.redirect("/register");
-        }
-        passport.authenticate("local")(req, res, () => res.redirect("/space"));
-      });
-    } else {
-      const savedUser = await newUser.save();
-      req.logIn(savedUser, (err) => {
-        if (err) return next(err);
-        res.redirect("/space");
-      });
-    }
+    await User.register(newUser, password);
+    req.flash('success', 'ลงทะเบียนสำเร็จแล้ว');
+    res.redirect('/login');
   } catch (err) {
-    req.flash("errors", [err.message]);
-    res.redirect("/register");
+    req.flash('errors', [err.message]);
+    res.redirect('/register');
   }
 };
 
@@ -169,22 +143,33 @@ exports.loginFailure = (req, res) => {
 };
 
 exports.logout = (req, res) => {
-  req.logout((err) => {
+  const userId = req.user ? req.user._id : null;
+
+  req.logout(async (err) => {
     if (err) {
       console.error(err);
       return res.status(500).send("Error logging out");
     }
-    req.session.destroy((error) => {
-      if (error) {
-        console.error(error);
-        return res.status(500).send("Error logging out");
+    try {
+      if (userId) { // Ensure userId is not null
+        await User.findByIdAndUpdate(userId, { isOnline: false });
       }
-      res.redirect("/");
-    });
+      req.session.destroy((error) => {
+        if (error) {
+          console.error(error);
+          return res.status(500).send("Error logging out");
+        }
+        res.redirect("/");
+      });
+    } catch (error) {
+      console.error('Error updating isOnline status:', error);
+      res.status(500).send("Internal Server Error");
+    }
   });
 };
 
-//resetpassword
+
+// Reset password
 exports.showForgotPassword = (req, res) => {
   const error = req.flash('error');
   const success = req.flash('success');
@@ -192,36 +177,61 @@ exports.showForgotPassword = (req, res) => {
 };
 
 exports.resendOTP = async (req, res) => {
-  const { username } = req.body;
+  const { email } = req.body;
 
   try {
-    // Find user by username
-    const user = await User.findOne({ username: username });
+    console.log('เริ่มกระบวนการส่ง OTP');
+
+    const user = await User.findOne({ googleEmail: email });
     if (!user) {
-      req.flash('error', 'ชื่อผู้ใช้ไม่ถูกต้อง');
+      req.flash('error', 'ไม่พบอีเมลในระบบ');
+      console.log('ไม่พบอีเมลในระบบ:', email);
       return res.redirect('/forgot-password');
     }
 
-    // Generate OTP
-    const otp = crypto.randomInt(100000, 999999).toString();
+    console.log('พบผู้ใช้:', user.googleEmail);
+
+    const otp = crypto.randomBytes(6).toString('hex'); 
     const salt = await bcrypt.genSalt(12);
     const hashedOtp = await bcrypt.hash(otp, salt);
 
-    // Save OTP and expiration time
     user.otp = hashedOtp;
     user.otpExpires = Date.now() + 300000; // OTP valid for 5 minutes
     await user.save();
 
-    // Send OTP via email
-    await sendEmail(user.googleEmail, 'รหัส OTP สำหรับรีเซ็ตรหัสผ่าน', `รหัส OTP ของคุณคือ ${otp}. รหัส OTP จะหมดอายุใน 5 นาที.`);
+    console.log('OTP ถูกบันทึกในฐานข้อมูล');
 
-    req.session.username = username; // Save username in session for further processes
+    const mailSent = await sendEmail(
+      user.googleEmail,
+      'รหัส OTP สำหรับรีเซ็ตรหัสผ่าน',
+      `รหัส OTP ของคุณคือ ${otp}. รหัส OTP จะหมดอายุใน 5 นาที.`
+    );
+
+    if (!mailSent) {
+      req.flash('error', 'ไม่สามารถส่งอีเมลได้ กรุณาลองใหม่');
+      console.log('ส่งอีเมล OTP ไม่สำเร็จ'); // Log เมื่อส่ง OTP ล้มเหลว
+      return res.redirect('/forgot-password');
+    }
+
+    console.log(`ส่งรหัส OTP ไปยังอีเมล: ${user.googleEmail}`);
+
+    if (!mailSent) {
+      req.flash('error', 'ไม่สามารถส่งอีเมลได้ กรุณาลองใหม่');
+      console.log('ส่งอีเมลไม่สำเร็จ');
+      return res.redirect('/forgot-password');
+    }
+
+    console.log('ผลการส่งอีเมล:', mailSent); // ตรวจสอบผลลัพธ์ที่ได้จากการส่งอีเมล
+
+    req.session.email = email;
+    console.log('Session email:', req.session.email);
+
     req.flash('success', 'ส่งรหัส OTP ไปยังอีเมลของคุณเรียบร้อยแล้ว');
     res.redirect('/verify-otp');
   } catch (err) {
-    console.error(err);
+    console.error('เกิดข้อผิดพลาด:', err);
     req.flash('error', 'เกิดข้อผิดพลาดกรุณาลองอีกครั้ง');
-    return res.redirect('/forgot-password');
+    res.redirect('/forgot-password');
   }
 };
 
@@ -229,18 +239,26 @@ exports.showVerifyOTP = (req, res) => {
   const error = req.flash('error');
   const success = req.flash('success');
   const { username } = req.session;
-  res.render('./forgot_password/verify-otp', { error, success, username });
+  res.render('./forgot_password/verify-otp', { error, success, username, email: req.session.email });
 };
 
 exports.verifyOTP = async (req, res) => {
   const { otp } = req.body;
-  const { username } = req.session;
+  const { email } = req.session;
 
   try {
-    const user = await User.findOne({ username: username });
+    const user = await User.findOne({ googleEmail: email });
 
-    if (!user || !user.otp || user.otpExpires < Date.now()) {
-      req.flash('error', 'รหัส OTP ไม่ถูกต้องหรือหมดอายุ');
+    if (!user || !user.otp) {
+      req.flash('error', 'รหัส OTP ไม่ถูกต้อง');
+      return res.redirect('/verify-otp');
+    }
+
+    if (user.otpExpires < Date.now()) {
+      req.flash('error', 'รหัส OTP หมดอายุ');
+      user.otp = undefined;
+      user.otpExpires = undefined;
+      await user.save();
       return res.redirect('/verify-otp');
     }
 
@@ -251,59 +269,53 @@ exports.verifyOTP = async (req, res) => {
       return res.redirect('/verify-otp');
     }
 
-    // Clear OTP after verification
     user.otp = undefined;
     user.otpExpires = undefined;
     await user.save();
 
     req.flash('success', 'รหัส OTP ถูกต้อง กรุณาตั้งรหัสผ่านใหม่');
-    return res.redirect('/reset-password');
+    res.redirect('/reset-password');
   } catch (err) {
     console.error(err);
     req.flash('error', 'เกิดข้อผิดพลาดกรุณาลองอีกครั้ง');
-    return res.redirect('/verify-otp');
+    res.redirect('/verify-otp');
   }
 };
 
 exports.showResetPassword = (req, res) => {
-  const error = req.flash('error');
-  const success = req.flash('success');
-  res.render('./forgot_password/reset-password', { error, success });
+  const { email } = req.session; // ดึงค่า email จาก session
+  res.render('forgot_password/reset-password', { email }); // ส่ง email ไปที่ EJS
 };
 
 exports.resetPassword = async (req, res) => {
   const { newPassword } = req.body;
-  const { username } = req.session;
+  const email = (req.session.email || '').trim().toLowerCase();
 
   try {
-    // ค้นหาผู้ใช้จาก username
-    const user = await User.findOne({ username: username });
-
+    const user = await User.findOne({ googleEmail: email });
     if (!user) {
       req.flash('error', 'ไม่พบผู้ใช้ที่ร้องขอการรีเซ็ตรหัสผ่าน');
-      console.log(`ไม่พบผู้ใช้ที่ร้องขอการรีเซ็ตรหัสผ่าน: ${username}`);
       return res.redirect('/forgot-password');
     }
 
-    // ใช้ setPassword ของ passport-local-mongoose เพื่ออัปเดตรหัสผ่านใหม่
+    if (!newPassword) {
+      req.flash('error', 'กรุณากรอกรหัสผ่านใหม่');
+      return res.redirect('/reset-password');
+    }
+
+    console.log('เริ่มกระบวนการรีเซ็ตรหัสผ่าน:', email);
+
+    // ใช้ setPassword
     await user.setPassword(newPassword);
-
-    // ล้างข้อมูล OTP หลังจากรีเซ็ตรหัสผ่านสำเร็จ
-    user.otp = undefined;
-    user.otpExpires = undefined;
-
-    // บันทึกข้อมูลผู้ใช้หลังจากอัปเดต
     await user.save();
 
-    // log เมื่ออัปเดตรหัสผ่านสำเร็จ
-    console.log(`รหัสผ่านของผู้ใช้ ${username} ถูกอัปเดตเรียบร้อยแล้ว`);
+    console.log('รีเซ็ตรหัสผ่านเสร็จสมบูรณ์:', email);
 
-    // ส่งข้อความไปยังผู้ใช้
+    req.session.email = null;
     req.flash('success', 'รีเซ็ตรหัสผ่านสำเร็จแล้ว กรุณาเข้าสู่ระบบใหม่');
     res.redirect('/login');
   } catch (err) {
-    // log ข้อผิดพลาดหากมีปัญหาในการรีเซ็ตรหัสผ่าน
-    console.error(`เกิดข้อผิดพลาดในการอัปเดตรหัสผ่านของ ${username}:`, err);
+    console.error('Error during password reset:', err);
     req.flash('error', 'เกิดข้อผิดพลาดในการรีเซ็ตรหัสผ่าน กรุณาลองอีกครั้ง');
     res.redirect('/reset-password');
   }

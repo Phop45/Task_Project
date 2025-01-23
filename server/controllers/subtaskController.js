@@ -1,11 +1,10 @@
 // subtask controller
 const SubTask = require("../models/SubTask");
+const Notification = require('../models/Noti');
+const mongoose = require('mongoose');
 
 exports.createSubTask = async (req, res) => {
     const { taskId, subTask, dueDate, assignee } = req.body;
-
-    console.log("Received data:", { taskId, subTask, dueDate, assignee });
-
     try {
         if (!taskId || !subTask || !dueDate || !assignee) {
             return res.status(400).json({ message: 'Missing required fields' });
@@ -23,6 +22,19 @@ exports.createSubTask = async (req, res) => {
         });
 
         await newSubTask.save();
+
+        const notification = new Notification({
+            user: assignee,
+            subtask: newSubTask._id,
+            space: mongoose.Types.ObjectId(taskId), 
+            type: 'subtaskAssignment',
+            message: `คุณได้รับมอบหมายงานย่อยชื่อ: ${newSubTask.subtask_Name}`,
+            status: 'unread',
+            dueDate: dueDate ? new Date(dueDate) : null,
+        });
+
+        await notification.save();
+
         res.status(200).json({ message: 'Subtask created successfully' });
     } catch (error) {
         console.error('Error creating subtask:', error);
@@ -78,8 +90,6 @@ exports.toggleSubTaskStatus = async (req, res) => {
         res.status(500).json({ message: 'Error updating status' });
     }
 };
-
-
 
 
 exports.getSubtaskDetails = async (req, res) => {

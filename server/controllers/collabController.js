@@ -2,7 +2,6 @@
 const Spaces = require('../models/Space');
 const User = require("../models/User");
 const Notification = require('../models/Noti');
-const notiController = require('../controllers/notiController');
 const moment = require('moment');
 
 exports.manage_Member = async (req, res) => {
@@ -11,11 +10,11 @@ exports.manage_Member = async (req, res) => {
             _id: req.params.id,
             $or: [
                 { user: req.user._id },
-                { collaborators: { $elemMatch: { user: req.user._id } } } 
+                { collaborators: { $elemMatch: { user: req.user._id } } }
             ]
         })
-            .populate('user', 'username profileImage') 
-            .populate('collaborators.user', 'username profileImage email googleEmail lastActive') 
+            .populate('user', 'username profileImage isOnline')
+            .populate('collaborators.user', 'username profileImage email googleEmail lastActive isOnline')
             .lean();
 
         if (!space) {
@@ -24,7 +23,7 @@ exports.manage_Member = async (req, res) => {
 
         const currentUserRole = space.collaborators.find(
             collab => collab.user._id.toString() === req.user._id.toString()
-        )?.role || 'Member';
+        )?.role || 'member';
 
         const validCollaborators = space.collaborators.filter(collab => collab && collab.user);
 
@@ -33,11 +32,11 @@ exports.manage_Member = async (req, res) => {
 
         const allUsers = await User.find(
             { _id: { $nin: collaboratorIds } },
-            'username profileImage googleEmail'
+            'username profileImage googleEmail isOnline'
         ).lean();
 
         const pendingInvitations = await Notification.find({ space: req.params.id, status: 'pending' })
-            .populate('user', 'username profileImage googleEmail') 
+            .populate('user', 'username profileImage googleEmail isOnline')
             .lean();
 
         res.render("task/task-member", {
@@ -53,7 +52,7 @@ exports.manage_Member = async (req, res) => {
             currentUserRole,
             pendingInvitations,
             layout: "../views/layouts/task",
-            moment // Add moment to the render context
+            moment
         });
 
     } catch (error) {
@@ -66,48 +65,50 @@ exports.addMemberToSpace = async (req, res) => {
     try {
         const { memberId, role, spaceId } = req.body;
 
-        const space = await Spaces.findById(spaceId);
-        if (!space) return res.status(404).json({ 
-            success: false,
-            message: 'Space not found'
-        });
-
-        // Check if the user is already a member
-        const isMember = space.collaborators.some(collab => collab.user.toString() === memberId);
-        if (isMember) {
-            return res.status(400).json({ 
-                success: false,
-                message: 'User is already a member of this space'
-            });
+        if (!memberId || !role || !spaceId) {
+            return res.status(400).json({ success: false, message: 'Missing required fields' });
         }
 
-        // Check if the user has a pending invitation
+        const space = await Spaces.findById(spaceId);
+        if (!space) return res.status(404).json({ 
+            success: false, 
+            message: 'Space not found' 
+        });
+
+        const currentUserRole = space.collaborators.find(collab => collab.user.toString() === req.user._id.toString())?.role;
+        if (currentUserRole !== 'owner' && currentUserRole !== 'admin') {
+            return res.status(403).json({ success: false, message: 'Only the admin or owner can invite members' });
+        }
+
+        const isMember = space.collaborators.some(collab => collab.user.toString() === memberId);
+        if (isMember) {
+            return res.status(400).json({ success: false, message: 'User is already a member of this space' });
+        }
+
         const hasPendingInvitation = await Notification.findOne({ 
             user: memberId, 
             space: spaceId, 
             status: 'pending' 
         });
         if (hasPendingInvitation) {
-            return res.status(400).json({ 
-                success: false,
-                message: 'User already has a pending invitation'
-            });
+            return res.status(400).json({ success: false, message: 'User already has a pending invitation' });
         }
 
-        // Create a pending invitation
         const notification = new Notification({
             user: memberId,
             space: spaceId,
             role,
             status: 'pending',
             type: 'invitation',
-            leader: req.user._id
+            leader: req.user._id,
+            message: `You have been invited to join the space: ${space.SpaceName} as a ${role}` // Set the message here
         });
+        
         await notification.save();
 
         res.status(200).json({ success: true, message: 'Invitation sent successfully!' });
     } catch (error) {
-        console.error(error);
+        console.error('Error adding member to space:', error);
         res.status(500).json({ success: false, message: 'Internal Server Error' });
     }
 };
@@ -159,7 +160,7 @@ exports.updateRole = async (req, res) => {
     try {
         const space = await Spaces.findOne({
             _id: spaceId,
-            collaborators: { $elemMatch: { user: req.user._id, role: 'Leader' } }
+            collaborators: { $elemMatch: { user: req.user._id, role: { $in: ['owner', 'admin'] } } }
         });
 
         if (!space) {
@@ -183,7 +184,8 @@ exports.updateRole = async (req, res) => {
             role,
             status: 'accepted', // Directly set to accepted since it's a role change notification
             type: 'roleChange',
-            leader: req.user._id // Include the leader's information
+            leader: req.user._id,
+            message: `บทบาทของคุณได้ถูกเปลี่ยนเป็น ${role}`
         });
         await notification.save();
 
@@ -238,39 +240,59 @@ exports.respondToInvitation = async (req, res) => {
     try {
         const { notificationId, response } = req.body;
 
+        // Find the notification and populate the space
         const notification = await Notification.findById(notificationId).populate('space');
         if (!notification) return res.status(404).json({ success: false, message: 'Notification not found' });
 
-        if (response === 'accepted') {
-            notification.space.collaborators.push({
-                user: notification.user,
-                role: notification.role
-            });
-            await notification.space.save();
+        console.log('Notification found:', notification); // Log to check if notification is retrieved properly
 
-            // Notify other members in the space
-            const otherMembers = notification.space.collaborators.filter(collab => collab.user.toString() !== notification.user.toString());
+        // Proceed only if the response is "accepted"
+        if (response === 'accepted') {
+            const space = notification.space;
+            console.log('Space found:', space);  // Log the space to check
+
+            // Check if the user is already in the collaborators array
+            const isUserAlreadyCollaborator = space.collaborators.some(collaborator => 
+                collaborator.user.toString() === notification.user.toString()
+            );
+            if (!isUserAlreadyCollaborator) {
+                console.log('Adding user to collaborators');  // Log when adding the user
+
+                // Add the user to the collaborators array with the correct role and join date
+                space.collaborators.push({
+                    user: notification.user,
+                    role: notification.role,
+                    joinDate: new Date()
+                });
+
+                // Save the updated space document
+                await space.save();
+                console.log('Space updated:', space);  // Log the updated space
+            } else {
+                console.log('User already a collaborator');
+            }
+
+            // Update the notification to reflect the accepted status
+            notification.status = 'accepted';
+            await notification.save();
+            console.log('Notification updated:', notification); // Log to check if the notification was updated correctly
+
+            // Notify other members about the new collaborator
+            const otherMembers = space.collaborators.filter(collab => collab.user.toString() !== notification.user.toString());
             for (const member of otherMembers) {
                 const newNotification = new Notification({
                     user: member.user,
-                    space: notification.space._id,
+                    space: space._id,
                     role: notification.role,
                     status: 'accepted',
                     type: 'memberAdded',
                     leader: notification.user
                 });
                 await newNotification.save();
-
-                // Send LINE notification
-                const user = await User.findById(member.user);
-                if (user && user.lineUserId) {
-                    const message = `${notification.user.username} has joined ${notification.space.SpaceName} as a ${notification.role}`;
-                    await notiController.sendLineNotification(user.lineUserId, message);
-                }
             }
         }
 
-        // Delete the invitation notification
+        // Delete the invitation notification after responding
         await Notification.findByIdAndDelete(notificationId);
 
         res.status(200).json({ success: true, message: 'Response recorded successfully' });

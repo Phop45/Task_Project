@@ -1,21 +1,64 @@
-const Spaces = require('../models/Space');
+const Space = require('../models/Space');
 const User = require("../models/User");
 const Notification = require('../models/Noti');
+const Task = require('../models/Task');
+const SubTask = require('../models/SubTask');
+const SystemAnnouncement = require('../models/SystemAnnouncements');
+
 const moment = require('moment');
 const lineClient = require('../config/lineClient');
 
 exports.getNotifications = async (req, res) => {
     try {
         const notifications = await Notification.find({ user: req.user._id })
-            .populate('space', 'SpaceName')
-            .populate('leader', 'username')
+            .populate('space', 'SpaceName')  
+            .populate('leader', 'username') 
+            .populate('announcement', 'title expirationDate')
+            .populate({
+                path: 'task',
+                model: 'Tasks',
+                select: 'taskName dueDate space',
+                populate: { path: 'space', model: 'Spaces', select: 'SpaceName' }
+            })
+            .populate({
+                path: 'subTask',
+                model: 'SubTask',
+                select: 'subtask_Name subTask_dueDate task',
+                populate: {
+                    path: 'task',
+                    model: 'Tasks',
+                    select: 'taskName space',
+                    populate: { path: 'space', model: 'Spaces', select: 'SpaceName' }
+                }
+            })
             .lean();
 
-        // Format the date and time for each notification
+        // Add fallback for notifications with missing `space` or other critical data
         notifications.forEach(notification => {
-            notification.formattedDate = moment(notification.createdAt).format('DD/MM');
+            notification.formattedDate = moment(notification.createdAt).format('DD MMMM');
             notification.formattedTime = moment(notification.createdAt).format('HH:mm');
+            if (notification.task && notification.task.dueDate) {
+                notification.task.formattedDueDate = moment(notification.task.dueDate).format('DD MMMM YYYY');
+            }
+            // Check if the space is missing for 'invitation' type notifications
+            if (!notification.space && notification.type === 'invitation') {
+                notification.error = 'Missing space details';
+            }
         });
+
+        const now = new Date();
+        const activeAnnouncements = await SystemAnnouncement.find({ 
+            expirationDate: { $gte: now }, 
+            isDeleted: false,
+            recipients: req.user._id
+        });
+
+        notifications.push(...activeAnnouncements.map(announcement => ({
+            type: 'announcement',
+            announcement: announcement, 
+            formattedDate: moment(announcement.createdAt).format('DD/MM'),
+            formattedTime: moment(announcement.createdAt).format('HH:mm')
+        })));
 
         res.render('layouts/notifications', {
             notifications,
@@ -24,12 +67,15 @@ exports.getNotifications = async (req, res) => {
             userName: req.user.username,
             currentPage: 'notifications',
             layout: "../views/layouts/main",
+            moment: moment
         });
     } catch (error) {
         console.error('Error fetching notifications:', error);
         res.status(500).send("Internal Server Error");
     }
 };
+
+
 
 exports.deleteNotification = async (req, res) => {
     try {
@@ -110,6 +156,59 @@ exports.clearNonInvitationNotifications = async (req, res) => {
         res.status(200).json({ success: true, message: 'Non-invitation notifications cleared successfully' });
     } catch (error) {
         console.error('Error clearing non-invitation notifications:', error);
+        res.status(500).json({ success: false, message: 'Internal Server Error' });
+    }
+};
+
+// Accept invitation
+exports.acceptInvitation = async (req, res) => {
+    try {
+        const notificationId = req.params.id;
+
+        // Find the notification in the database
+        const notification = await Notification.findById(notificationId);
+        if (!notification) {
+            return res.status(404).json({ success: false, message: 'Notification not found' });
+        }
+
+        if (notification.type === 'invitation') {
+            notification.status = 'accepted';
+            await notification.save();
+
+            // Return success response
+            return res.status(200).json({ success: true, message: 'Invitation accepted' });
+        }
+
+        return res.status(400).json({ success: false, message: 'Invalid notification type' });
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ success: false, message: 'Internal Server Error' });
+    }
+};
+
+
+// Reject Invitation
+exports.rejectInvitation = async (req, res) => {
+    try {
+        const notificationId = req.params.id;
+        const notification = await Notification.findById(notificationId);
+
+        if (!notification) {
+            return res.status(404).json({ success: false, message: 'Notification not found' });
+        }
+        if (notification.type !== 'invitation' || notification.status !== 'pending') {
+            return res.status(400).json({ success: false, message: 'Invalid invitation or already accepted/rejected' });
+        }
+        notification.status = 'declined';
+        await notification.save();
+
+        // Delete the notification after rejecting the invitation
+        await Notification.findByIdAndDelete(notificationId);
+
+        res.status(200).json({ success: true, message: 'Invitation declined successfully' });
+    } catch (error) {
+        console.error('Error rejecting invitation:', error);
         res.status(500).json({ success: false, message: 'Internal Server Error' });
     }
 };

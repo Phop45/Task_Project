@@ -2,11 +2,11 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const attachmentSchema = new mongoose.Schema({
+const attachmentSchema = new Schema({
     path: String, 
     originalName: String,
     uploadedAt: { type: Date, default: Date.now },
-  });
+});
 
 const taskSchema = new Schema({
     user: {
@@ -21,6 +21,10 @@ const taskSchema = new Schema({
         type: String,
     },
     dueDate: {
+        type: Date,
+        default: null
+    },
+    startDate: { 
         type: Date,
         default: null
     },
@@ -51,15 +55,14 @@ const taskSchema = new Schema({
     deleteAt: {
         type: Date
     },
-    taskStatuses: {
+    taskStatus: {
         type: String,
-        enum: ['กำลังทำ', 'รอตรวจ', 'เสร็จสิ้น', 'แก้ไข'], 
-        default: 'กำลังทำ'
-    },
+        required: true,
+    },      
     taskPriority: {
         type: String,
-        enum: ['ด่วน', 'ปกติ', 'ต่ำ'],
-        default: 'ปกติ'
+        enum: ['urgent', 'normal', 'low'],
+        default: 'normal'
     },
     activityLogs: [{
         text: { type: String },

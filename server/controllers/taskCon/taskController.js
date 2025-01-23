@@ -3,11 +3,15 @@ const Task = require("../../models/Task");
 const Spaces = require('../../models/Space');
 const SubTask = require('../../models/SubTask');
 const User = require("../../models/User");
+const Status = require("../../models/Status");
+const Notification = require('../../models/Noti');
 const moment = require('moment');
 const fs = require('fs');
 const path = require('path');
 const mongoose = require('mongoose');
 const ObjectId = mongoose.Types.ObjectId;
+const Tag = require('../../models/Tag');
+const upload = require('../../middleware/upload'); 
 moment.locale('th');
 
 const extractTaskParameters = async (tasks) => {
@@ -48,12 +52,12 @@ exports.addTask = async (req, res) => {
       detail: req.body.detail,
       taskType: req.body.taskType,
       user: req.user.id,
-      space: req.body.spaceId, // Change subjectId to spaceId
+      space: req.body.spaceId,
       assignedUsers: assignedUsers
     });
 
     await newTask.save();
-    res.redirect(`/space/item/${req.body.spaceId}`); // Change URL accordingly
+    res.redirect(`/space/item/${req.body.spaceId}`);
     console.log(newTask);
   } catch (error) {
     console.log(error);
@@ -110,25 +114,158 @@ exports.addTask2 = async (req, res) => {
   }
 };
 
+/// add task controller
 exports.addTask_board = async (req, res) => {
   try {
-    const { dueDate, taskName, detail, spaceId, assignedUsers } = req.body;
-    const parsedDueDate = dueDate ? new Date(dueDate) : undefined;
+    const {
+      taskName,
+      dueDate,
+      startDate,
+      taskTag,
+      detail,
+      taskType,
+      spaceId,
+      taskPriority = 'normal',
+      statusId, 
+      assignedUsers = []
+    } = req.body;
+            
+    if (!mongoose.Types.ObjectId.isValid(spaceId)) {
+      return res.status(400).send("Invalid space ID.");
+    }
+
+    const space = await Spaces.findById(spaceId);
+    if (!space) {
+      return res.status(404).send("Space not found.");
+    }
+
+    // Validate status ID
+    if (!mongoose.Types.ObjectId.isValid(statusId)) {
+      return res.status(400).send("Invalid status ID.");
+    }
+
+    const status = await Status.findOne({ _id: statusId, space: spaceId });
+    if (!status) {
+      return res.status(404).send("Status not found or does not belong to the specified space.");
+    }
+
+    // Validate assignedUsers
+    const validAssignedUsers = [];
+    if (assignedUsers) {
+      const userIds = assignedUsers.split(',');
+      for (const userId of userIds) {
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+          console.log(`Skipping invalid user ID: ${userId}`);
+          continue;
+        }
+        validAssignedUsers.push(mongoose.Types.ObjectId(userId));
+      }
+    }
+
+    const tags = taskTag ? taskTag.split(',') : [];
+    const userTags = [];
+    for (const tag of tags) {
+      const trimmedTag = tag.trim();
+      let existingTag = await Tag.findOne({ name: trimmedTag, user: req.user.id });
+      if (!existingTag) {
+        existingTag = new Tag({ name: trimmedTag, user: req.user.id });
+        await existingTag.save();
+      }
+      userTags.push(existingTag.name);
+    }
+
+    const formattedDueDate = dueDate ? new Date(dueDate) : null;
+    const formattedStartDate = startDate ? new Date(startDate) : null; 
+
+    const attachments = req.files ? req.files.map(file => ({
+      path: file.path,
+      originalName: file.originalname,
+    })) : [];
 
     const newTask = new Task({
-      taskName: taskName,
-      dueDate: parsedDueDate,
-      detail: detail,
+      taskName,
+      dueDate: formattedDueDate,
+      startDate: formattedStartDate, 
+      taskTag: userTags,
+      detail,
+      taskType,
+      taskPriority,
+      taskStatus: status.name,
       user: req.user.id,
-      space: spaceId,
-      assignedUsers: Array.isArray(assignedUsers) ? assignedUsers : [assignedUsers] // Ensure it's an array
+      space: mongoose.Types.ObjectId(spaceId),
+      assignedUsers: validAssignedUsers,
+      attachments
     });
 
     await newTask.save();
 
+    // Create notifications for assigned users
+    const notifications = validAssignedUsers.map(userId => ({
+      user: userId,
+      task: newTask._id,
+      space: mongoose.Types.ObjectId(spaceId),
+      type: 'taskAssignment',
+      message: `คุณได้รับมอบหมายงานชื่อ: ${newTask.taskName}`,
+      status: 'unread',
+      dueDate: formattedDueDate,
+    }));
+    await Notification.insertMany(notifications);
+
     res.redirect(`/space/item/${spaceId}/task_board`);
+    console.log(newTask);
   } catch (error) {
-    console.error("Error adding task:", error);
+    console.log(error);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
+exports.addTask_underBoard = async (req, res) => {
+  try {
+    const { taskName, spaceId, statusId } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(spaceId)) {
+      return res.status(400).send("Invalid space ID.");
+    }
+
+    const space = await Spaces.findById(spaceId);
+    if (!space) {
+      return res.status(404).send("Space not found.");
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(statusId)) {
+      return res.status(400).send("Invalid status ID.");
+    }
+
+    const status = await Status.findOne({ _id: statusId, space: spaceId });
+    if (!status) {
+      return res.status(404).send("Status not found or does not belong to the specified space.");
+    }
+
+    const newTask = new Task({
+      taskName,
+      taskStatus: status.name,
+      space: mongoose.Types.ObjectId(spaceId),
+      user: req.user.id, // Logged-in user
+    });
+
+    await newTask.save();
+
+    // Redirect back to the task board
+    res.redirect(`/space/item/${spaceId}/task_board`);
+    console.log(newTask);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
+
+exports.getUserTags = async (req, res) => {
+  try {
+    const tags = await Tag.find({ user: req.user.id }).sort({ name: 1 }); // Fetch tags for the user
+    res.status(200).json(tags);
+  } catch (error) {
+    console.error(error);
     res.status(500).send("Internal Server Error");
   }
 };

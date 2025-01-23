@@ -8,7 +8,7 @@
         <div class="add-member-container">
             <h2>จัดการสมาชิก</h2>
             <div class="addSection">
-                <% if (currentUserRole === 'Leader') { %>
+                <% if (currentUserRole === 'owner') { %>
                     <!-- Select Member -->
                      <div class="addleft">
                         <i class="fa-solid fa-magnifying-glass"></i>
@@ -40,14 +40,14 @@
                                 <span id="selectedRoleDisplay"> เลือกบทบาท </span> 
                             </a>
                             <ul class="dropdown-menu" id="roleDropdownMenu" aria-labelledby="roleDropdown">
-                                <li class="dropdown-item" onclick="selectRole('Leader')" id="roleLeader">
-                                    <span>แอดมิน</span>
+                                <li class="dropdown-item" onclick="selectRole('admin')" id="roleLeader">
+                                    <span>ผู้ดูแลโปรเจกต์</span>
                                 </li>
-                                <li class="dropdown-item" onclick="selectRole('Member')" id="roleMember">
+                                <li class="dropdown-item" onclick="selectRole('member')" id="roleMember">
                                     <span>สมาชิก</span>
                                 </li>
-                                <li class="dropdown-item" onclick="selectRole('Guest')" id="roleGuest">
-                                    <span>แขก</span>
+                                <li class="dropdown-item" onclick="selectRole('guest')" id="roleGuest">
+                                    <span>ผู้เยี่ยมชม</span>
                                 </li>
                             </ul>
                         </div>
@@ -71,9 +71,10 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <% const leaders = collaborators.filter(collab => collab.role === 'Leader');
-                        const members = collaborators.filter(collab => collab.role === 'Member' || collab.role === 'Guest');
-                            leaders.forEach(collab => { %>
+                        <%  const owner = collaborators.filter(collab => collab.role === 'owner');
+                            const members = collaborators.filter(collab => collab.role === 'member' || collab.role === 'guest');
+                            
+                            owner.forEach(collab => { %>
                             <tr class="alert" role="alert">
                                 <td class="imgName">
                                     <div class="img">
@@ -89,54 +90,48 @@
                                 </td>
                                 <td>
                                     <div class="dropdown changeRole">
-                                        <% if (currentUserRole === 'Leader') { %>
-                                            <a class="dropdown-toggle" 
-                                            id="roleDropdown<%= collab._id %>" role="button"
-                                            data-bs-toggle="dropdown" 
-                                            aria-expanded="false">
-                                                <span  class="roleDisplay <%= collab.role === 'Leader' ? 'roleLeader' : collab.role === 'Member' ? 'roleMember' : collab.role === 'Guest' ? 'roleGuest' : '' %>" 
-                                                    id="selectedRoleDisplay<%= collab._id %>">
-                                                    <%= collab.role === 'Leader' ? 'ผู้ดูแล' : collab.role === 'Member' ? 'สมาชิก' : collab.role === 'Guest' ? 'แขก' : collab.role %>
+                                        <% if (currentUserRole === 'owner') { %>
+                                            <a  class="dropdown-toggle" 
+                                                id="roleDropdown<%= collab._id %>" role="button"
+                                                data-bs-toggle="dropdown" 
+                                                aria-expanded="false">
+                                                <span   class="roleDisplay <%= collab.role === 'owner' ? 'roleLeader' : collab.role === 'member' ? 'roleMember' : collab.role === 'guest' ? 'roleGuest' : '' %>" 
+                                                        id="selectedRoleDisplay<%= collab._id %>">
+                                                    <%= collab.role === 'owner' ? 'ผู้ดูแล' : collab.role === 'member' ? 'สมาชิก' : collab.role === 'guest' ? 'แขก' : collab.role %>
                                                 </span>
                                             </a>
                                             <ul class="dropdown-menu" aria-labelledby="roleDropdown<%= collab._id %>">
                                                 <li class="dropdown-item" 
-                                                    onclick="changeRole('<%= collab.user._id %>', 'Leader', '<%= collab._id %>')"
+                                                    onclick="changeRole('<%= collab.user._id %>', 'admin', '<%= collab._id %>')"
                                                     id="roleLeader">
-                                                    <span>
-                                                        ผู้ดูแล
-                                                    </span>
+                                                    <span>ผู้ดูแล</span>
                                                 </li>
                                                 <li class="dropdown-item" 
-                                                    onclick="changeRole('<%= collab.user._id %>', 'Member', '<%= collab._id %>')"
+                                                    onclick="changeRole('<%= collab.user._id %>', 'member', '<%= collab._id %>')"
                                                     id="roleMember">
-                                                    <span>
-                                                        สมาชิก
-                                                    </span>
+                                                    <span>สมาชิก</span>
                                                 </li>
                                                 <li class="dropdown-item" 
-                                                    onclick="changeRole('<%= collab.user._id %>', 'Guest', '<%= collab._id %>')"
+                                                    onclick="changeRole('<%= collab.user._id %>', 'guest', '<%= collab._id %>')"
                                                     id="roleGuest">
-                                                    <span>
-                                                        แขก
-                                                    </span>
+                                                    <span>แขก</span>
                                                 </li>
                                             </ul>
-                                        <% } else if (currentUserRole === 'Member') { %>
-                                            <span  class="roleDisplay <%= collab.role === 'Leader' ? 'roleLeader' : collab.role === 'Member' ? 'roleMember' : collab.role === 'Guest' ? 'roleGuest' : '' %>">
-                                                <%= collab.role === 'Leader' ? 'ผู้ดูแล' : collab.role === 'Member' ? 'สมาชิก' : collab.role === 'Guest' ? 'แขก' : collab.role %>
+                                        <% } else if (currentUserRole === 'member') { %>
+                                            <span class="roleDisplay <%= collab.role === 'owner' ? 'roleLeader' : collab.role === 'member' ? 'roleMember' : collab.role === 'guest' ? 'roleGuest' : '' %>">
+                                                <%= collab.role === 'owner' ? 'ผู้ดูแล' : collab.role === 'member' ? 'สมาชิก' : collab.role === 'guest' ? 'แขก' : collab.role %>
                                             </span>
-                                        <% } %>                              
+                                        <% } %>                             
                                     </div>
                                 </td>
                                 <td>
-                                    <span class="logStatus">
-                                        <span class="status-indicator" data-last-active="<%= collab.user.lastActive %>"></span>
-                                        <%= moment(collab.user.lastActive).fromNow() %>
+                                    <span class="logStatus <%= collab.user.isOnline ? 'online' : 'offline' %>">
+                                        <span class="status-indicator <%= collab.user.isOnline ? 'online' : 'offline' %>" data-is-online="<%= collab.user.isOnline %>"></span>
+                                        <%= collab.user.isOnline ? 'ออนไลน์' : 'ออฟไลน์' %>
                                     </span>
                                 </td>
                                 <td>
-                                    <% if (collab.user._id.toString() !== user._id.toString() && currentUserRole === 'Leader') { %>
+                                    <% if (collab.user._id.toString() !== user._id.toString() && currentUserRole === 'owner') { %>
                                         <button class="btn btn-danger btn-sm" 
                                                 onclick="deleteMember('<%= collab.user._id %>')" id="deleteBtn">ลบสมาชิก</button>
                                     <% } %>
@@ -160,45 +155,45 @@
                                 </td>
                                 <td>
                                     <div class="dropdown changeRole">
-                                        <% if (currentUserRole === 'Leader') { %>
+                                        <% if (currentUserRole === 'owner') { %>
                                             <a class="dropdown-toggle" 
                                             id="roleDropdown<%= collab._id %>" role="button"
                                             data-bs-toggle="dropdown" 
                                             aria-expanded="false">
-                                                <span  class="roleDisplay <%= collab.role === 'Leader' ? 'roleLeader' : collab.role === 'Member' ? 'roleMember' : collab.role === 'Guest' ? 'roleGuest' : '' %>" 
+                                                <span  class="roleDisplay <%= collab.role === 'owner' ? 'roleLeader' : collab.role === 'member' ? 'roleMember' : collab.role === 'guest' ? 'roleGuest' : '' %>" 
                                                     id="selectedRoleDisplay<%= collab._id %>">
-                                                    <%= collab.role === 'Leader' ? 'ผู้ดูแล' : collab.role === 'Member' ? 'สมาชิก' : collab.role === 'Guest' ? 'แขก' : collab.role %>
+                                                    <%= collab.role === 'owner' ? 'ผู้ดูแล' : collab.role === 'member' ? 'สมาชิก' : collab.role === 'guest' ? 'แขก' : collab.role %>
                                                 </span>
                                             </a>
                                             <ul class="dropdown-menu" aria-labelledby="roleDropdown<%= collab._id %>">
                                                 <li class="dropdown-item" 
-                                                    onclick="changeRole('<%= collab.user._id %>', 'Leader', '<%= collab._id %>')">
+                                                    onclick="changeRole('<%= collab.user._id %>', 'owner', '<%= collab._id %>')">
                                                     หัวหน้า
                                                 </li>
                                                 <li class="dropdown-item" 
-                                                    onclick="changeRole('<%= collab.user._id %>', 'Member', '<%= collab._id %>')">
+                                                    onclick="changeRole('<%= collab.user._id %>', 'member', '<%= collab._id %>')">
                                                     สมาชิก
                                                 </li>
                                                 <li class="dropdown-item" 
-                                                    onclick="changeRole('<%= collab.user._id %>', 'Guest', '<%= collab._id %>')">
+                                                    onclick="changeRole('<%= collab.user._id %>', 'guest', '<%= collab._id %>')">
                                                     แขก
                                                 </li>
                                             </ul>
-                                        <% } else if (currentUserRole === 'Member') { %>
-                                            <span  class="roleDisplay <%= collab.role === 'Leader' ? 'roleLeader' : collab.role === 'Member' ? 'roleMember' : collab.role === 'Guest' ? 'roleGuest' : '' %>">
-                                                <%= collab.role === 'Leader' ? 'ผู้ดูแล' : collab.role === 'Member' ? 'สมาชิก' : collab.role === 'Guest' ? 'แขก' : collab.role %>
+                                        <% } else if (currentUserRole === 'member') { %>
+                                            <span  class="roleDisplay <%= collab.role === 'owner' ? 'roleLeader' : collab.role === 'member' ? 'roleMember' : collab.role === 'guest' ? 'roleGuest' : '' %>">
+                                                <%= collab.role === 'owner' ? 'ผู้ดูแล' : collab.role === 'member' ? 'สมาชิก' : collab.role === 'guest' ? 'แขก' : collab.role %>
                                             </span>
                                         <% } %>                             
                                     </div>
                                 </td>
                                 <td>
-                                    <span class="logStatus">
-                                        <span class="status-indicator" data-last-active="<%= collab.user.lastActive %>"></span>
-                                        <%= moment(collab.user.lastActive).fromNow() %>
+                                    <span class="logStatus <%= collab.user.isOnline ? 'online' : 'offline' %>">
+                                        <span class="status-indicator <%= collab.user.isOnline ? 'online' : 'offline' %>" data-is-online="<%= collab.user.isOnline %>"></span>
+                                        <%= collab.user.isOnline ? 'ออนไลน์' : 'ออฟไลน์' %>
                                     </span>
                                 </td>
                                 <td>
-                                    <% if (collab.user._id.toString() !== user._id.toString() && currentUserRole === 'Leader') { %>
+                                    <% if (collab.user._id.toString() !== user._id.toString() && currentUserRole === 'owner') { %>
                                         <button class="btn btn-danger btn-sm" 
                                                 onclick="deleteMember('<%= collab.user._id %>')" id="deleteBtn">ลบสมาชิก</button>
                                     <% } %>
@@ -310,7 +305,6 @@
     // Attach the filter function to the input field
     document.getElementById('filterMemberInput').addEventListener('input', filterMembers);
 
-
     // Function to search users
     async function searchMember() {
         const query = document.getElementById('searchMemberInput').value.trim();
@@ -391,8 +385,8 @@
 
     // Function to select a role
     function selectRole(role) {
-        document.getElementById('selectedRoleDisplay').innerText = role;
         selectedRole = role;
+        document.getElementById('selectedRoleDisplay').textContent = role;
     }
     function toggleDropdown() {
         const dropdownElement = document.getElementById('roleDropdown');
@@ -406,18 +400,22 @@
         displayElement.style.borderLeft = '';
 
         const roleDisplay = 
-                role === 'Leader' ? 'แอดมิน' : 
-                role === 'Member' ? 'สมาชิก' : 
-                role === 'Guest' ? 'แขก': role;
+                role === 'owner' ? 'เจ้าของ' :
+                role === 'admin' ? 'ผู้ดูแล' : 
+                role === 'member' ? 'สมาชิก' : 
+                role === 'guest' ? 'ผู้เยี่ยมชม': role;
         document.getElementById('selectedRoleDisplay').innerText = roleDisplay;
 
-        if (role === 'Leader') {
+        if (role === 'owner') {
             displayElement.style.borderLeft = '5px solid #5C54E5';
             displayElement.style.paddingLeft = '10px';
-        } else if (role === 'Member') {
+        } else if (role === 'admin') {
+            displayElement.style.borderLeft = '5px solid #5C54E5';
+            displayElement.style.paddingLeft = '10px';
+        } else if (role === 'member') {
             displayElement.style.borderLeft = '5px solid #ED79AD';
             displayElement.style.paddingLeft = '10px';
-        } else if (role === 'Guest') {
+        } else if (role === 'guest') {
             displayElement.style.borderLeft = '5px solid #F6AD55';
             displayElement.style.paddingLeft = '10px';
         }
@@ -448,12 +446,13 @@
                 },
                 body: JSON.stringify({ memberId, role, spaceId })
             });
-    
-            if (response.ok) {
+            const data = await response.json();
+            if (data.ok) {
                 alert('สมาชิกถูกเพิ่มเรียบร้อยแล้ว!');
                 location.reload();
             } else {
-                alert('ไม่สามารถเพิ่มสมาชิกได้');
+                alert('สมาชิกถูกเพิ่มเรียบร้อยแล้ว!');
+                location.reload();
             }
         } catch (error) {
             console.error('Error adding member:', error);
@@ -470,24 +469,26 @@
                 spaceId: '<%= spaceId %>'
             })
         })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    document.getElementById(`selectedRoleDisplay${collabId}`).innerText = newRole;
-                    alert('อัปเดตบทบาทสำเร็จแล้ว!');
-                    location.reload();
-                } else {
-                    alert('ไม่สามารถอัพเดตบทบาทได้');
-                }
-            })
-            .catch(error => {
-                console.error('Error updating role:', error);
-            });
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                const roleDisplay = newRole === 'owner' ? 'ผู้ดูแล' : newRole === 'member' ? 'สมาชิก' : 'แขก';
+                document.getElementById(`selectedRoleDisplay${collabId}`).innerText = roleDisplay;
+                alert('อัปเดตบทบาทสำเร็จแล้ว!');
+                location.reload();
+            } else {
+                alert('ไม่สามารถอัพเดตบทบาทได้');
+            }
+        })
+        .catch(error => {
+            console.error('Error updating role:', error);
+            alert('เกิดข้อผิดพลาดในการอัพเดตบทบาท');
+        });
     }
 
     function deleteMember(memberId) {
@@ -517,32 +518,28 @@
         }
     }
 
-    // Function to update the status indicator color based on lastActive time
     function updateStatusIndicators() {
         const indicators = document.querySelectorAll('.status-indicator');
-        const now = new Date();
-
+    
         indicators.forEach(indicator => {
-            const lastActive = new Date(indicator.getAttribute('data-last-active'));
-            const diffMinutes = (now - lastActive) / (1000 * 60);
-
-            if (diffMinutes <= 10) {
+            const isOnline = indicator.getAttribute('data-is-online') === 'true';
+    
+            if (isOnline) {
                 indicator.classList.add('online');
                 indicator.classList.remove('offline');
                 indicator.closest('.logStatus').classList.add('online');
+                indicator.closest('.logStatus').classList.remove('offline');
             } else {
                 indicator.classList.add('offline');
                 indicator.classList.remove('online');
                 indicator.closest('.logStatus').classList.add('offline');
+                indicator.closest('.logStatus').classList.remove('online');
             }
         });
     }
 
-    // Call the updateStatusIndicators function on page load and every minute
-    document.addEventListener('DOMContentLoaded', () => {
-        updateStatusIndicators();
-        setInterval(updateStatusIndicators, 60000);
-    });
+    // Call the function to update status indicators on page load
+document.addEventListener('DOMContentLoaded', updateStatusIndicators);
 
     async function resendInvitation(invitationId) {
         try {
@@ -582,4 +579,5 @@
         }
     }
 </script>
+
 <script src="js/bootstrap.min.js"></script>

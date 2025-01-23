@@ -1,0 +1,145 @@
+<head>
+  <link rel="stylesheet" href="../../public/css/spaceCss/spaceCreate.css">
+</head>
+
+<%- include('../partials/topNavigation.ejs') %>
+
+  <div class="wrapper">
+    <form action="/createSpace" method="POST" class="form" id="form-input" enctype="multipart/form-data" onsubmit="return prepareFormData()">
+      <div class="spacePicture">
+        <label for="SpacePicture">อัปโหลดรูปภาพพื้นที่</label>
+        <input type="file" name="SpacePicture" id="SpacePicture" accept=".jpg, .jpeg, .png, .gif, .bmp, .svg">
+      </div>
+    
+      <h1 class="top-form"><i class="fa-solid fa-square-plus"></i> สร้างโปรเจกต์ใหม่</h1>
+      <p style="font-size: 16px;">
+        สำรวจสิ่งที่เป็นไปได้เมื่อคุณทำงานร่วมกับทีม
+        แก้ไขรายละเอียดโปรเจคได้ตลอดเวลาในการตั้งค่าโปรเจกต์
+      </p>
+      <input type="hidden" name="members" id="members">
+    
+      <div class="input">
+        <label for="SpaceName">ชื่อโปรเจกต์ <span style="color: red;">*</span></label>
+        <input type="text" class="form-control" name="SpaceName" id="SpaceName" placeholder="เพิ่มชื่อโปรเจกต์ของคุณ" required>
+        <span id="notiAlert" style="display:none; color: red;">* กรุณากรอกชื่อพื้นที่โดยไม่ใช้อักขระพิเศษ</span>
+      </div>
+    
+      <div class="input" id="detailInput">
+        <label for="SpaceDescription">รายละเพิ่มเติม <span style="opacity: 0.7; color: gray;">(ทางเลือก)</span></label>
+        <textarea id="SpaceDescription" name="SpaceDescription" rows="4" cols="50"
+          placeholder="เพิ่มรายละเพิ่มเติมของโปรเจกต์นี้"></textarea>
+      </div>
+    
+      <div class="input" id="assignMember">
+        <h1 id="assignMemberText">เชิญบุคคลอื่นเข้าร่วมโปรเจคนี้</h1>
+        <div class="dropdown memberSelect search-member">
+          <input type="text" id="searchMemberInput" placeholder="เชิญโดยใช้ชื่อผู้ใช้ ID หรืออีเมล" />
+          <ul class="dropdown-menu" id="searchResultsDropdown" style="display: none;"></ul>
+          <div id="selectedMembers" class="selected-members"></div>
+        </div>
+      </div>
+    
+      <div class="all-btn">
+        <a href="/space" id="backBtn" class="btn">ยกเลิก</a>
+        <button type="submit" class="btn" id="addBtn">สร้าง</button>
+      </div>
+    </form>
+    
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const searchInput = document.getElementById('searchMemberInput');
+      const resultsDropdown = document.getElementById('searchResultsDropdown');
+      const selectedMembersContainer = document.getElementById('selectedMembers');
+      const selectedMembers = [];
+      const notFoundMessage = '<li style="padding: 10px 20px; color: red;">ไม่พบผู้ใช้</li>';
+
+      searchInput.addEventListener('input', async (event) => {
+        const query = event.target.value.trim();
+
+        if (query) {
+          try {
+            const response = await fetch(`/searchMembers?q=${encodeURIComponent(query)}`);
+            const results = await response.json();
+
+            resultsDropdown.style.display = 'block';
+
+            if (results.length > 0) {
+              resultsDropdown.innerHTML = results
+                .map(user => `
+                <li onclick="selectMember('${user._id}', '${user.username}', '${user.profileImage}')">
+                  <img src="${user.profileImage}" alt="Profile" class="profile-image">
+                  <span id="userEmail">
+                    ${user.username} 
+                    <p>${user.googleEmail || user.userid}</p>
+                  </span>
+                </li>
+              `)
+                .join('');
+            } else {
+              resultsDropdown.innerHTML = notFoundMessage;
+            }
+          } catch (error) {
+            console.error('Error fetching search results:', error);
+          }
+        } else {
+          resultsDropdown.style.display = 'none';
+        }
+      });
+
+      function selectMember(id, username, profileImage) {
+        if (selectedMembers.some(member => member.id === id)) return;
+
+        selectedMembers.push({ id, username, profileImage });
+
+        const memberTag = document.createElement('span');
+        memberTag.className = 'member-tag';
+        memberTag.setAttribute('data-id', id); // Store ID in a data attribute
+        memberTag.innerHTML = `
+        <img src="${profileImage}" alt="Profile" class="profile-image">
+        ${username}
+        <i class="fa-solid fa-xmark" onclick="removeMember('${id}')"></i>
+      `;
+        selectedMembersContainer.appendChild(memberTag);
+
+        resultsDropdown.style.display = 'none';
+        searchInput.value = '';
+      }
+
+      function removeMember(id) {
+        // Remove the member from the selectedMembers array
+        const index = selectedMembers.findIndex(member => member.id === id);
+        if (index > -1) selectedMembers.splice(index, 1);
+
+        // Find and remove the corresponding member tag element
+        const memberTag = selectedMembersContainer.querySelector(`span[data-id="${id}"]`);
+        if (memberTag) {
+          memberTag.remove();
+        }
+      }
+
+      function prepareFormData() {
+        const membersInput = document.getElementById('members');
+        membersInput.value = JSON.stringify(selectedMembers);
+        return true;
+      }
+
+      // Close the dropdown when clicking outside of the search input or dropdown
+      document.addEventListener('click', (event) => {
+        const isClickInsideDropdown = resultsDropdown.contains(event.target);
+        const isClickInsideSearchInput = searchInput.contains(event.target);
+
+        if (!isClickInsideDropdown && !isClickInsideSearchInput) {
+          resultsDropdown.style.display = 'none';
+        }
+      });
+
+      const backBtn = document.getElementById('backBtn');
+
+      backBtn.addEventListener('click', (event) => {
+        event.preventDefault(); // Prevent form submission
+        window.location.href = '/space'; // Redirect to /space
+      });
+    });
+  </script>

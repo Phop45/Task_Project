@@ -528,7 +528,7 @@ tbody td:nth-child(4) {
 .status-indicator.online {
     background: #23bd5a;
 }
-.logStatus.online{
+.logStatus.online {
     padding: 5px 15px;
     background: #cff6dd;
     color: #1fa750;
@@ -540,7 +540,7 @@ tbody td:nth-child(4) {
 .status-indicator.offline {
     background: #cc2c39;
 }
-.logStatus.offline{
+.logStatus.offline {
     padding: 5px 15px;
     background: #ffaab0;
     color: #cc2c39;

@@ -2,7 +2,10 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const subjectSchema = new Schema({
-    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    user: { 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'User' 
+    },
     SubName: {
         type: String,
         required: true
@@ -25,7 +28,7 @@ const subjectSchema = new Schema({
     },
     collaborators: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
 }, {
-    timestamps: true  // Automatically adds createdAt and updatedAt fields
+    timestamps: true 
 });
 
 const Subject = mongoose.model('Subject', subjectSchema);

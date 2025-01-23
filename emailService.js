@@ -1,37 +1,25 @@
 const nodemailer = require('nodemailer');
-const winston = require('winston');
 
-const logger = winston.createLogger({
-    level: 'info',
-    format: winston.format.json(),
-    transports: [
-        new winston.transports.File({ filename: 'error.log', level: 'error' }),
-        new winston.transports.File({ filename: 'combined.log' }),
-    ],
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+    }
 });
 
-async function sendEmail(to, subject, text) {
+exports.sendEmail = async (to, subject, html) => {
     try {
-        let transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS,
-            },
-        });
-
-        let info = await transporter.sendMail({
+        await transporter.sendMail({
             from: process.env.EMAIL_USER,
-            to: to,
-            subject: subject,
-            text: text,
+            to,
+            subject,
+            html
         });
-
-        console.log('Email sent: %s', info.messageId);
+        console.log(`อีเมลส่งสำเร็จไปยัง ${to}`);
+        return true;
     } catch (error) {
-        logger.error(`Failed to send email: ${error.message}`);
-        throw error;
+        console.error(`เกิดข้อผิดพลาดในการส่งอีเมลไปยัง ${to}:`, error);
+        return false;
     }
-}
-
-module.exports = { sendEmail };
+};

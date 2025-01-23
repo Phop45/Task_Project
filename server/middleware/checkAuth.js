@@ -1,9 +1,11 @@
 // check auth middleware
-const Subject = require('../models/Subject'); // Adjust the path as needed
+const Subject = require('../models/Subject'); 
 const User = require('../models/User');
 
 exports.isLoggedIn = async function (req, res, next) {
     if (req.isAuthenticated()) {
+        await User.findByIdAndUpdate(req.user._id, { isOnline: true });
+
         if (req.originalUrl.startsWith('/subject')) {
             const subjectId = req.params.id || req.body.subjectId;
             if (subjectId) {

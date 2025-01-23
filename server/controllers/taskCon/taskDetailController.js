@@ -183,20 +183,24 @@ exports.deleteActivityLog = async (req, res) => {
 exports.updateTaskStatus = async (req, res) => {
     try {
         const { taskId, newStatus } = req.body;
-        const updatedTask = await Task.findByIdAndUpdate(
-            taskId,
-            { status: newStatus },
-            { new: true }
-        );
+        const task = await Task.findById(taskId);
 
-        if (!updatedTask) {
-            return res.status(404).send({ message: 'Task not found' });
+        if (!task) {
+            return res.status(404).json({ success: false, message: 'Task not found' });
         }
 
-        res.status(200).send({ message: 'Task updated successfully' });
+        task.taskStatuses = newStatus;
+        task.activityLogs.push({
+            text: `สถานะของงานถูกเปลี่ยนเป็น ${newStatus} เมื่อ ${new Date().toLocaleString()}`,
+            type: 'normal'
+        });
+
+        await task.save();
+
+        res.status(200).json({ success: true, message: 'Task updated successfully', task });
     } catch (error) {
         console.error('Error updating task status:', error);
-        res.status(500).send('Internal Server Error');
+        res.status(500).json({ success: false, message: 'Internal Server Error' });
     }
 };
 
