@@ -3,11 +3,11 @@ const Spaces = require('../models/Space');
 const Space = require('../models/Space');
 const User = require('../models/User');
 const Status = require('../models/Status');
+const Notification = require('../models/Noti');
 const mongoose = require("mongoose");
 const moment = require("moment");
 const multer = require("multer");
 const path = require("path");
-const Notification = require('../models/Noti');
 const Task = require('../models/Task'); 
 const fs = require('fs');
 moment.locale('th');
@@ -16,6 +16,7 @@ exports.SpaceDashboard = async (req, res) => {
   try {
     const userId = mongoose.Types.ObjectId(req.user.id);
 
+    // Fetch spaces
     const spaces = await Spaces.find({
       $or: [
         { user: userId },
@@ -27,28 +28,44 @@ exports.SpaceDashboard = async (req, res) => {
       .populate('collaborators.user', 'username profileImage')
       .lean();
 
-    for (const space of spaces) {
-      const picturePath = path.join(__dirname, '../..', space.SpacePicture);
-      if (!fs.existsSync(picturePath)) {
-        space.SpacePicture = '/public/spaceictures/defultBackground.jpg';
+      // Ensure each space has a valid project cover
+      for (const space of spaces) {
+        if (!space.projectCover || typeof space.projectCover !== "string") {
+          space.projectCover = '/public/spacePictures/defaultBackground.jpg';
+        } else {
+          const picturePath = path.join(__dirname, '../..', space.projectCover);
+          if (!fs.existsSync(picturePath)) {
+            space.projectCover = '/public/spacePictures/defaultBackground.jpg';
+          }
+        }
+
+        const taskCount = await Task.countDocuments({ space: space._id, deleteAt: null });
+        space.taskCount = taskCount;
       }
 
-      const taskCount = await Task.countDocuments({ space: space._id, deleteAt: null });
-      space.taskCount = taskCount;
+      // Fetch notifications with space populated
+      const notifications = await Notification.find({ user: userId, status: 'unread' })
+        .populate('user', 'username profileImage')
+        .populate('space', 'projectName')  
+        .populate('leader', 'profileImage') // Populate the leader field
+        .sort({ createdAt: -1 }) // Order by most recent
+        .lean();
+      const unreadCount = notifications.length;
+    
+      res.render("space/space-dashboard", {
+        spaces,
+        user: req.user,
+        notifications,
+        unreadCount,
+        layout: "../views/layouts/space"
+      });
+    } catch (error) {
+      console.error("Error fetching spaces:", error);
+      res.status(500).send("Internal Server Error");
     }
+  };
 
-    res.render("space/space-dashboard", {
-      spaces,
-      user: req.user,
-      layout: "../views/layouts/space"
-    });
-  } catch (error) {
-    console.error("Error fetching spaces:", error);
-    res.status(500).send("Internal Server Error");
-  }
-};
-
-// create space
+// create space controller
 exports.createSpace = async (req, res) => {
   if (req.method === 'GET') {
     try {
@@ -63,11 +80,23 @@ exports.createSpace = async (req, res) => {
         .populate('user', 'username profileImage')
         .populate('collaborators.user', 'username profileImage')
         .lean();
+      
+      const notifications = await Notification.find({ user: userId, status: 'unread' })
+        .populate('user', 'username profileImage')
+        .populate('space', 'projectName')
+        .populate('leader', 'profileImage')
+        .sort({ createdAt: -1 })
+        .lean();
+      const unreadCount = notifications.length;
+      const errorMessage = req.flash('error'); // Capture the error flash message here
 
       res.render("space/createProject", {
         spaces,
         user: req.user,
         layout: "../views/layouts/space",
+        notifications,
+        unreadCount,
+        errorMessage: errorMessage.length > 0 ? errorMessage[0] : null, // Pass the message to the view
       });
     } catch (error) {
       console.log(error);
@@ -76,66 +105,122 @@ exports.createSpace = async (req, res) => {
   }
   else if (req.method === 'POST') {
     try {
-      const { SpaceName, SpaceDescription, members } = req.body;
-
-      if (!SpaceName || SpaceName.trim() === '') {
-        return res.status(400).send('SpaceName is required and cannot be empty.');
+      const { projectName, projectDetail, members, dueDate } = req.body;
+      
+      const userId = mongoose.Types.ObjectId(req.user.id);
+      const existingProject = await Spaces.findOne({
+        projectName: projectName.trim(),
+        $or: [
+          { user: userId },
+          { collaborators: { $elemMatch: { user: userId } } }
+        ],
+        deleted: false,
+      });
+      if (existingProject) {
+        req.flash("error", "A project with this name already exists.");
+        return res.redirect("/createSpace");
       }
-      const trimmedSpaceName = SpaceName.trim();
+
+      let parsedDueDate = null;
+      if (dueDate) {
+        const tempDate = new Date(dueDate);
+        if (!isNaN(tempDate.getTime())) {
+          parsedDueDate = tempDate;
+        }
+      }
 
       const newSpace = new Spaces({
-        SpaceName: trimmedSpaceName,
-        SpaceDescription: SpaceDescription?.trim() || '',
-        user: req.user.id,
-        leader: req.user.id,
+        projectName,
+        projectDetail: projectDetail?.trim() || "",
+        projectDueDate: parsedDueDate,
         collaborators: [
           {
             user: req.user.id,
-            role: 'owner',
+            role: "owner", 
           },
         ],
-        SpacePicture: req.file ? `/public/spacePictures/${req.file.filename}` : undefined,
+        projectCover: req.file
+          ? `/public/projectCover/${req.file.filename}`
+          : "/public/projectCover/defultBackground.jpg",
       });
-      await newSpace.save();
 
-      const defaultStatuses = [
-        { name: 'ยังไม่ทำ', category: 'toDo', space: newSpace._id },
-        { name: 'กำลังทำ', category: 'inProgress', space: newSpace._id },
-        { name: 'แก้ไข', category: 'fix', space: newSpace._id },
-        { name: 'เสร็จสิ้น', category: 'finished', space: newSpace._id },
-      ];
-      await Status.insertMany(defaultStatuses);
-
+      // Add members to the collaborators list and create notifications
       if (members) {
         const memberList = JSON.parse(members);
         for (const member of memberList) {
-          const { id: memberId } = member;
-
           const isMember = newSpace.collaborators.some(
-            (collab) => collab.user.toString() === memberId
+            (collab) => collab.user.toString() === member.id
           );
           if (!isMember) {
             newSpace.collaborators.push({
-              user: memberId,
-              role: 'member',
+              user: member.id,
+              role: "member",
             });
+
+            // Create notification for each added member
+            const notificationMessage = `${req.user.username} ได้เพิ่มคุณเข้าโปรเจกต์ ${projectName} แล้ว`;
+            const notification = new Notification({
+              user: member.id,
+              space: newSpace._id,
+              leader: req.user.id,
+              type: 'memberAdded',
+              message: notificationMessage,
+            });
+
+            await notification.save();
           }
         }
-        await newSpace.save();
       }
+      await newSpace.save();
+      
+      // Add default statuses
+      const defaultStatuses = [
+        { name: "ยังไม่ทำ", category: "toDo", space: newSpace._id },
+        { name: "กำลังทำ", category: "inProgress", space: newSpace._id },
+        { name: "แก้ไข", category: "fix", space: newSpace._id },
+        { name: "เสร็จสิ้น", category: "finished", space: newSpace._id },
+      ];
+      await Status.insertMany(defaultStatuses);
 
       res.redirect("/space");
     } catch (error) {
-      console.log(error);
-      res.status(500).send("Internal Server Error");
+      req.flash('error', 'เกิดข้อผิดพลาดในการดึงข้อมูลโปรเจกต์');
+      res.redirect('/createProject');
     }
   }
 };
 
+// Add the route to check if the project name already exists
+exports.checkExistingProject = async (req, res) => {
+  try {
+    const { projectName } = req.body;
+    const userId = mongoose.Types.ObjectId(req.user.id);
+    
+    // Check for existing project with the same name
+    const existingProject = await Spaces.findOne({
+      projectName: projectName.trim(),
+      $or: [
+        { user: userId },
+        { collaborators: { $elemMatch: { user: userId } } }
+      ],
+      deleted: false,
+    });
+
+    if (existingProject) {
+      return res.json({ exists: true });
+    } else {
+      return res.json({ exists: false });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).send("Internal Server Error");
+  }
+};
 
 exports.searchMembers = async (req, res) => {
   try {
     const query = req.query.q;
+    const currentUserId = req.user.id;
     if (!query) {
       return res.json([]);
     }
@@ -145,7 +230,8 @@ exports.searchMembers = async (req, res) => {
         { username: { $regex: query, $options: 'i' } },
         { googleEmail: { $regex: query, $options: 'i' } },
         { userid: { $regex: query, $options: 'i' } },
-      ]
+      ],
+      _id: { $ne: currentUserId }
     })
       .limit(10)
       .select('username googleEmail userid profileImage');

@@ -1,5 +1,6 @@
 <body>
-  <%- include('../task/task_component/task_nav.ejs') %>
+  <%- include('../partials/topNavigation.ejs', { spaces }) %>
+  <%- include('../partials/sideNavigation.ejs', { spaces }) %>
     <div class="content">
       <div class="spaceall">
         <div class="heard-space">
@@ -17,20 +18,22 @@
                 <div class="taskcardall">
                   <% for (var i=spaces.length - 1; i>= 0; i--) { %>
                     <div class="taskcard">
-                      <a href="/space/item/<%= spaces[i]._id %>/task_board" id="card">
+                      <a href="/space/item/<%= spaces[i]._id %>/dashboard?period=7day" id="card">
                         <div class="theme">
-                          <img src="<%= spaces[i].SpacePicture %>" alt="taskbackground">
+                          <!-- Use the projectCover field to display the project cover image -->
+                          <img src="<%= spaces[i].projectCover %>" alt="taskbackground">
                         </div>
 
                         <div class="detailInfo">
                           <div class="taskcardall-text">
                             <span class="spaceNameCard">
-                              <%= spaces[i].SpaceName %>
+                              <%= spaces[i].projectName %>
+                              
                             </span>
 
                             <form id="editsubnameform" action="/updateSpaceName/<%= spaces[i]._id %>" method="POST"
                               class="space-name-edit-form-<%= spaces[i]._id %>" style="display: none;">
-                              <input type="text" name="SpaceName" class="card-title" value="<%= spaces[i].SpaceName %>"
+                              <input type="text" name="SpaceName" class="card-title" value="<%= spaces[i].projectName %>"
                                 onkeydown="if(event.key === 'Enter'){ event.preventDefault(); this.form.submit(); }">
                             </form>
                           </div>

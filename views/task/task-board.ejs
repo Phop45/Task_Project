@@ -46,25 +46,23 @@
                         <ul id="tasks-<%= status.category %>">
                             <% (tasksByStatus[status.name] || []).forEach(task => { %>
                                 <li class="task task-item" data-id="<%= task._id %>" data-space-id="<%= spaces._id %>" draggable="true">
-                                    <a href="/task/<%= task._id %>/detail?spaceId=<%= spaces._id %>" draggable="false"
-                                        style="text-decoration: none; color: inherit;">
+                                    <a href="/task/<%= task._id %>/detail?spaceId=<%= spaces._id %>" draggable="false" style="text-decoration: none; color: inherit;">
                                         <div class="firstSec">
                                             <div class="priority">
-                                                <% if (task.taskPriority==='urgent' ) { %>
+                                                <% if (task.taskPriority === 'urgent') { %>
                                                     <div class="PrioIcon" data-label="ด่วน">
                                                         <i class="fa-solid fa-angles-up" style="color: #ff0000;"></i>
                                                     </div>
-                                                    <% } else if (task.taskPriority==='normal' ) { %>
-                                                        <div class="PrioIcon" data-label="ปกติ">
-                                                            <i class="fa-solid fa-grip-lines" style="color: #ffcc00;"></i>
-                                                        </div>
-                                                        <% } else if (task.taskPriority==='low' ) { %>
-                                                            <div class="PrioIcon" data-label="ต่ำ">
-                                                                <i class="fa-solid fa-angle-down" style="color: #2562F6;"></i>
-                                                            </div>
-                                                            <% } %>
+                                                <% } else if (task.taskPriority === 'normal') { %>
+                                                    <div class="PrioIcon" data-label="ปกติ">
+                                                        <i class="fa-solid fa-grip-lines" style="color: #ffcc00;"></i>
+                                                    </div>
+                                                <% } else if (task.taskPriority === 'low') { %>
+                                                    <div class="PrioIcon" data-label="ต่ำ">
+                                                        <i class="fa-solid fa-angle-down" style="color: #2562F6;"></i>
+                                                    </div>
+                                                <% } %>
                                             </div>
-
                                             <div class="taskname"><%= task.taskName %></div>
                                         </div>
                                         <div class="assigned-users">
@@ -100,29 +98,13 @@
                                                     <% }) %>
                                                 </div>
                                             <% } %>
-                                        
                                             <div class="task-due-date">
                                                 <i class="fa fa-calendar"></i>
                                                 <span>
                                                     <%= task.dueDate ? moment(task.dueDate).format("D MMM") : 'No Due Date' %>
                                                 </span>
                                             </div>
-                                        
-                                            <!-- <div class="task-tags">
-                                                <span class="tag-count" onclick="toggleTagDropdown('<%= task._id %>')">
-                                                    <i class="fa-solid fa-tags"></i> <%= task.taskTag.length %>
-                                                </span>
-                                                <div class="tag-dropdown" id="tag-dropdown-<%= task._id %>">
-                                                    <% task.taskTag.forEach(tag => { %>
-                                                        <span class="tag" data-tag="<%= tag %>">
-                                                            <i class="fa-solid fa-tags"></i>
-                                                            <%= tag %>
-                                                        </span>
-                                                    <% }) %>
-                                                </div>
-                                            </div> -->
                                         </div>
-                                        
                                         <div class="delSec">
                                             <i class="fa-solid fa-trash-can deleteTask" id="deleteTask"
                                             onclick="confirmDeleteTask('<%= task._id %>', '<%= spaces._id %>')"></i>
@@ -132,9 +114,9 @@
                             <% }) %>
                         </ul>
                     </div>
-
-                     <!-- Add Task Form under the status -->
-                     <div class="addUnder">
+    
+                    <!-- Add Task Form under the status -->
+                    <div class="addUnder">
                         <div class="triggerAdd" onclick="toggleForm(this)">
                             + เพิ่มงาน
                         </div>
@@ -145,15 +127,11 @@
                             <button type="submit" style="display: none;">เพิ่มงาน</button> <!-- Button is hidden but still exists for form submission -->
                         </form>
                     </div>
-                    
                 </div>
             <% }) %>
-        
-            <!-- <button class="addStatusBtn">
-                + เพิ่มสถานะใหม่
-            </button> -->
         </div>
     </div>
+    
 
 
     <!-- <div class="addStatus">

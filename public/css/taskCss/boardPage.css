@@ -34,7 +34,6 @@
 
 .contant {
     background-color: #f8f9fd;
-    margin-left: 90px;
     display: flex;
     flex-direction: column;
     height: fit-content;
@@ -43,14 +42,6 @@
 .SubName {
     padding: 30px 0 20px 50px;
     font-size: 40px;
-}
-
-.nav-tabs {
-    padding-left: 50px;
-    margin-top: 18px;
-    font-size: 16px;
-    font-weight: 400;
-    border-bottom: 2px solid #dee2e6;
 }
 
 .boardWrap {
@@ -289,12 +280,15 @@ ul {
 #note {
     font-size: 14px;
     color: gray;
-    font-weight: 300;
+    font-weight: 200;
 }
-
+.icon{
+    font-size: 20px;
+    margin-right: 5px;
+}
 .side-top #close-task-btn:hover {
-    background-color: rgba(55, 53, 47, 0.08);
-    color: var(--text);
+    background-color: var(--cancle);
+    color: white;
 }
 
 .side-top #close-task-btn {
@@ -307,13 +301,14 @@ ul {
     border-radius: 5px;
     transition: 0.3s;
     cursor: pointer;
+    font-size: 25px;
 }
 
 .top-form p {
-    font-weight: 400;
-    font-size: 22px;
+    font-weight: 600;
+    font-size: 29px;
     margin: 0;
-    color: var(--text);
+    color: #172b4d;
 }
 
 .top-form i {
@@ -498,6 +493,12 @@ input:not(:placeholder-shown) {
 
 #dueDate {
     background-color: transparent;
+    border: 1.5px solid #8590a2;
+}
+#dueDate:focus{
+    border:2px solid var(--btn);
+    outline: none;
+    box-shadow: none;
 }
 
 .showUserImg img {
@@ -505,35 +506,6 @@ input:not(:placeholder-shown) {
     height: 30px;
     border-radius: 50%;
     margin-right: 5px;
-}
-
-.topNavlink .nav-tabs {
-    color: black;
-}
-
-.topNavlink .nav-tabs .nav-link {
-    color: var(--text);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.topNavlink .nav-tabs .nav-link.active {
-    color: var(--btn);
-    border-bottom: 4px solid var(--btn);
-    background-color: #f8f9fd;
-    border-radius: 0;
-    border-top: none;
-    border-left: none;
-    border-right: none;
-}
-
-.topNavlink .nav-tabs .nav-link.active:hover {
-    color: var(--btn);
-}
-
-.topNavlink .nav-item:hover::after {
-    display: none;
 }
 
 .subtask-progress {
@@ -855,7 +827,7 @@ input:not(:placeholder-shown) {
     display: flex;
     flex-direction: column;
     justify-content: left;
-    height: 60vh;
+    height: 59vh;
     overflow-y: scroll;
 }
 
@@ -877,15 +849,16 @@ input:not(:placeholder-shown) {
     display: flex;
     flex-direction: column;
     justify-content: start;
-    gap: 15px;
-    margin-bottom: 50px;
+    gap: 25px;
+    margin-bottom: 20px;
+    padding-right: 15px;
 }
 
 .add-form .formInput {
     display: flex;
     flex-direction: column;
     margin-top: 10px;
-    width: 95%;
+    width: 50%;
 }
 
 .add-form #statusForm {
@@ -915,12 +888,13 @@ input:not(:placeholder-shown) {
         }
 
         #currentStatus {
-            color: #1C2A4B;
+            color: #fff;
             font-weight: 500;
+            padding: 0 10px;
         }
 
         i {
-            color: #1C2A4B;
+            color: #fff;
             font-weight: 600;
         }
     }
@@ -931,8 +905,7 @@ input:not(:placeholder-shown) {
     }
 
     #statusDropdown {
-        width: max-content;
-        padding: 10px 20px;
+        width: 105px;
         margin-top: 10px;
         border-radius: 5px;
         position: absolute;
@@ -942,15 +915,17 @@ input:not(:placeholder-shown) {
         box-shadow: 0px 8px 12px #091E4226,
             0 4px 11px rgba(9, 30, 66, 0.13);
         z-index: 20;
+        padding-left: 10px;
+
 
         .status-option {
-            padding: 5px 10px;
+            width: max-content;
             background-color: #4aa25f;
             color: white;
             border-radius: 5px;
-            margin-bottom: 10px;
             cursor: pointer;
             opacity: 0.7;
+            margin: 10px 0;
         }
 
         .status-option:hover {
@@ -961,7 +936,7 @@ input:not(:placeholder-shown) {
 
     #staNote {
         font-size: 14px;
-        font-weight: 300;
+        font-weight: 200;
         color: gray;
         margin-top: 5px;
     }
@@ -996,7 +971,7 @@ input:not(:placeholder-shown) {
         margin-bottom: 5px;
     }
 
-    #detail {
+    #taskDetail {
         height: 40px;
         border: 1.5px solid #8590a2;
         border-radius: 5px;
@@ -1004,7 +979,7 @@ input:not(:placeholder-shown) {
         resize: none;
     }
 
-    #detail::placeholder {
+    #taskDetail::placeholder {
         font-weight: 300;
         opacity: 0.7;
     }
@@ -1194,7 +1169,7 @@ input:not(:placeholder-shown) {
 
     #priNote {
         font-size: 14px;
-        font-weight: 300;
+        font-weight: 200;
         color: gray;
         margin-top: 5px;
     }
@@ -1224,7 +1199,7 @@ input:not(:placeholder-shown) {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    width: 95%;
+    width: 100%;
 }
 
 .add-form #duedateInput {
@@ -1298,7 +1273,7 @@ input:not(:placeholder-shown) {
 
     #dateNote {
         font-size: 14px;
-        font-weight: 300;
+        font-weight: 200;
         color: gray;
         margin-top: 5px;
     }
@@ -1321,7 +1296,8 @@ input:not(:placeholder-shown) {
     flex-wrap: wrap;
     align-items: center;
     gap: 5px;
-    padding: 10px;
+    min-height: 40px;
+    max-height: max-content;
     border: 1.5px solid #8590a2;
     border-radius: 5px;
     overflow-x: scroll;
@@ -1567,6 +1543,10 @@ input:not(:placeholder-shown) {
     display: flex;
     justify-content: end;
 
+    #btnall{
+        display: flex;
+        align-items: center;
+    }
     #submitTaskBtn{
         background-color: var(--btn);
         color: white;
@@ -1574,6 +1554,8 @@ input:not(:placeholder-shown) {
         border: none;
         border-radius: 5px;
         opacity: 0.7;
+        display: flex;
+        align-items: center;
     }
     #submitTaskBtn:hover{
         opacity: 1;
@@ -1597,4 +1579,89 @@ input:not(:placeholder-shown) {
     border: none;
     padding: 3px 15px;
     border-radius: 5px;
+}
+
+#assignedUsers {
+    width: 320px;
+    padding: 5px 0 0 10px;
+    border: 1px solid rgba(55, 53, 47, 0.16);
+}
+#assignedUsers:focus {
+    outline: none;
+}
+.user-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.user-option img {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+}
+.custom-dropdown {
+    position: relative;
+    border: 1px solid rgba(55, 53, 47, 0.16);
+    border-radius: 5px;
+    padding: 5px;
+    cursor: pointer;
+}
+
+.selected-users {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    padding: 5px;
+}
+
+.selected-users .user {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--color3);
+    padding: 5px;
+    border-radius: 5px;
+    position: relative;
+}
+
+.selected-users .user img {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+}
+
+.selected-users .user .remove {
+    color: red;
+    cursor: pointer;
+    font-size: 12px;
+    margin-left: 5px;
+}
+
+.dropdown-options {
+    display: none;
+    position: absolute;
+    background: white;
+    border: 1px solid rgba(55, 53, 47, 0.16);
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    width: 100%;
+    z-index: 10;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 5px;
+    cursor: pointer;
+}
+
+.dropdown-item:hover {
+    background: var(--color3);
+}
+
+.disabled-opacity {
+    opacity: 0.5;
 }

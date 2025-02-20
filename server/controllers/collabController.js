@@ -21,20 +21,26 @@ exports.manage_Member = async (req, res) => {
             return res.status(404).send("Space not found");
         }
 
-        const currentUserRole = space.collaborators.find(
+        // Safely filter collaborators to include only valid ones with a populated user
+        const validCollaborators = (space.collaborators || []).filter(collab => collab && collab.user);
+
+        const currentUserRole = validCollaborators.find(
             collab => collab.user._id.toString() === req.user._id.toString()
         )?.role || 'member';
 
-        const validCollaborators = space.collaborators.filter(collab => collab && collab.user);
-
+        // Collect all collaborator IDs
         const collaboratorIds = validCollaborators.map(collab => collab.user._id.toString());
-        collaboratorIds.push(space.user._id.toString());
+        if (space.user && space.user._id) {
+            collaboratorIds.push(space.user._id.toString());
+        }
 
+        // Find all users not already in the space as collaborators
         const allUsers = await User.find(
             { _id: { $nin: collaboratorIds } },
             'username profileImage googleEmail isOnline'
         ).lean();
 
+        // Fetch pending invitations
         const pendingInvitations = await Notification.find({ space: req.params.id, status: 'pending' })
             .populate('user', 'username profileImage googleEmail isOnline')
             .lean();
@@ -65,53 +71,40 @@ exports.addMemberToSpace = async (req, res) => {
     try {
         const { memberId, role, spaceId } = req.body;
 
+        // Validate required fields
         if (!memberId || !role || !spaceId) {
             return res.status(400).json({ success: false, message: 'Missing required fields' });
         }
 
+        // Find the space
         const space = await Spaces.findById(spaceId);
-        if (!space) return res.status(404).json({ 
-            success: false, 
-            message: 'Space not found' 
-        });
-
-        const currentUserRole = space.collaborators.find(collab => collab.user.toString() === req.user._id.toString())?.role;
-        if (currentUserRole !== 'owner' && currentUserRole !== 'admin') {
-            return res.status(403).json({ success: false, message: 'Only the admin or owner can invite members' });
+        if (!space) {
+            return res.status(404).json({ success: false, message: 'Space not found' });
         }
 
+        // Check if the current user has sufficient permissions
+        const currentUserRole = space.collaborators.find(collab => collab.user.toString() === req.user._id.toString())?.role;
+        if (currentUserRole !== 'owner' && currentUserRole !== 'admin') {
+            return res.status(403).json({ success: false, message: 'Only the admin or owner can add members' });
+        }
+
+        // Check if the user is already a member
         const isMember = space.collaborators.some(collab => collab.user.toString() === memberId);
         if (isMember) {
             return res.status(400).json({ success: false, message: 'User is already a member of this space' });
         }
 
-        const hasPendingInvitation = await Notification.findOne({ 
-            user: memberId, 
-            space: spaceId, 
-            status: 'pending' 
-        });
-        if (hasPendingInvitation) {
-            return res.status(400).json({ success: false, message: 'User already has a pending invitation' });
-        }
+        // Add the user directly to the collaborators
+        space.collaborators.push({ user: memberId, role });
+        await space.save();
 
-        const notification = new Notification({
-            user: memberId,
-            space: spaceId,
-            role,
-            status: 'pending',
-            type: 'invitation',
-            leader: req.user._id,
-            message: `You have been invited to join the space: ${space.SpaceName} as a ${role}` // Set the message here
-        });
-        
-        await notification.save();
-
-        res.status(200).json({ success: true, message: 'Invitation sent successfully!' });
+        res.status(200).json({ success: true, message: 'Member added successfully!' });
     } catch (error) {
         console.error('Error adding member to space:', error);
         res.status(500).json({ success: false, message: 'Internal Server Error' });
     }
 };
+
 
 exports.searchMembers = async (req, res) => {
     try {

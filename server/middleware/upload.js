@@ -1,18 +1,34 @@
-// upload mindelware
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const uploadDir = 'docUploads/';
 
+// Directories for uploads
+const fileUploadDir = 'docUploads/';
+const coverUploadDir = 'public/projectCover/';
 
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
+// Ensure directories exist
+if (!fs.existsSync(fileUploadDir)) {
+    fs.mkdirSync(fileUploadDir, { recursive: true });
+}
+if (!fs.existsSync(coverUploadDir)) {
+    fs.mkdirSync(coverUploadDir, { recursive: true });
 }
 
-// Configure Multer storage to preserve the original filename
-const storage = multer.diskStorage({
+// Configure Multer storage for files
+const fileStorage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, uploadDir);
+        cb(null, fileUploadDir);
+    },
+    filename: (req, file, cb) => {
+        const safeFilename = file.originalname.replace(/[\s]/g, '_'); // Replace spaces with underscores
+        cb(null, safeFilename);
+    }
+});
+
+// Configure Multer storage for cover images
+const coverStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, coverUploadDir);
     },
     filename: (req, file, cb) => {
         const safeFilename = file.originalname.replace(/[\s]/g, '_'); // Replace spaces with underscores
@@ -33,10 +49,19 @@ const fileFilter = (req, file, cb) => {
 };
 
 // Set up the upload middleware with size limits (e.g., 5MB)
-const upload = multer({
-    storage,
+const uploadFiles = multer({
+    storage: fileStorage,
     limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB limit
     fileFilter,
 });
 
-module.exports = upload;
+const uploadCovers = multer({
+    storage: coverStorage,
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB limit
+    fileFilter,
+});
+
+module.exports = {
+    uploadFiles,
+    uploadCovers
+};

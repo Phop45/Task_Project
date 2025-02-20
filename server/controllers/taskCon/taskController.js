@@ -39,6 +39,145 @@ const extractTaskParameters = async (tasks) => {
   return { taskNames, taskDetail, taskStatuses, taskTypes, dueDate, dueTime, createdAt, taskPriority, taskTag };
 };
 
+/// create task controller
+exports.createTask = async (req, res) => {
+  try {
+    const {
+      taskName,
+      dueDate,
+      startDate,
+      taskTag,
+      taskDetail,
+      taskType,
+      spaceId,
+      taskPriority = 'normal',
+      statusId, 
+      assignedUsers = []
+    } = req.body;
+            
+    console.log("📥 ข้อมูลที่ได้รับจากฟอร์ม:", req.body); 
+
+    // Validate and assign the `project` (spaceId)
+    if (!mongoose.Types.ObjectId.isValid(spaceId)) {
+      return res.status(400).send("Invalid space ID.");
+    }
+    const space = await Spaces.findById(spaceId);
+    if (!space) {
+      return res.status(404).send("Space not found.");
+    }
+
+    // Validate `user`
+    const userId = req.user && req.user.id; // Assuming `req.user` is populated with the authenticated user
+    if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).send("Invalid user ID.");
+    }
+
+    // Validate and assign `taskStatus`
+    let status;
+    if (statusId && mongoose.Types.ObjectId.isValid(statusId)) {
+      status = await Status.findOne({ _id: statusId, space: spaceId });
+      if (!status) {
+        return res.status(404).send("Status not found or does not belong to the specified space.");
+      }
+    } else {
+      // Default to 'toDo' if no valid status is provided
+      status = await Status.findOne({ category: 'toDo', space: spaceId });
+      if (!status) {
+        return res.status(500).send("Default status 'toDo' not found in the space.");
+      }
+    }
+
+    // Validate `assignedUsers`
+    const validAssignedUsers = [];
+    if (assignedUsers) {
+      const userIds = assignedUsers.split(',');
+      for (const userId of userIds) {
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+          console.log(`Skipping invalid user ID: ${userId}`);
+          continue;
+        }
+        validAssignedUsers.push(mongoose.Types.ObjectId(userId));
+      }
+    }
+
+    // Prepare tags
+    const tags = taskTag ? taskTag.split(',') : [];
+    const userTags = [];
+    for (const tag of tags) {
+      const trimmedTag = tag.trim();
+      let existingTag = await Tag.findOne({ name: trimmedTag, user: req.user.id });
+      if (!existingTag) {
+        existingTag = new Tag({ name: trimmedTag, user: req.user.id });
+        await existingTag.save();
+      }
+      userTags.push(existingTag.name);
+    }
+
+    // Parse and validate dates
+    let parsedStartDate = null;
+    if (startDate) {
+      const tempDate = new Date(startDate);
+      if (!isNaN(tempDate.getTime())) {
+        parsedStartDate = tempDate;
+      } else {
+        console.warn("⚠️ startDate ไม่สามารถแปลงเป็นวันที่ได้:", startDate);
+      }
+    }
+
+    // แปลงวันที่
+    let parsedDueDate = null;
+    if (dueDate) {
+      const tempDate = new Date(dueDate);
+      if (!isNaN(tempDate.getTime())) {
+        parsedDueDate = tempDate;
+      } else {
+        console.warn("⚠️ dueDate ไม่สามารถแปลงเป็นวันที่ได้:", dueDate);
+      }
+    }
+
+    // Handle file attachments
+    const attachments = req.files ? req.files.map(file => ({
+      path: file.path,
+      originalName: file.originalname,
+    })) : [];
+
+    // Create a new task
+    const newTask = new Task({
+      taskName,
+      dueDate: parsedDueDate,
+      startDate: parsedStartDate,
+      taskTag: userTags,
+      taskDetail,
+      taskType,
+      taskPriority,
+      taskStatus: status.category,
+      project: mongoose.Types.ObjectId(spaceId),
+      user: mongoose.Types.ObjectId(userId),
+      assignedUsers: validAssignedUsers,
+      attachments,
+    });
+
+    await newTask.save();
+
+    // Create notifications for assigned users
+    const notifications = validAssignedUsers.map(userId => ({
+      user: userId,
+      task: newTask._id,
+      space: mongoose.Types.ObjectId(spaceId),
+      type: 'taskAssignment',
+      message: `You have been assigned a task: ${newTask.taskName}`,
+      status: 'unread',
+      dueDate: parsedDueDate,
+    }));
+    await Notification.insertMany(notifications);
+
+    res.redirect(`/space/item/${spaceId}/task_board`);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
 /// Add Task
 exports.addTask = async (req, res) => {
   try {
@@ -114,110 +253,6 @@ exports.addTask2 = async (req, res) => {
   }
 };
 
-/// add task controller
-exports.addTask_board = async (req, res) => {
-  try {
-    const {
-      taskName,
-      dueDate,
-      startDate,
-      taskTag,
-      detail,
-      taskType,
-      spaceId,
-      taskPriority = 'normal',
-      statusId, 
-      assignedUsers = []
-    } = req.body;
-            
-    if (!mongoose.Types.ObjectId.isValid(spaceId)) {
-      return res.status(400).send("Invalid space ID.");
-    }
-
-    const space = await Spaces.findById(spaceId);
-    if (!space) {
-      return res.status(404).send("Space not found.");
-    }
-
-    // Validate status ID
-    if (!mongoose.Types.ObjectId.isValid(statusId)) {
-      return res.status(400).send("Invalid status ID.");
-    }
-
-    const status = await Status.findOne({ _id: statusId, space: spaceId });
-    if (!status) {
-      return res.status(404).send("Status not found or does not belong to the specified space.");
-    }
-
-    // Validate assignedUsers
-    const validAssignedUsers = [];
-    if (assignedUsers) {
-      const userIds = assignedUsers.split(',');
-      for (const userId of userIds) {
-        if (!mongoose.Types.ObjectId.isValid(userId)) {
-          console.log(`Skipping invalid user ID: ${userId}`);
-          continue;
-        }
-        validAssignedUsers.push(mongoose.Types.ObjectId(userId));
-      }
-    }
-
-    const tags = taskTag ? taskTag.split(',') : [];
-    const userTags = [];
-    for (const tag of tags) {
-      const trimmedTag = tag.trim();
-      let existingTag = await Tag.findOne({ name: trimmedTag, user: req.user.id });
-      if (!existingTag) {
-        existingTag = new Tag({ name: trimmedTag, user: req.user.id });
-        await existingTag.save();
-      }
-      userTags.push(existingTag.name);
-    }
-
-    const formattedDueDate = dueDate ? new Date(dueDate) : null;
-    const formattedStartDate = startDate ? new Date(startDate) : null; 
-
-    const attachments = req.files ? req.files.map(file => ({
-      path: file.path,
-      originalName: file.originalname,
-    })) : [];
-
-    const newTask = new Task({
-      taskName,
-      dueDate: formattedDueDate,
-      startDate: formattedStartDate, 
-      taskTag: userTags,
-      detail,
-      taskType,
-      taskPriority,
-      taskStatus: status.name,
-      user: req.user.id,
-      space: mongoose.Types.ObjectId(spaceId),
-      assignedUsers: validAssignedUsers,
-      attachments
-    });
-
-    await newTask.save();
-
-    // Create notifications for assigned users
-    const notifications = validAssignedUsers.map(userId => ({
-      user: userId,
-      task: newTask._id,
-      space: mongoose.Types.ObjectId(spaceId),
-      type: 'taskAssignment',
-      message: `คุณได้รับมอบหมายงานชื่อ: ${newTask.taskName}`,
-      status: 'unread',
-      dueDate: formattedDueDate,
-    }));
-    await Notification.insertMany(notifications);
-
-    res.redirect(`/space/item/${spaceId}/task_board`);
-    console.log(newTask);
-  } catch (error) {
-    console.log(error);
-    res.status(500).send("Internal Server Error");
-  }
-};
 
 exports.addTask_underBoard = async (req, res) => {
   try {
@@ -504,3 +539,32 @@ exports.updateTaskDescription = async (req, res) => {
   }
 };
 
+exports.updateProjectName = async (req, res) => {
+  try {
+      const { spaceId, projectName } = req.body;
+
+      // Validate inputs
+      if (!spaceId || !projectName) {
+          return res.status(400).json({ error: 'spaceId and projectName are required.' });
+      }
+
+      // Find and update the space
+      const updatedSpace = await Spaces.findByIdAndUpdate(
+          spaceId,
+          { projectName },
+          { new: true, runValidators: true } // Return the updated document
+      );
+
+      if (!updatedSpace) {
+          return res.status(404).json({ error: 'Space not found.' });
+      }
+
+      res.status(200).json({
+          message: 'Project name updated successfully.',
+          space: updatedSpace
+      });
+  } catch (error) {
+      console.error('Error updating project name:', error);
+      res.status(500).json({ error: 'Internal server error.' });
+  }
+};
