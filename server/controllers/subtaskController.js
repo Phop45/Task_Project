@@ -10,7 +10,6 @@ exports.createSubTask = async (req, res) => {
             return res.status(400).json({ message: 'Missing required fields' });
         }
 
-        // Assuming req.user._id contains the ID of the user creating the subtask
         const creatorId = req.user._id;
 
         const newSubTask = new SubTask({

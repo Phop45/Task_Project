@@ -1,820 +1,206 @@
-<head>
-    <style>
-        :root{
-            --color1: #7952B3;
-            --color2: #a788d4;
-            --color3: #E4E9F6;
-            --light: #37352FA6;
-            --more-light: #222220d7;
-            --notYet: #B5C0D0;
-            --line: #D7D9DD;
-            --text: #515761;
-        }
-        #assignedUsers {
-            width: 320px;
-            padding: 5px 0 0 10px;
-            border: 1px solid rgba(55, 53, 47, 0.16);
-        }
-        #assignedUsers:focus {
-            outline: none;
-        }
-        .user-option {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .user-option img {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-        }
-        .custom-dropdown {
-            position: relative;
-            border: 1px solid rgba(55, 53, 47, 0.16);
-            border-radius: 5px;
-            padding: 5px;
-            cursor: pointer;
-        }
-        
-        .selected-users {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-            padding: 5px;
-        }
-        
-        .selected-users .user {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            background: var(--color3);
-            padding: 5px;
-            border-radius: 5px;
-            position: relative;
-        }
-        
-        .selected-users .user img {
-            width: 25px;
-            height: 25px;
-            border-radius: 50%;
-        }
-        
-        .selected-users .user .remove {
-            color: red;
-            cursor: pointer;
-            font-size: 12px;
-            margin-left: 5px;
-        }
-        
-        .dropdown-options {
-            display: none;
-            position: absolute;
-            background: white;
-            border: 1px solid rgba(55, 53, 47, 0.16);
-            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-            border-radius: 5px;
-            width: 100%;
-            z-index: 10;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-        
-        .dropdown-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 5px;
-            cursor: pointer;
-        }
-        
-        .dropdown-item:hover {
-            background: var(--color3);
-        }
-        
-    </style>
-</head>
+<div class="sidebar-popup" id="sidebar-popup">
+    <div class="side-top">
+        <div class="top-form">
+            <p><i class="fa-solid fa-square-plus"></i>
+                เพิ่มงานที่คุณต้องการจัดการ</p>
+        </div>
+        <i class="fa-solid fa-xmark" id="close-task-btn"></i>
+    </div>
 
-<body>
-    <div class="sidebar-popup" id="sidebar-popup">
-        <div class="side-top">
-            <div class="top-form">
-                <p>เพิ่มงานที่คุณต้องการจัดการ</p>
+    <div class="formWrap">
+        <span id="note">ช่องที่ต้องกรอกข้อมูลจะมีเครื่องหมายดอกจัน <span style="color: #ff0000;">*</span> </span>
+        <form action="/createTask" method="POST" class="add-form" enctype="multipart/form-data" id="taskForm" 
+        onsubmit="return prepareFormData()">
+            <div class="formInput" id="statusForm" style="margin-top: 15px;">
+                <span id="staLabel">
+                    <i class="fa-solid fa-hourglass-start icon"></i>
+                    สถานะของงาน
+                </span>
+                <div class="status-section">
+                    <div class="status-toggle" id="statusToggle">
+                        <span id="currentStatus">ยังไม่ทำ</span>
+                        <i class="bx bx-chevron-down"></i>
+                    </div>
+                </div>
+                <div class="dropdown-status" id="statusDropdown" style="display: none;">
+                    <!-- สถานะของงานจะโชว์ -->
+                </div>
+                <input type="hidden" id="taskStatus" name="taskStatus" value="toDo" />
+                <input type="hidden" id="statusId" name="statusId" value="" />
+                <span id="staNote">ส่วนของสถานะเริ่มต้นเมื่อสร้างงาน</span>
             </div>
-            <i class="fa-solid fa-xmark" id="close-task-btn"></i>
-        </div>
-    
-        <div class="formWrap">
-            <span id="note">ช่องที่ต้องกรอกข้อมูลจะมีเครื่องหมายดอกจัน <span>*</span> </span>
-    
-            <form action="/createTask" method="POST" class="add-form" enctype="multipart/form-data" id="taskForm">
-                <div class="formInput" id="statusForm" style="margin-top: 15px;">
-                    <span id="staLabel">สถานะของงาน</span>
-                    <div class="status-section">
-                        <div class="status-toggle" id="statusToggle">
-                            <span id="currentStatus">ยังไม่ทำ</span>
-                            <i class="bx bx-chevron-down"></i>
-                        </div>
-                    </div>
-                    <div class="dropdown-status" id="statusDropdown" style="display: none;">
-                        <!-- สถานะของงานจะโชว์ -->
-                    </div>
-                    <input type="hidden" id="taskStatus" name="taskStatus" value="toDo" />
-                    <input type="hidden" id="statusId" name="statusId" value="" />
-                    <span id="staNote">ส่วนนี้คือสถานะเริ่มต้นเมื่อสร้างงาน</span>
-                </div>
-    
-                <div class="formInput" id="nameInput">
-                    <label for="taskName">
-                        ชื่องาน <span style="color: red;">*</span>
-                    </label>
-                    <input type="text" id="taskName" name="taskName" placeholder="กรอกชื่องาน" required>
-                </div>
-    
-                <div class="formInput" id="detailInput">
-                    <label for="detail">
-                        รายละเอียดงานเพิ่มเติม
-                    </label>
-                    <textarea id="detail" name="detail" rows="4" cols="50" placeholder="กรอกรายละเอียดงานเพิ่มเติม (ทางเลือก)"></textarea>
-                </div>
 
-                <div class="formInput" id="assInput">
-                    <div class="assign">
-                        <label for="assignedUsersDropdown" id="assignLabel">
-                            ผู้รับมอบหมาย
-                        </label>
-                
-                        <div id="assignedUsersDropdown" class="custom-dropdown">
-                            <div class="selected-users" id="selectedUsers"></div>
-                            <div class="dropdown-options" id="dropdownOptions">
-                                <% spaces.collaborators.forEach(collaborator => { %>
-                                    <% if (collaborator.status !== 'pending') { %>
-                                        <div class="dropdown-item" data-user-id="<%= collaborator.user._id %>"
-                                            onclick="selectUser('<%= collaborator.user._id %>', '<%= collaborator.user.username %>', '<%= collaborator.user.profileImage %>')">
-                                            <img src="<%= collaborator.user.profileImage || '/public/img/profileImage/userDefalt.jpg' %>" alt="<%= collaborator.user.username %>">
-                                            <span>
-                                                <p id="assUsername">
-                                                    <%= collaborator.user.username %>
-                                                </p>
-                                                <p id="assEmail">
-                                                    <%= collaborator.user.googleEmail %>
-                                                </p>
-                                            </span>
-                                        </div>
-                                    <% } %>
-                                <% }) %>
-                            </div>
-                        </div>
-                        <p id="autoAssign" 
-                            data-user-id="<%= user._id %>" 
-                            data-username="<%= user.username %>" 
-                            data-user-image="<%= user.profileImage %>">
-                            มอบหมายให้ตัวเอง
-                        </p>
-                        <input type="hidden" name="assignedUsers" id="assignedUsersInput" value="">
-                    </div>
-                </div>
+            <div class="formInput" id="nameInput">
+                <label for="taskName">
+                    <i class="fa-solid fa-font icon"></i>
+                    ชื่องาน <span style="color: red;">*</span>
+                </label>
+                <input type="text" id="taskName" name="taskName" placeholder="ใส่ชื่อของงาน">
+            </div>
 
-                <div class="formInput" id="priInput">
-                    <label for="priorityToggle" id="priLabel">
-                        ระดับความสำคัญ
-                    </label>
-                    <div class="priority-section">
-                        <div class="priority-toggle" id="priorityToggle">
-                            <span id="currentPriority">
-                                <i class="fa-solid fa-grip-lines priIcon" style="color: #ffcc00;"></i> ปกติ
-                            </span>
-                            <i class="bx bx-chevron-down"></i>
-                        </div>
-                        <div class="dropdown-priority" id="priorityDropdown" style="display: none;">
-                            <div class="priority-option" data-priority="urgent" data-icon="fa-solid fa-angles-up" data-color="#ff0000">
-                                <div class="icon">
-                                    <i class="fa-solid fa-angles-up priIcon" style="color: #ff0000;"></i>
-                                </div>
-                                 ด่วน
-                            </div>
-                            <div class="priority-option" data-priority="normal" data-icon="fa-solid fa-grip-lines" data-color="#ffcc00">
-                                <div class="icon">
-                                    <i class="fa-solid fa-grip-lines priIcon" style="color: #ffcc00;"></i>
-                                </div>
-                                ปกติ
-                            </div>
-                            <div class="priority-option" data-priority="low" data-icon="fa-solid fa-angle-down" data-color="#2562F6">
-                                <div class="icon">
-                                    <i class="fa-solid fa-angle-down priIcon" style="color: #2562F6;"></i>
-                                </div>
-                                 ต่ำ
-                            </div>
-                        </div>
+            <div class="formInput" id="detailInput">
+                <label for="taskDetail">
+                    <i class="fa-solid fa-circle-info icon"></i>
+                    รายละเอียดของงาน
+                </label>
+                <textarea id="taskDetail" name="taskDetail" rows="4" cols="50"
+                    placeholder="กรอกรายละเอียดงานเพิ่มเติม (ทางเลือก)"></textarea>
+            </div>
 
-                        <input type="hidden" id="taskPriority" name="taskPriority" value="normal" />
-                    </div>
-                    <span id="priNote">ระดับความสำคัญจะบ่งบอกถึงความสำคัญของงานนั้น</span>
-                </div>
-
-                <div class="formInput" id="tagInput">
-                    <label for="tags-section" id="tagLabel">
-                        แท็กงาน
-                    </label>
-                    <div class="tags-section">
-                        <div id="selectedTagsContainer"></div> 
-                        <input type="text" name="search" placeholder="ค้นหาหรือสร้างแท็กสำหรับงานนี้" id="tag-search">
-                        <div class="showTagsItem" id="tagsContainer">
-                        </div>
-                        <div class="no-match" id="noMatch" style="display: none;">
-                            กด Enter เพื่อสร้างแท็กใหม่
-                        </div>
-                        <input type="hidden" name="taskTag" id="tagArray">
-                      </div>
-                </div>
-    
-                <div class="line"></div>
-
-                <div class="dateOpt">
-                    <div class="formInput" id="startdateInput">
-                        <label for="startDate" id="startdateLabel">
-                            วันที่เริ่มต้น
-                        </label>
-                        <input type="date" id="startDate" name="startDate">
-                        <span id="dateNote">ช่วยให้สามารถกำหนดวันที่เริ่มต้นเพื่อที่วางแผนไว้สำหรับการทำงานได้</span>
-                    </div>
-
-                    <div class="formInput" id="duedateInput">
-                        <label for="dueDate" id="duedateLabel">
-                            วันครบกำหนด <span style="color: red;">*</span>
-                        </label>
-                        <input type="date" id="dueDate" name="dueDate">
-                    </div>
-                </div>
-                <div class="formInput" id="projectDuration">
-                    <span class="firstText">
-                        ระยะเวลาในการทำโปรเจกต์อยู่ที่: 
-                    </span>
-                </div>
+            <div class="line"></div>
             
-                <div class="line"></div>
-
-                <div class="formInput" id="attachmentInput">
-                    <label for="attachments" id="attachmentsLabel">
-                        <i class="fa-solid fa-cloud-arrow-up upload-icon"></i> แนบไฟล์
-                        <p id="attNote">Drop files to attach or <span class="browse-btn">Browse</span></p>
+            <div class="formInput" id="assInput">
+                <div class="assign">
+                    <label for="assignedUsersDropdown" id="assignLabel">
+                        <i class="fa-solid fa-user-pen icon"></i>
+                        ผู้รับมอบหมาย
                     </label>
-                    <input type="file" id="attachments" name="attachments" multiple>
+
+                    <div id="assignedUsersDropdown" class="custom-dropdown">
+                        <div class="selected-users" id="selectedUsers"></div>
+                        <div class="dropdown-options" id="dropdownOptions">
+                            <% spaces.collaborators.forEach(collaborator=> { %>
+                                <% if (collaborator.status !=='pending' ) { %>
+                                    <div class="dropdown-item" data-user-id="<%= collaborator.user._id %>"
+                                        onclick="selectUser('<%= collaborator.user._id %>', '<%= collaborator.user.username %>', '<%= collaborator.user.profileImage %>')">
+                                        <img src="<%= collaborator.user.profileImage || '/public/img/profileImage/userDefalt.jpg' %>"
+                                            alt="<%= collaborator.user.username %>">
+                                        <span>
+                                            <p id="assUsername">
+                                                <%= collaborator.user.username %>
+                                            </p>
+                                            <p id="assEmail">
+                                                <%= collaborator.user.googleEmail %>
+                                            </p>
+                                        </span>
+                                    </div>
+                                    <% } %>
+                                        <% }) %>
+                        </div>
+                    </div>
+                    <p id="autoAssign" data-user-id="<%= user._id %>" data-username="<%= user.username %>"
+                        data-user-image="<%= user.profileImage %>">
+                        มอบหมายให้ตัวเอง
+                    </p>
+                    <input type="hidden" name="assignedUsers" id="assignedUsersInput" value="">
                 </div>
-                <div class="preview-container" id="previewContainer"></div>
+            </div>
+
+            <div class="formInput" id="priInput">
+                <label for="priorityToggle" id="priLabel">
+                    <i class="fa-solid fa-flag icon"></i>
+                    ระดับความสำคัญ
+                </label>
+                <div class="priority-section">
+                    <div class="priority-toggle" id="priorityToggle">
+                        <span id="currentPriority">
+                            <i class="fa-solid fa-grip-lines priIcon" style="color: #ffcc00;"></i> ปกติ
+                        </span>
+                        <i class="bx bx-chevron-down"></i>
+                    </div>
+                    <div class="dropdown-priority" id="priorityDropdown" style="display: none;">
+                        <div class="priority-option" data-priority="urgent" data-icon="fa-solid fa-angles-up"
+                            data-color="#ff0000">
+                            <div class="icon">
+                                <i class="fa-solid fa-angles-up priIcon" style="color: #ff0000;"></i>
+                            </div>
+                            ด่วน
+                        </div>
+                        <div class="priority-option" data-priority="normal" data-icon="fa-solid fa-grip-lines"
+                            data-color="#ffcc00">
+                            <div class="icon">
+                                <i class="fa-solid fa-grip-lines priIcon" style="color: #ffcc00;"></i>
+                            </div>
+                            ปกติ
+                        </div>
+                        <div class="priority-option" data-priority="low" data-icon="fa-solid fa-angle-down"
+                            data-color="#2562F6">
+                            <div class="icon">
+                                <i class="fa-solid fa-angle-down priIcon" style="color: #2562F6;"></i>
+                            </div>
+                            ต่ำ
+                        </div>
+                    </div>
+
+                    <input type="hidden" id="taskPriority" name="taskPriority" value="normal" />
+                </div>
+                <span id="priNote">ระดับความสำคัญจะบ่งบอกถึงความสำคัญของงานนั้น</span>
+            </div>
+
+            <div class="formInput" id="tagInput">
+                <label for="tags-section" id="tagLabel">
+                    <i class="fa-solid fa-tags icon"></i>
+                    แท็กงาน
+                </label>
+                <div class="tags-section">
+                    <div id="selectedTagsContainer"></div>
+                    <input type="text" name="search" placeholder="ค้นหาหรือสร้างแท็กสำหรับงานนี้" id="tag-search">
+                    <div class="showTagsItem" id="tagsContainer">
+                    </div>
+                    <div class="no-match" id="noMatch" style="display: none;">
+                        กด Enter เพื่อสร้างแท็กใหม่
+                    </div>
+                    <input type="hidden" name="taskTag" id="tagArray">
+                </div>
+            </div>
+
+            <div class="line"></div>
+
+            <div class="dateOpt">
+                <div class="formInput" id="startdateInput">
+                    <div class="dateLabel" style="margin-bottom: 5px;">
+                        <input type="checkbox" id="enableStartDate">
+                        <label for="startDate" class="dateLa">
+                            วันที่เริ่มงาน</label>
+                      </div>
+                      <input 
+                              type="text" 
+                              class="form-control" 
+                              name="startDate" 
+                              id="startDate" 
+                              placeholder="เลือกวันที่" 
+                              disabled>
+                    <span id="dateNote">สามารถกำหนดวันที่เริ่มต้นเพื่อที่วางแผนไว้สำหรับการทำงานได้</span>
+                </div>
+
+                <div class="formInput" id="dueDateInput">
+                    <div class="dateLabel" style="margin-bottom: 5px;">
+                      <label for="dueDate" class="dateLa">
+                        <i class="fa-solid fa-calendar-check icon"></i>
+                        วันครบกำหนด</label>
+                    </div>
+                    <input 
+                            type="text" 
+                            class="form-control" 
+                            name="dueDate" 
+                            id="dueDate" 
+                            placeholder="เลือกวันที่" >
+                </div>
+            </div>
+
+            <div class="formInput" id="attachmentInput" style="width: 100%;">
+                <label for="attachments" id="attachmentsLabel">
+                    <i class="fa-solid fa-cloud-arrow-up upload-icon"></i> แนบไฟล์
+                    <p id="attNote">Drop files to attach or <span class="browse-btn">Browse</span></p>
+                </label>
+                <input type="file" id="attachments" name="attachments" multiple>
+            </div>
+            <div class="preview-container" id="previewContainer"></div>
 
 
-                <input type="hidden" name="spaceId" id="spaceId" value="<%= spaces._id %>">
-            </form>
-        </div>
+            <input type="hidden" name="spaceId" id="spaceId" value="<%= spaces._id %>">
+        </form>
+    </div>
 
-        <div class="all-btn">
-            <div id="btnall">
-                <button type="submit" id="submitTaskBtn">เสร็จสิ้น</button>
-            </div> 
+    <div class="all-btn">
+        <div id="btnall">
+            <button type="submit" id="submitTaskBtn">
+                <i class="fa-solid fa-plus"></i>
+                สร้างงาน    
+            </button>
         </div>
     </div>
-    <div class="overlay" id="overlay"></div>
+</div>
+<div class="overlay" id="overlay"></div>
 
-    <script>
-        // Handle submit button click outside form
-        document.getElementById('submitTaskBtn').addEventListener('click', function() {
-            document.getElementById('taskForm').submit();  // Manually submit the form
-        });
-        
-        // detail
-        document.addEventListener('DOMContentLoaded', function() {
-            const detailTextarea = document.getElementById('detail');
-            
-            detailTextarea.addEventListener('focus', function() {
-                detailTextarea.style.transition = 'height 0.3s ease-in-out';
-                detailTextarea.style.height = '100px';
-            });
-    
-            detailTextarea.addEventListener('blur', function() {
-                if (!detailTextarea.value) {
-                    detailTextarea.style.height = '40px';
-                }
-            });
-    
-            detailTextarea.addEventListener('input', function() {
-                if (detailTextarea.value) {
-                    detailTextarea.style.height = '100px';
-                }
-            });
-        });
-
-        // status
-        document.addEventListener('DOMContentLoaded', async function () {
-            const statusDropdown = document.querySelector('#statusDropdown');
-            const spaceId = document.querySelector('#spaceId').value;
-            const statusToggle = document.querySelector('#statusToggle');
-            const currentStatus = document.querySelector('#currentStatus');
-            const taskStatusInput = document.querySelector('#taskStatus');
-            const statusIdInput = document.querySelector('#statusId'); // Reference to hidden input for status ID
-        
-            // Fetch statuses from the server
-            async function fetchStatuses() {
-                try {
-                    const response = await fetch(`/${spaceId}/statuses`);
-                    if (!response.ok) {
-                        throw new Error('Failed to fetch statuses');
-                    }
-                    return await response.json();
-                } catch (error) {
-                    console.error('Error fetching statuses:', error);
-                    return [];
-                }
-            }
-        
-            // Populate the dropdown with statuses
-            async function populateDropdown() {
-                const statuses = await fetchStatuses();
-                if (statuses.length === 0) {
-                    statusDropdown.innerHTML = '<p>No statuses available</p>';
-                    return;
-                }
-        
-                statusDropdown.innerHTML = ''; // Clear existing options
-                statuses.forEach(status => {
-                    const option = document.createElement('div');
-                    option.classList.add('status-option');
-                    option.setAttribute('data-status-id', status._id); // Include status ID
-                    option.setAttribute('data-status', status.category); // Use category as the status value
-                    option.textContent = status.name; // Display name
-                    statusDropdown.appendChild(option);
-                });
-            }
-        
-            // Toggle dropdown visibility
-            statusToggle.addEventListener('click', function () {
-                const isDropdownVisible = statusDropdown.style.display === 'block';
-                statusDropdown.style.display = isDropdownVisible ? 'none' : 'block';
-            });
-        
-            // Handle status selection
-            statusDropdown.addEventListener('click', function (event) {
-                const selectedOption = event.target.closest('.status-option');
-                if (selectedOption) {
-                    const selectedStatus = selectedOption.getAttribute('data-status');
-                    const selectedStatusId = selectedOption.getAttribute('data-status-id');
-        
-                    // Update the current status display and hidden inputs
-                    currentStatus.textContent = selectedOption.textContent;
-                    taskStatusInput.value = selectedStatus;
-                    statusIdInput.value = selectedStatusId;
-        
-                    // Hide the dropdown
-                    statusDropdown.style.display = 'none';
-                }
-            });
-        
-            // Close dropdown when clicking outside
-            document.addEventListener('click', function (event) {
-                if (!statusToggle.contains(event.target) && !statusDropdown.contains(event.target)) {
-                    statusDropdown.style.display = 'none';
-                }
-            });
-        
-            // Populate the dropdown and set the default value
-            await populateDropdown();
-        });
-        
-        // priority
-        document.addEventListener('DOMContentLoaded', function () {
-            const priorityToggle = document.querySelector('#priorityToggle');
-            const priorityDropdown = document.querySelector('#priorityDropdown');
-            const currentPriority = document.querySelector('#currentPriority');
-            const taskPriorityInput = document.querySelector('#taskPriority');
-          
-            // Toggle dropdown visibility
-            priorityToggle.addEventListener('click', function () {
-              priorityDropdown.style.display = priorityDropdown.style.display === 'none' ? 'block' : 'none';
-            });
-          
-            // Handle priority selection
-            priorityDropdown.addEventListener('click', function (event) {
-                const selectedOption = event.target.closest('.priority-option');
-                if (selectedOption) {
-                    const selectedPriority = selectedOption.getAttribute('data-priority');
-                    const selectedIcon = selectedOption.getAttribute('data-icon');
-                    const selectedColor = selectedOption.getAttribute('data-color');
-        
-                    // Update currentPriority with icon and text
-                    currentPriority.innerHTML = `<i class="${selectedIcon}" style="color: ${selectedColor};"></i> ${
-                        selectedOption.textContent.trim()
-                    }`;
-        
-                    // Update the hidden input
-                    taskPriorityInput.value = selectedPriority;
-        
-                    // Hide the dropdown
-                    priorityDropdown.style.display = 'none';
-                }
-            });
-
-            // Close dropdown if clicked outside
-            document.addEventListener('click', function (event) {
-              if (!priorityToggle.contains(event.target) && !priorityDropdown.contains(event.target)) {
-                priorityDropdown.style.display = 'none';
-              }
-            });
-          });
- 
-        // tags
-        document.addEventListener('DOMContentLoaded', async function () {
-            const tagSearch = document.querySelector('#tag-search');
-            const tagsContainer = document.querySelector('#tagsContainer');
-            const noMatch = document.querySelector('#noMatch');
-            const tagArrayInput = document.querySelector('#tagArray');
-            const selectedTagsContainer = document.querySelector('#selectedTagsContainer');
-          
-            let existingTags = []; // Tags from the server
-            let selectedTags = []; // Currently selected tags
-          
-            // Fetch existing tags
-            async function fetchTags() {
-              try {
-                const response = await fetch('/tags');
-                if (response.ok) {
-                  existingTags = await response.json();
-                } else {
-                  console.error('Failed to fetch tags');
-                }
-              } catch (error) {
-                console.error('Error fetching tags:', error);
-              }
-            }
-          
-            // Render matching tags
-            function renderMatchingTags(searchValue) {
-                tagsContainer.innerHTML = '';
-                const matchingTags = existingTags.filter(tag =>
-                tag.name.toLowerCase().includes(searchValue)
-                );
-            
-                if (matchingTags.length > 0) {
-                matchingTags.forEach(tag => {
-                    // Create tag container
-                    const tagElement = document.createElement('div');
-                    tagElement.classList.add('tag');
-            
-                    // Create the icon element
-                    const iconElement = document.createElement('i');
-                    iconElement.classList.add('fa-solid', 'fa-tags');
-            
-                    // Create the text node for the tag name
-                    const tagNameElement = document.createElement('span');
-                    tagNameElement.textContent = tag.name;
-            
-                    // Append icon and text to the tag element
-                    tagElement.appendChild(iconElement);
-                    tagElement.appendChild(tagNameElement);
-            
-                    // Add click event to select the tag
-                    tagElement.addEventListener('click', function () {
-                    if (!selectedTags.includes(tag.name)) {
-                        selectedTags.push(tag.name);
-                        renderSelectedTags();
-                    }
-                    });
-            
-                    // Append the tag element to the container
-                    tagsContainer.appendChild(tagElement);
-                });
-                }
-            }
-  
-          
-            // Handle search input
-            tagSearch.addEventListener('input', function () {
-              const searchValue = tagSearch.value.trim().toLowerCase();
-              renderMatchingTags(searchValue);
-          
-              const hasMatch = existingTags.some(tag =>
-                tag.name.toLowerCase().includes(searchValue)
-              );
-              noMatch.style.display = searchValue.length > 0 && !hasMatch ? 'block' : 'none';
-            });
-          
-            // Handle Enter key for creating a new tag
-            tagSearch.addEventListener('keydown', function (e) {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                const newTag = tagSearch.value.trim();
-                if (newTag && !selectedTags.includes(newTag)) {
-                  selectedTags.push(newTag);
-                  renderSelectedTags();
-                }
-                tagSearch.value = '';
-                noMatch.style.display = 'none';
-              }
-            });
-          
-            // Render selected tags
-            function renderSelectedTags() {
-              selectedTagsContainer.innerHTML = '';
-              selectedTags.forEach(tag => {
-                const tagElement = document.createElement('div');
-                tagElement.classList.add('tag');
-                tagElement.innerHTML = `
-                  <i class="fa-solid fa-tags"></i>
-                  <span>${tag}</span>
-                  <i class="bx bx-x remove-tag" data-tag="${tag}"></i>
-                `;
-                selectedTagsContainer.appendChild(tagElement);
-              });
-          
-              tagArrayInput.value = selectedTags.join(',');
-          
-              document.querySelectorAll('.remove-tag').forEach(removeBtn => {
-                removeBtn.addEventListener('click', function () {
-                  const tagToRemove = this.getAttribute('data-tag');
-                  selectedTags = selectedTags.filter(tag => tag !== tagToRemove);
-                  renderSelectedTags();
-                });
-              });
-            }
-          
-            // Initialize tags
-            await fetchTags();
-          });
-          
-        // assign
-        document.addEventListener('DOMContentLoaded', () => {
-            const dropdown = document.getElementById('assignedUsersDropdown');
-            const dropdownOptions = document.getElementById('dropdownOptions');
-            const selectedUsers = document.getElementById('selectedUsers');
-            const assignedUsersInput = document.getElementById('assignedUsersInput');
-            const autoAssign = document.getElementById('autoAssign'); // "Assign to me" element
-    
-            // Initialize with "Unassigned" by default
-            const unassignedDiv = document.createElement('div');
-            unassignedDiv.className = 'user unassigned';
-            unassignedDiv.id = 'unassignedUser';
-            unassignedDiv.innerHTML = '<span id="unassignText">ไม่มีผู้รับมอบหมาย</span>';
-            selectedUsers.appendChild(unassignedDiv);
-    
-            // Toggle dropdown visibility
-            dropdown.addEventListener('click', () => {
-                dropdownOptions.style.display = dropdownOptions.style.display === 'block' ? 'none' : 'block';
-            });
-    
-            // Handle "Assign to me" click
-            autoAssign.addEventListener('click', () => {
-                const myUserId = autoAssign.dataset.userId; // Assign your user ID here
-                const myUsername = autoAssign.dataset.username; // Assign your username here
-                const myUserImage = autoAssign.dataset.userImage || '/public/img/profileImage/userDefalt.jpg'; // Default image
-    
-                if (!assignedUsersInput.value.split(',').includes(myUserId)) {
-                    assignedUsersInput.value += `${myUserId},`;
-    
-                    const userDiv = document.createElement('div');
-                    userDiv.className = 'user';
-                    userDiv.dataset.userId = myUserId;
-    
-                    const img = document.createElement('img');
-                    img.src = myUserImage;
-                    img.alt = myUsername;
-    
-                    const span = document.createElement('span');
-                    span.textContent = myUsername;
-    
-                    const removeIcon = document.createElement('span');
-                    removeIcon.className = 'remove';
-                    removeIcon.textContent = 'X';
-                    removeIcon.addEventListener('click', () => {
-                        userDiv.remove();
-                        assignedUsersInput.value = assignedUsersInput.value
-                            .split(',')
-                            .filter(id => id !== myUserId)
-                            .join(',');
-    
-                        // Restore "Unassigned" if no users are selected
-                        if (assignedUsersInput.value === '') {
-                            selectedUsers.appendChild(unassignedDiv);
-                        }
-                    });
-    
-                    userDiv.appendChild(img);
-                    userDiv.appendChild(span);
-                    userDiv.appendChild(removeIcon);
-                    selectedUsers.appendChild(userDiv);
-    
-                    // Remove "Unassigned" if a user is selected
-                    if (unassignedDiv.parentNode) {
-                        unassignedDiv.remove();
-                    }
-                }
-            });
-    
-            // Handle user selection from dropdown
-            dropdownOptions.addEventListener('click', (event) => {
-                const item = event.target.closest('.dropdown-item');
-                if (!item) return;
-    
-                const userId = item.dataset.userId;
-                const username = item.querySelector('p#assUsername').textContent.trim(); // Use only the username
-                const userImage = item.querySelector('img').src;
-    
-                if (!assignedUsersInput.value.split(',').includes(userId)) {
-                    assignedUsersInput.value += `${userId},`;
-    
-                    const userDiv = document.createElement('div');
-                    userDiv.className = 'user';
-                    userDiv.dataset.userId = userId;
-    
-                    const img = document.createElement('img');
-                    img.src = userImage;
-                    img.alt = username;
-    
-                    const span = document.createElement('span');
-                    span.textContent = username;
-    
-                    const removeIcon = document.createElement('span');
-                    removeIcon.className = 'remove';
-                    removeIcon.textContent = 'X';
-                    removeIcon.addEventListener('click', () => {
-                        userDiv.remove();
-                        assignedUsersInput.value = assignedUsersInput.value
-                            .split(',')
-                            .filter(id => id !== userId)
-                            .join(',');
-    
-                        // Restore "Unassigned" if no users are selected
-                        if (assignedUsersInput.value === '') {
-                            selectedUsers.appendChild(unassignedDiv);
-                        }
-                    });
-    
-                    userDiv.appendChild(img);
-                    userDiv.appendChild(span);
-                    userDiv.appendChild(removeIcon);
-                    selectedUsers.appendChild(userDiv);
-    
-                    // Remove "Unassigned" if a user is selected
-                    if (unassignedDiv.parentNode) {
-                        unassignedDiv.remove();
-                    }
-                }
-            });
-    
-            // Handle clicks outside the dropdown to close it
-            document.addEventListener('click', (event) => {
-                if (!dropdown.contains(event.target)) {
-                    dropdownOptions.style.display = 'none';
-                }
-            });
-    
-            // Clear form and reset to "Unassigned"
-            const closeButton = document.getElementById('close-task-btn');
-            const form = document.querySelector('.add-form');
-    
-            closeButton.addEventListener('click', () => {
-                // Reset the form
-                form.reset();
-    
-                // Clear the selected users
-                selectedUsers.innerHTML = '';
-    
-                // Restore "Unassigned" by default
-                selectedUsers.appendChild(unassignedDiv);
-    
-                // Optionally hide the dropdown if it is open
-                dropdownOptions.style.display = 'none';
-    
-                // Clear the hidden assigned users input
-                assignedUsersInput.value = '';
-            });
-        });
-        
-        //uploade
-        document.addEventListener('DOMContentLoaded', () => {
-            const fileInput = document.getElementById('attachments');
-            const uploadArea = document.getElementById('uploadArea');
-            const previewContainer = document.getElementById('previewContainer');
-        
-            let selectedFiles = [];
-        
-            // Handle file selection
-            fileInput.addEventListener('change', handleFiles);
-            uploadArea.addEventListener('click', () => fileInput.click());
-        
-            // Handle drag over
-            uploadArea.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                uploadArea.style.borderColor = '#4a90e2';
-            });
-        
-            // Handle drag leave
-            uploadArea.addEventListener('dragleave', () => {
-                uploadArea.style.borderColor = '#d1d5db';
-            });
-        
-            // Handle drop
-            uploadArea.addEventListener('drop', (e) => {
-                e.preventDefault();
-                uploadArea.style.borderColor = '#d1d5db';
-                const files = Array.from(e.dataTransfer.files);
-                addFiles(files);
-            });
-        
-            // Handle file input change
-            function handleFiles(e) {
-                const files = Array.from(e.target.files);
-                addFiles(files);
-            }
-        
-            // Add files to preview
-            function addFiles(files) {
-                files.forEach(file => {
-                    if (!selectedFiles.some(f => f.name === file.name)) {
-                        selectedFiles.push(file);
-                        displayPreview(file);
-                    }
-                });
-            }
-        
-            // Display file preview
-            function displayPreview(file) {
-                const previewItem = document.createElement('div');
-                previewItem.className = 'preview-item';
-        
-                const removeBtn = document.createElement('button');
-                removeBtn.className = 'remove-btn-file';
-                removeBtn.innerHTML = '×';
-                removeBtn.onclick = () => removeFile(file.name, previewItem);
-        
-                if (file.type.startsWith('image/')) {
-                    const img = document.createElement('img');
-                    img.src = URL.createObjectURL(file);
-                    previewItem.appendChild(img);
-                } else {
-                    const fileIcon = document.createElement('div');
-                    fileIcon.className = 'file-icon';
-                    fileIcon.innerHTML = '📄';
-                    previewItem.appendChild(fileIcon);
-                }
-        
-                const fileName = document.createElement('p');
-                fileName.textContent = file.name;
-                fileName.style.fontSize = '12px';
-        
-                previewItem.appendChild(removeBtn);
-                previewItem.appendChild(fileName);
-                previewContainer.appendChild(previewItem);
-            }
-        
-            // Remove file from preview
-            function removeFile(fileName, previewItem) {
-                selectedFiles = selectedFiles.filter(file => file.name !== fileName);
-                previewContainer.removeChild(previewItem);
-            }
-        });
-        
-        //date
-        document.addEventListener('DOMContentLoaded', () => {
-        const dueDateInput = document.getElementById('dueDate');
-        const startDateInput = document.getElementById('startDate');
-        const projectDuration = document.getElementById('projectDuration');
-        const today = new Date().toISOString().split('T')[0];
-
-        // Set the custom placeholder text
-        dueDateInput.setAttribute('data-placeholder', 'เลือกวันที่');
-        
-        // Trigger the calendar when clicking anywhere on the input
-        dueDateInput.addEventListener('click', () => {
-            dueDateInput.showPicker();
-        });
-
-        // Set default start date to today
-        startDateInput.value = today;
-
-        // Function to update project duration
-        function updateProjectDuration() {
-            const startDate = new Date(startDateInput.value);
-            const dueDate = new Date(dueDateInput.value);
-            
-            if (startDate && dueDate && dueDate >= startDate) {
-                const timeDifference = dueDate - startDate; // in milliseconds
-                const daysDifference = timeDifference / (1000 * 3600 * 24); // convert to days
-
-                projectDuration.innerHTML = `ระยะเวลาในการทำงานอยู่ที่: <span id="duretionDate"> ${daysDifference} วัน </span>`;
-            } else {
-                projectDuration.innerHTML = '<span class="firstText"> ระยะเวลาในการทำโปรเจกต์อยู่ที่: - </span>';
-            }
-        }
-
-        // Event listener to set the max value of the startDate input based on the selected dueDate
-        dueDateInput.addEventListener('input', function() {
-            const dueDate = dueDateInput.value;
-            if (dueDate) {
-                startDateInput.setAttribute('max', dueDate);
-            }
-            updateProjectDuration(); // Update the project duration when the due date is changed
-        });
-
-        // Event listener to update project duration when the start date is changed
-        startDateInput.addEventListener('input', updateProjectDuration);
-    });
-    </script>
-</body>
+<script src="/script/taskScript/addPopup.js"></script>

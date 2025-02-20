@@ -29,8 +29,8 @@ const subTaskSchema = new Schema({
     },
     subTask_status: {
         type: String,
-        enum: ['กำลังทำ', 'เสร็จสิ้น'],
-        default: 'กำลังทำ'
+        enum: ['inProgress', 'finished'],
+        default: 'inProgress'
     },
     activityLogs: {
         type: [String],

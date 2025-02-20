@@ -6,25 +6,33 @@ const attachmentSchema = new Schema({
     path: String, 
     originalName: String,
     uploadedAt: { type: Date, default: Date.now },
+    fileSize: Number,
+});
+
+const activityLogSchema = new Schema({
+    text: { type: String },
+    type: { type: String, enum: ['normal', 'comment'], default: 'normal' },
+    createdBy: { type: Schema.ObjectId, ref: 'User' },
+    createdAt: { type: Date, default: Date.now },
 });
 
 const taskSchema = new Schema({
-    user: {
-        type: Schema.ObjectId,
-        ref: 'User'
-    },
-    space: {
-        type: Schema.ObjectId,
-        ref: 'Space'
-    },
+    user: { type: Schema.ObjectId, ref: 'User', required: true },
+    project: { type: Schema.ObjectId, ref: 'Space', required: true },
+
     taskName: {
         type: String,
+        required: true,
     },
-    dueDate: {
+    taskDetail: {
+        type: String,
+        default: "",
+    },
+    startDate: {
         type: Date,
         default: null
     },
-    startDate: { 
+    dueDate: {
         type: Date,
         default: null
     },
@@ -37,26 +45,9 @@ const taskSchema = new Schema({
             message: props => `${props.value} is not a valid time! Expected format is HH:mm.`
         }
     },
-    taskTag: [{
-        type: String
-    }],
-    detail: {
-        type: String,
-        default: "",   
-    },
-    createdAt: {
-        type: Date,
-        default: Date.now
-    },
-    updatedAt: {
-        type: Date,
-        default: Date.now
-    },
-    deleteAt: {
-        type: Date
-    },
     taskStatus: {
         type: String,
+        enum: ['toDo', 'inProgress', 'fix', 'finished'],
         required: true,
     },      
     taskPriority: {
@@ -64,14 +55,18 @@ const taskSchema = new Schema({
         enum: ['urgent', 'normal', 'low'],
         default: 'normal'
     },
-    activityLogs: [{
-        text: { type: String },
-        type: { type: String, enum: ['normal', 'comment'], default: 'normal' }
-    }],
-    attachments: [attachmentSchema],
-    assignedUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
-}, { timestamps: { createdAt: 'createdAt', updatedAt: 'updatedAt' } });
 
+    // Relationships and organizational features
+    taskTags: [{ type: String }],
+    assignedUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    subtasks: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Task' }],
+    dependencies: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Task' }],
+
+    // Additional features
+    activityLogs: [activityLogSchema],
+    attachments: [attachmentSchema],
+    deleted: { type: Boolean, default: false }
+}, { timestamps: { createdAt: 'createdAt', updatedAt: 'updatedAt' } });
 
 const Task = mongoose.model('Tasks', taskSchema);
 module.exports = Task;

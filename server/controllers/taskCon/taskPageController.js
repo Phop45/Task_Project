@@ -3,7 +3,8 @@ const Task = require("../../models/Task");
 const Spaces = require('../../models/Space');
 const SubTask = require('../../models/SubTask');
 const User = require("../../models/User");
-const Status = require('../../models/Status')
+const Status = require('../../models/Status');
+const Notification = require('../../models/Noti');
 const moment = require('moment');
 const mongoose = require('mongoose');
 moment.locale('th');
@@ -35,110 +36,203 @@ const extractTaskParameters = async (tasks) => {
 
     return { taskNames, taskDetail, taskStatuses, taskTypes, dueDate, dueTime, createdAt, taskPriority, taskTag };
 };
+const formatDate = (date) => {
+    return new Date(date).toLocaleString('th-TH', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+    });
+};
 
-/// หน้าแดชบอร์ดสรุปงาน
+/// Dashboard page controller
 exports.task_dashboard = async (req, res) => {
     try {
         const spaceId = req.params.id;
-        const userId = req.user.id;
+        const userId = mongoose.Types.ObjectId(req.user.id);
+        const period = req.query.period || '7day'; 
 
+        // Find space and ensure access
         const space = await Spaces.findOne({
             _id: spaceId,
             $or: [{ user: userId }, { collaborators: { $elemMatch: { user: userId } } }],
         })
-            .populate('collaborators.user', 'displayName profileImage')
+            .populate('collaborators.user', 'username profileImage googleEmail')
             .lean();
 
-        if (!space) return res.status(404).send('Space not found');
+        if (!space) {
+            return res.status(404).send("Space not found");
+        }
 
-        const spaces = await Spaces.find({
-            $or: [
-                { user: userId },
-                { collaborators: { $elemMatch: { user: userId } } }
-            ],
-            deleted: false // Ensure only non-deleted spaces are retrieved
-        })
-            .populate('user', 'username profileImage')
-            .populate('collaborators.user', 'username profileImage')
+        // Retrieve tasks and populate fields
+        const tasks = await Task.find({ project: spaceId })
+            .populate('assignedUsers', 'username profileImage')
+            .populate('activityLogs.createdBy', 'username profileImage')
             .lean();
 
-        const tasks = await Task.find({ space: spaceId })
-            .populate('assignedUsers', 'displayName profileImage')
-            .populate('user', 'displayName profileImage')
-            .lean();
+        // Determine the date range based on the selected period
+        let startDate;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Set to the start of today
 
-        const usersSet = new Map();
-        tasks.forEach((task) => {
-            if (task.user && !usersSet.has(task.user._id.toString())) {
-                usersSet.set(task.user._id.toString(), task.user);
-            }
-            task.assignedUsers.forEach((user) => {
-                if (!usersSet.has(user._id.toString())) {
-                    usersSet.set(user._id.toString(), user);
-                }
-            });
-        });
+        switch (period) {
+            case 'today':
+                startDate = today; // Filter for tasks created today
+                break;
+            case '7day':
+                startDate = new Date();
+                startDate.setDate(today.getDate() - 7); // Filter for the past 7 days
+                break;
+            case '1month':
+                startDate = new Date();
+                startDate.setMonth(today.getMonth() - 1); // Filter for the past month
+                break;
+            case 'sinceCreate':
+                startDate = new Date(0); // Start from the Unix epoch
+                break;
+            default:
+                startDate = new Date();
+                startDate.setDate(today.getDate() - 7); // Default to 7 days
+        }
 
-        const users = Array.from(usersSet.values());
-        const subtasksCount = tasks.reduce((count, task) => count + (task.subtasks ? task.subtasks.length : 0), 0);
-        const completedTasksCount = tasks.filter((t) => t.taskStatuses === 'เสร็จสิ้น').length;
+        // Determine the display value for the selected period
+        let selectedPeriod;
+        switch (period) {
+            case 'today':
+                selectedPeriod = 'วันนี้';
+                break;
+            case '7day':
+                selectedPeriod = '7 วันที่ผ่านมา';
+                break;
+            case '1month':
+                selectedPeriod = '1 เดือนที่ผ่านมา';
+                break;
+            case 'sinceCreate':
+                selectedPeriod = 'ทั้งหมด';
+                break;
+            default:
+                selectedPeriod = '7 วันวันที่ผ่านมา'; 
+        }
 
+        // Determine the display value for the selected period
+        let periodText;
+        switch (period) {
+            case 'today':
+                periodText = 'วันนี้';
+                break;
+            case '7day':
+                periodText = 'ในช่วง 7 วันที่ผ่านมา';
+                break;
+            case '1month':
+                periodText = 'ในช่วง 1 เดือนที่ผ่านมา';
+                break;
+            case 'sinceCreate':
+                periodText = 'ตั้งแต่สร้างโปรเจกต์';
+                break;
+            default:
+                periodText = 'ในช่วง 7 วันที่ผ่านมา'; // Default display text
+        }
+
+        // Filter tasks based on the selected period
+        const filteredTasks = tasks.filter(task => new Date(task.createdAt) >= startDate);
+
+        // Task Statistics
+        const finishedTasksCount = filteredTasks.filter(task => task.taskStatus === 'finished').length;
+        const updatedTasksCount = filteredTasks.filter(task => new Date(task.updatedAt) > new Date(task.createdAt)).length;
+        const recentTasksCount = filteredTasks.length;
+
+        const nextSevenDays = new Date();
+        nextSevenDays.setDate(today.getDate() + 7);
+        const dueNextSevenDaysCount = filteredTasks.filter(task => task.dueDate && new Date(task.dueDate) >= today && new Date(task.dueDate) <= nextSevenDays).length;
+
+        // Status Chart
         const statusCounts = {
-            working: tasks.filter((t) => t.taskStatuses === 'กำลังทำ').length,
-            complete: completedTasksCount,
-            fix: tasks.filter((t) => t.taskStatuses === 'แก้ไข').length,
+            toDo: filteredTasks.filter(task => task.taskStatus === 'toDo').length || 0,
+            inProgress: filteredTasks.filter(task => task.taskStatus === 'inProgress').length || 0,
+            fix: filteredTasks.filter(task => task.taskStatus === 'fix').length || 0,
+            finished: filteredTasks.filter(task => task.taskStatus === 'finished').length || 0,
         };
 
-        // Calculate user workload
-        const userWorkload = {};
-        tasks.forEach((task) => {
-            task.assignedUsers.forEach((user) => {
-                if (!userWorkload[user._id]) {
-                    userWorkload[user._id] = { name: user.displayName, workload: 0, totalTasks: 0 };
-                }
-                userWorkload[user._id].workload += task.taskStatuses !== 'เสร็จสิ้น' ? 1 : 0; // Only count incomplete tasks
-                userWorkload[user._id].totalTasks += 1; // Total tasks assigned to the user
-            });
-        });
-
-        // Calculate percent incomplete
-        Object.values(userWorkload).forEach((user) => {
-            user.percentIncomplete = (user.workload / user.totalTasks) * 100 || 0; // Calculate percentage
-        });
-
-        const colors = Object.keys(userWorkload).map(
-            () => `#${Math.floor(Math.random() * 16777215).toString(16)}`
+        const totalTasks = filteredTasks.length;
+        const statusPercentages = Object.fromEntries(
+            Object.entries(statusCounts).map(([status, count]) => [status, ((count / totalTasks) * 100).toFixed(2)])
         );
 
-        const workloadChartData = {
-            labels: Object.values(userWorkload).map((u) => u.name),
-            datasets: [
-                {
-                    label: 'Workload per User',
-                    data: Object.values(userWorkload).map((u) => u.workload),
-                    backgroundColor: colors,
-                    borderColor: '#000000',
-                    borderWidth: 1,
-                },
-            ],
+        const finishedPercentage = totalTasks > 0 ? ((statusCounts.finished / totalTasks) * 100).toFixed(1) : 0;
+
+        // Priority Chart
+        const priorityCounts = {
+            urgent: filteredTasks.filter(task => task.taskPriority === 'urgent').length,
+            normal: filteredTasks.filter(task => task.taskPriority === 'normal').length,
+            low: filteredTasks.filter(task => task.taskPriority === 'low').length,
         };
 
-        const currentUserRole =
-            space.collaborators.find((c) => c.user.toString() === req.user._id.toString())?.role || 'Member';
+        // Workload Distribution
+        const workloadData = filteredTasks.reduce((acc, task) => {
+            task.assignedUsers.forEach(user => {
+                const userId = user._id.toString();
+                if (!acc[userId]) {
+                    acc[userId] = { user, taskCount: 0 };
+                }
+                acc[userId].taskCount++;
+            });
+            return acc;
+        }, {});
 
+        const totalWorkloadTasks = filteredTasks.length;
+        const workloadChartData = Object.values(workloadData).map(({ user, taskCount }) => ({
+            user,
+            percentage: ((taskCount / totalWorkloadTasks) * 100).toFixed(2),
+            taskCount,
+        }));
+
+        // Aggregate and format Recent Activities
+        const recentActivities = [];
+        filteredTasks.forEach(task => {
+            task.activityLogs.forEach(log => {
+                recentActivities.push({
+                    taskName: task.taskName,
+                    taskId: task._id,
+                    text: log.text,
+                    type: log.type,
+                    createdBy: log.createdBy || { username: 'Unknown User', profileImage: '/img/profileImage/Profile.jpeg' },
+                    createdAt: log.createdAt ? formatDate(log.createdAt) : 'Invalid Date',
+                });
+            });
+        });
+
+        // Group by formatted date
+        const activitiesGroupedByDate = recentActivities.reduce((acc, activity) => {
+            const date = activity.createdAt !== 'Invalid Date'
+                ? activity.createdAt.split(' ')[0] 
+                : 'Invalid Date';
+            if (!acc[date]) acc[date] = [];
+            acc[date].push(activity);
+            return acc;
+        }, {});
+
+        // Render the Dashboard
         res.render('task/task-dashboard', {
             spaces: space,
-            tasks,
-            users,
-            statusCounts, // Pass status counts for the chart
-            completedTasksCount,
-            subtasksCount,
-            userWorkload,
-            workloadChartData: JSON.stringify(workloadChartData),
-            currentUserRole,
+            tasks: filteredTasks,
+            user: req.user,
+            finishedTasksCount,
+            updatedTasksCount,
+            recentTasksCount,
+            dueNextSevenDaysCount,
+            statusCounts,
+            statusPercentages,
+            finishedPercentage,
+            priorityCounts,
+            workloadChartData,
+            recentActivities: activitiesGroupedByDate,
+            selectedPeriod,
+            periodText,
+
             layout: '../views/layouts/task',
             currentPage: 'dashboard',
-            user: req.user,
         });
 
     } catch (error) {
@@ -147,7 +241,7 @@ exports.task_dashboard = async (req, res) => {
     }
 };
 
-// board render page controller
+/// task board controller
 exports.task_board = async (req, res) => {
     try {
         const spaceId = req.params.id;
@@ -203,10 +297,17 @@ exports.task_board = async (req, res) => {
 
         // Organize tasks by status
         const statuses = await Status.find({ space: spaceId }).lean();
+
+        // Log the fetched statuses for debugging
+        console.log("Statuses:", statuses);
+
         const tasksByStatus = statuses.reduce((acc, status) => {
             acc[status.name] = tasks.filter(task => task.taskStatus === status.name);
             return acc;
         }, {});
+
+        // Log tasks by status for debugging
+        console.log("Tasks By Status:", tasksByStatus);
 
         // Prepare task counts for each status category
         const taskCounts = statuses.reduce((acc, status) => {
@@ -265,6 +366,7 @@ exports.task_board = async (req, res) => {
         res.status(500).send("Internal Server Error");
     }
 };
+
 
 
 // ลิสต์งาน (ยังไม่ได้ใช้)

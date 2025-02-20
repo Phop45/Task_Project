@@ -6,30 +6,34 @@ const collaboratorSchema = new Schema({
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     role: { 
         type: String, 
-        enum: ['Leader', 'owner', 'admin', 'Member', 'Guest'], 
-        default: 'Member'
+        enum: ['owner', 'admin', 'member', 'Guest'], 
+        default: 'member'
     },
     joinDate: { type: Date, default: Date.now }
 });
 
 const spaceSchema = new Schema({
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    SpaceName: {
+    projectName: {
         type: String,
         required: true
     },
-    SpaceDescription: {
+    projectDetail: {
         type: String
     },
-    SpacePicture: {
-        type: String,
-        default: "/public/spaceictures/defultBackground.jpg",
-      },
+    projectDueDate: {
+        type: Date,
+        default: null
+    },
+    collaborators: [collaboratorSchema],
     deleted: {
         type: Boolean,
         default: false
     },
-    collaborators: [collaboratorSchema],
+    projectCover: {
+        type: String,
+        default: "/public/spacePictures/defultBackground.jpg"
+    },
 }, {
     timestamps: true 
 });

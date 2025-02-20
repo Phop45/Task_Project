@@ -3,12 +3,14 @@ const { Router } = require('express');
 const router = Router();
 const { isLoggedIn } = require('../middleware/checkAuth');
 const spaceController = require('../controllers/spaceController');
-const upload = require('../middleware/upload'); 
+const { uploadCovers } = require('../middleware/upload');
 
 router.get('/space', isLoggedIn, spaceController.SpaceDashboard);
 
 router.get('/createSpace', isLoggedIn, spaceController.createSpace);
-router.post('/createSpace', isLoggedIn, upload.single('SpacePicture'), spaceController.createSpace);
+router.post('/createProject', isLoggedIn, uploadCovers.single('projectCover'), spaceController.createSpace);
+router.post('/checkExistingProject', isLoggedIn,spaceController.checkExistingProject);
+
 
 router.delete('/space/delete/:id', isLoggedIn, spaceController.deleteSpace);
 router.put('/space/:id/recover', isLoggedIn, spaceController.recoverSpace);
