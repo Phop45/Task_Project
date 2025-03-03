@@ -14,7 +14,7 @@ exports.isLoggedIn = async function (req, res, next) {
                     if (!subject || 
                         (!subject.user.equals(req.user._id) && 
                          !subject.collaborators.includes(req.user._id))) {
-                        return res.status(404).send("Subject not found"); // Use 404 for not found
+                        return res.status(404).send("Subject not found");
                     }
                 } catch (error) {
                     console.log(error);

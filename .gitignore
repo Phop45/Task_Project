@@ -1,0 +1,24 @@
+# Node modules
+node_modules
+
+# Logs
+*.log
+
+# Environment variables
+.env
+
+# Docker files
+docker-compose.yml
+Dockerfile
+
+# VSCode settings
+.vscode/
+
+# Uploaded files
+docUploads/
+
+# Public uploads
+public/uploads/
+public/spacePictures/
+public/spaceictures/
+public/projectCover/

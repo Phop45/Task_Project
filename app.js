@@ -25,7 +25,6 @@ const port = process.env.PORT || 5001;
 connectDB()
   .then(() => {
     console.log('Connected to database');
-    createAdminUser(); // สร้าง Admin เมื่อเชื่อมต่อฐานข้อมูลสำเร็จ
   })
   .catch(err => {
     console.error('Failed to connect to database:', err);
@@ -36,26 +35,22 @@ connectDB()
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-// Session Middleware ✅ ต้องมาก่อน passport
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET || 'keyboard cat',
-    resave: false,
-    saveUninitialized: false,
-    store: MongoStore.create({
-      mongoUrl: process.env.MONGODB_URI,
-      collectionName: 'sessions',
-    }),
-    cookie: {
-      secure: process.env.NODE_ENV === 'production',
-      httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000,
-      sameSite: 'Lax',
-    },
-  })
-);
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'keyboard cat',
+  resave: false,
+  saveUninitialized: false,
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGODB_URI,
+    collectionName: 'sessions',
+  }),
+  cookie: {
+    secure: process.env.NODE_ENV === 'production', 
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000,
+    sameSite: 'Lax',
+  },
+}));
 
-// ✅ Initialize Passport Middleware (ลำดับถูกต้อง)
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -66,8 +61,20 @@ passport.use(
     User.authenticate()
   )
 );
-passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserializeUser());
+passport.serializeUser((user, done) => {
+  console.log("Serializing user:", user.id);
+  done(null, user.id); 
+});
+
+passport.deserializeUser(async (id, done) => {
+  try {
+    const user = await User.findById(id);
+    console.log("Deserializing user:", user); 
+    done(null, user); // Set user in the session (req.user)
+  } catch (err) {
+    done(err); // Error handling
+  }
+});
 
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
@@ -143,29 +150,6 @@ app.get('*', (req, res) => {
 app.listen(port, () => {
   console.log(`Server listening at http://localhost:${port}`);
 });
-
-// ✅ สร้าง Admin User
-async function createAdminUser() {
-  try {
-    const adminEmail = process.env.ADMIN_EMAIL;
-    const adminPassword = process.env.ADMIN_PASSWORD;
-    const existingAdmin = await User.findOne({ googleEmail: adminEmail });
-
-    if (!existingAdmin) {
-      const newAdmin = new User({
-        googleEmail: adminEmail,
-        username: 'Administrator',
-        role: 'admin',
-      });
-
-      const hashedPassword = await bcrypt.hash(adminPassword, 10);
-      await User.register(newAdmin, hashedPassword);
-      console.log('Admin user created successfully.');
-    }
-  } catch (err) {
-    console.error('Failed to create admin user:', err);
-  }
-}
 
 // ✅ ลบประกาศที่หมดอายุ
 schedule.scheduleJob('0 0 * * *', async () => {

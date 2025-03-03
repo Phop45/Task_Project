@@ -70,34 +70,179 @@ exports.task_dashboard = async (req, res) => {
         const tasks = await Task.find({ project: spaceId })
             .populate('assignedUsers', 'username profileImage')
             .populate('activityLogs.createdBy', 'username profileImage')
+            .populate({
+                path: 'subtasks',
+                model: 'SubTask',
+                populate: {
+                    path: 'assignee',
+                    select: 'username profileImage',
+                },
+            })
             .lean();
 
         // Determine the date range based on the selected period
         let startDate;
         const today = new Date();
-        today.setHours(0, 0, 0, 0); // Set to the start of today
+        today.setHours(0, 0, 0, 0); // Start of today
 
         switch (period) {
             case 'today':
-                startDate = today; // Filter for tasks created today
+                startDate = today; // Tasks created today
                 break;
             case '7day':
                 startDate = new Date();
-                startDate.setDate(today.getDate() - 7); // Filter for the past 7 days
+                startDate.setDate(today.getDate() - 7); // Last 7 days
                 break;
             case '1month':
                 startDate = new Date();
-                startDate.setMonth(today.getMonth() - 1); // Filter for the past month
+                startDate.setMonth(today.getMonth() - 1); // Last 1 month
                 break;
             case 'sinceCreate':
-                startDate = new Date(0); // Start from the Unix epoch
+                startDate = new Date(space.createdAt); // From project creation
                 break;
             default:
                 startDate = new Date();
                 startDate.setDate(today.getDate() - 7); // Default to 7 days
         }
+        
+        // Filter tasks based on the selected period
+        const filteredTasks = tasks.filter((task) => new Date(task.createdAt) >= startDate);
 
-        // Determine the display value for the selected period
+        // Task Statistics
+        const finishedTasksCount = filteredTasks.filter((task) => task.taskStatus === 'finished').length;
+        const recentTasksCount = filteredTasks.length;
+        const updatedTasksCount = filteredTasks.filter((task) => new Date(task.updatedAt) > new Date(task.createdAt)).length;
+
+        const nextSevenDays = new Date();
+        nextSevenDays.setDate(today.getDate() + 7);
+        const dueNextSevenDaysCount = filteredTasks.filter((task) => task.dueDate && new Date(task.dueDate) >= today && new Date(task.dueDate) <= nextSevenDays).length;
+
+        // Calculate subtask count
+        const subTasksCount = tasks.reduce((count, task) => {
+            if (task.subtasks && task.subtasks.length > 0) {
+                return count + task.subtasks.length;
+            }
+            return count;
+        }, 0);
+
+        // Status Chart
+        const statusCounts = {
+            toDo: filteredTasks.filter(task => task.taskStatus === 'toDo').length || 0,
+            inProgress: filteredTasks.filter(task => task.taskStatus === 'inProgress').length || 0,
+            fix: filteredTasks.filter(task => task.taskStatus === 'fix').length || 0,
+            finished: filteredTasks.filter(task => task.taskStatus === 'finished').length || 0,
+        };
+        const totalTasks = filteredTasks.length;
+        const statusPercentages = Object.fromEntries(
+            Object.entries(statusCounts).map(([status, count]) => [
+                status, 
+                totalTasks > 0 ? Math.round((count / totalTasks) * 100) : 0 // Rounded percentage
+            ])
+        );
+        const finishedPercentage = totalTasks > 0 
+            ? Math.round((statusCounts.finished / totalTasks) * 100) 
+            : 0;
+
+        // Priority Chart
+        const priorityCounts = {
+            urgent: filteredTasks.filter(task => task.taskPriority === 'urgent').length,
+            normal: filteredTasks.filter(task => task.taskPriority === 'normal').length,
+            low: filteredTasks.filter(task => task.taskPriority === 'low').length,
+        };
+
+        // Workload Distribution
+        const incompleteStatuses = ['toDo', 'inProgress', 'fix']; // Define incomplete statuses
+        const totalIncompleteTasks = filteredTasks.filter(task => incompleteStatuses.includes(task.taskStatus)).length;
+        const totalCompletedTasks = filteredTasks.filter(task => task.taskStatus === 'finished').length;
+
+        const workloadData = filteredTasks.reduce((acc, task) => {
+            task.assignedUsers.forEach(user => {
+                const userId = user._id.toString();
+                if (!acc[userId]) {
+                    acc[userId] = { user, completedTasks: 0, incompleteTasks: 0, taskCount: 0 }; // Initialize taskCount
+                }
+
+                // Increment task counts based on status
+                acc[userId].taskCount++; // Total tasks assigned to the user
+                if (task.taskStatus === 'finished') {
+                    acc[userId].completedTasks++;
+                } else if (incompleteStatuses.includes(task.taskStatus)) {
+                    acc[userId].incompleteTasks++;
+                }
+            });
+            return acc;
+        }, {});
+
+        const workloadChartData = space.collaborators.map(collaborator => {
+            const userId = collaborator.user._id.toString();
+            const userTasks = filteredTasks.filter(task => 
+                task.assignedUsers.some(user => user._id.toString() === userId)
+            );
+        
+            const completedTasks = userTasks.filter(task => task.taskStatus === 'finished').length;
+            const incompleteTasks = userTasks.filter(task => incompleteStatuses.includes(task.taskStatus)).length;
+            const taskCount = userTasks.length;
+        
+            const percentage = taskCount > 0 
+                ? Math.round((completedTasks / taskCount) * 100) 
+                : 0;
+        
+            return {
+                user: collaborator.user,
+                percentage,
+                taskCount,
+                completedTasks,
+                incompleteTasks,
+            };
+        });
+
+        // Render the Dashboard
+        res.render('task/task-dashboard', {
+            spaces: space,
+            spaceId: spaceId, 
+            tasks: filteredTasks,
+            user: req.user,
+            finishedTasksCount,
+            recentTasksCount,
+            subTasksCount,
+            dueNextSevenDaysCount,
+            statusCounts,
+            statusPercentages,
+            finishedPercentage,
+            updatedTasksCount,
+            priorityCounts,
+            workloadChartData,
+            startDate,
+            selectedPeriod: period, 
+            periodText: {
+                today: 'วันนี้',
+                '7day': 'ในช่วง 7 วันที่ผ่านมา',
+                '1month': 'ในช่วง 1 เดือนที่ผ่านมา',
+                sinceCreate: 'ตั้งแต่สร้างโปรเจกต์',
+            }[period],
+
+            users: space.collaborators.map(c => c.user), 
+            layout: '../views/layouts/task',
+            currentPage: 'dashboard',
+        });
+
+    } catch (error) {
+        console.error('Error in task_dashboard:', error);
+        res.status(500).send('Internal Server Error');
+    }
+};
+
+exports.getTasks = async (req, res) => {
+    try {
+        const { spaceId } = req.query;
+        const period = req.query.period || '7day'; 
+        if (!spaceId) {
+            return res.status(400).send('Missing spaceId');
+        }
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); 
+
         let selectedPeriod;
         switch (period) {
             case 'today':
@@ -116,130 +261,21 @@ exports.task_dashboard = async (req, res) => {
                 selectedPeriod = '7 วันวันที่ผ่านมา'; 
         }
 
-        // Determine the display value for the selected period
-        let periodText;
-        switch (period) {
-            case 'today':
-                periodText = 'วันนี้';
-                break;
-            case '7day':
-                periodText = 'ในช่วง 7 วันที่ผ่านมา';
-                break;
-            case '1month':
-                periodText = 'ในช่วง 1 เดือนที่ผ่านมา';
-                break;
-            case 'sinceCreate':
-                periodText = 'ตั้งแต่สร้างโปรเจกต์';
-                break;
-            default:
-                periodText = 'ในช่วง 7 วันที่ผ่านมา'; // Default display text
-        }
+        // Find tasks within the selected period
+        const tasks = await Task.find({
+            createdAt: { $gte: startDate },
+            project: spaceId,
+        })
+            .populate('assignedUsers', 'username profileImage') // Populate user data
+            .lean();
 
-        // Filter tasks based on the selected period
-        const filteredTasks = tasks.filter(task => new Date(task.createdAt) >= startDate);
-
-        // Task Statistics
-        const finishedTasksCount = filteredTasks.filter(task => task.taskStatus === 'finished').length;
-        const updatedTasksCount = filteredTasks.filter(task => new Date(task.updatedAt) > new Date(task.createdAt)).length;
-        const recentTasksCount = filteredTasks.length;
-
-        const nextSevenDays = new Date();
-        nextSevenDays.setDate(today.getDate() + 7);
-        const dueNextSevenDaysCount = filteredTasks.filter(task => task.dueDate && new Date(task.dueDate) >= today && new Date(task.dueDate) <= nextSevenDays).length;
-
-        // Status Chart
-        const statusCounts = {
-            toDo: filteredTasks.filter(task => task.taskStatus === 'toDo').length || 0,
-            inProgress: filteredTasks.filter(task => task.taskStatus === 'inProgress').length || 0,
-            fix: filteredTasks.filter(task => task.taskStatus === 'fix').length || 0,
-            finished: filteredTasks.filter(task => task.taskStatus === 'finished').length || 0,
-        };
-
-        const totalTasks = filteredTasks.length;
-        const statusPercentages = Object.fromEntries(
-            Object.entries(statusCounts).map(([status, count]) => [status, ((count / totalTasks) * 100).toFixed(2)])
-        );
-
-        const finishedPercentage = totalTasks > 0 ? ((statusCounts.finished / totalTasks) * 100).toFixed(1) : 0;
-
-        // Priority Chart
-        const priorityCounts = {
-            urgent: filteredTasks.filter(task => task.taskPriority === 'urgent').length,
-            normal: filteredTasks.filter(task => task.taskPriority === 'normal').length,
-            low: filteredTasks.filter(task => task.taskPriority === 'low').length,
-        };
-
-        // Workload Distribution
-        const workloadData = filteredTasks.reduce((acc, task) => {
-            task.assignedUsers.forEach(user => {
-                const userId = user._id.toString();
-                if (!acc[userId]) {
-                    acc[userId] = { user, taskCount: 0 };
-                }
-                acc[userId].taskCount++;
-            });
-            return acc;
-        }, {});
-
-        const totalWorkloadTasks = filteredTasks.length;
-        const workloadChartData = Object.values(workloadData).map(({ user, taskCount }) => ({
-            user,
-            percentage: ((taskCount / totalWorkloadTasks) * 100).toFixed(2),
-            taskCount,
-        }));
-
-        // Aggregate and format Recent Activities
-        const recentActivities = [];
-        filteredTasks.forEach(task => {
-            task.activityLogs.forEach(log => {
-                recentActivities.push({
-                    taskName: task.taskName,
-                    taskId: task._id,
-                    text: log.text,
-                    type: log.type,
-                    createdBy: log.createdBy || { username: 'Unknown User', profileImage: '/img/profileImage/Profile.jpeg' },
-                    createdAt: log.createdAt ? formatDate(log.createdAt) : 'Invalid Date',
-                });
-            });
-        });
-
-        // Group by formatted date
-        const activitiesGroupedByDate = recentActivities.reduce((acc, activity) => {
-            const date = activity.createdAt !== 'Invalid Date'
-                ? activity.createdAt.split(' ')[0] 
-                : 'Invalid Date';
-            if (!acc[date]) acc[date] = [];
-            acc[date].push(activity);
-            return acc;
-        }, {});
-
-        // Render the Dashboard
-        res.render('task/task-dashboard', {
-            spaces: space,
-            tasks: filteredTasks,
-            user: req.user,
-            finishedTasksCount,
-            updatedTasksCount,
-            recentTasksCount,
-            dueNextSevenDaysCount,
-            statusCounts,
-            statusPercentages,
-            finishedPercentage,
-            priorityCounts,
-            workloadChartData,
-            recentActivities: activitiesGroupedByDate,
-            selectedPeriod,
-            periodText,
-
-            layout: '../views/layouts/task',
-            currentPage: 'dashboard',
-        });
-
+        res.json(tasks); // Send tasks as JSON
     } catch (error) {
-        console.error('Error in task_dashboard:', error);
+        console.error('Error in getTasks:', error);
         res.status(500).send('Internal Server Error');
     }
 };
+
 
 /// task board controller
 exports.task_board = async (req, res) => {

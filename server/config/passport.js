@@ -1,43 +1,51 @@
-const passport = require('passport'); // เพิ่มการ import passport
+// passport.js
+const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
-const User = require('../models/User'); // ปรับเส้นทางให้ถูกต้อง
+const User = require('../models/User');
+const { v4: uuidv4 } = require('uuid');
 
-passport.use(new GoogleStrategy({
-    clientID: process.env.GOOGLE_CLIENT_ID,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: "/auth/google/callback"
-  },
-  async (accessToken, refreshToken, profile, done) => {
-    try {
-      let user = await User.findOne({ googleId: profile.id });
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      callbackURL: "/auth/google/callback",
+    },
+    async (accessToken, refreshToken, profile, done) => {
+      try {
+        let user = await User.findOne({ googleId: profile.id }) || await User.findOne({ googleEmail: profile.emails?.[0]?.value });
 
-      if (!user) {
-        user = new User({
-          googleId: profile.id,
-          name: profile.displayName,
-          email: profile.emails[0].value,
-          role: 'user',
-          profileImage: profile.photos[0]?.value || ''
-        });
+        if (user) {
+          user.lastActive = Date.now();
+          user.isOnline = true;
 
-        const adminEmail = process.env.ADMIN_EMAIL;
-        if (profile.emails[0].value === adminEmail) {
-          user.role = 'admin';
+          if (!user.googleId) user.googleId = profile.id;
+          if (!user.profileImage) user.profileImage = profile.photos?.[0]?.value || "/img/profileImage/Profile.jpeg";
+
+          await user.save();
+          return done(null, user);
+        } else {
+          const newUser = new User({
+            googleId: profile.id || uuidv4(),
+            googleEmail: profile.emails?.[0]?.value || "",
+            profileImage: profile.photos?.[0]?.value || "/img/profileImage/Profile.jpeg",
+            role: "user",
+            lastActive: Date.now(),
+            isOnline: true,
+            userid: uuidv4(),
+          });
+
+          if (!newUser.googleEmail) {
+            throw new Error("Email is required for user registration.");
+          }
+
+          await newUser.save();
+          return done(null, newUser);
         }
-
-        await user.save();
-      } else {
-        const adminEmail = process.env.ADMIN_EMAIL;
-        if (profile.emails[0].value === adminEmail) {
-          user.role = 'admin';
-        }
-        await user.save();
+      } catch (err) {
+        console.error("Error in Google Strategy:", err);
+        return done(err, null);
       }
-
-      return done(null, user);
-    } catch (err) {
-      console.error(err);
-      return done(err, null);
     }
-  }
-));
+  )
+);

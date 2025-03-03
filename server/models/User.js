@@ -4,35 +4,18 @@ const passportLocalMongoose = require('passport-local-mongoose');
 const Schema = mongoose.Schema;
 
 const UserSchema = new Schema({
-  userid: {
-    type: String,
-    unique: true,
-      default: function () {
-          const characters = "abcdefghijklmnopqrstuvwxyz0123456789";
-          return '#' + Array.from({ length: 5 }, () => characters.charAt(Math.floor(Math.random() * characters.length))).join('');
-      }
-  },
-  username: {
-    type: String,
-    required: true,
-    default: 'anonymous',
-  },
-  password: {
-    type: String,
-    required: function () {
-      return !this.googleId;
-    },
-    minlength: [8, "รหัสผ่านต้องมีอักขระอย่างน้อย 8 ตัว"],
-  },
-  googleId: {
+  firstName: {
     type: String,
     required: false,
   },
-  googleEmail: {
+  lastName: {
     type: String,
     required: false,
-    unique: true,
   },
+
+  googleId: { type: String, unique: true, sparse: true },
+  googleEmail: { type: String, unique: true, required: true },
+
   profileImage: {
     type: String,
     default: '/img/profileImage/Profile.jpeg',
@@ -50,17 +33,13 @@ const UserSchema = new Schema({
     type: Date,
     required: false,
   },
-  lineUserId: {
-    type: String,
-    required: false,
-  },
   lastActive: {
     type: Date,
     default: Date.now,
   },
   isOnline: {
     type: Boolean,
-    default: false
+    default: false,
   },
   preferences: {
     notifications: {
@@ -73,13 +52,14 @@ const UserSchema = new Schema({
     required: false,
   },
   resetTokenExpiration: {
-      type: Date,
-      required: false,
+    type: Date,
+    required: false,
   },
+  userid: { type: String, unique: true, sparse: true },
 });
 
 UserSchema.plugin(passportLocalMongoose, {
-  usernameField: 'googleEmail',
+  usernameField: 'googleEmail' // Use googleEmail as the username field
 });
 
 module.exports = mongoose.model('User', UserSchema);
