@@ -17,25 +17,25 @@
   --alert-text-color: #d8000c;
 
   --lightselect: #E5E4FA;
-    --deepbackground: #F7F8F9;
-    --lightline: #E9EBEF;
-    --lightText: #fffc;
-    --btn: #5C54E5;
+  --deepbackground: #F7F8F9;
+  --lightline: #E9EBEF;
+  --lightText: #fffc;
+  --btn: #5C54E5;
 
-    --line: #d7d9dd;
-    --more-line: #9a9a9a;
-    --text1: #656f7d;
-    --color1: #7952b3;
-    --color2: #a788d4;
-    --color4: #906fc3;
-    --color3: #e4e9f6;
-    --text2: #37352f;
-    --light: #37352fa6;
-    --more-light: #0a0a03d7;
-    --notYet: #c3cad5;
+  --line: #d7d9dd;
+  --more-line: #9a9a9a;
+  --text1: #656f7d;
+  --color1: #7952b3;
+  --color2: #a788d4;
+  --color4: #906fc3;
+  --color3: #e4e9f6;
+  --text2: #37352f;
+  --light: #37352fa6;
+  --more-light: #0a0a03d7;
+  --notYet: #c3cad5;
 
-    --cancle: #E53935;
-    --grey: rgb(235, 237, 242);
+  --cancle: #E53935;
+  --grey: rgb(235, 237, 242);
 }
 
 body {
@@ -45,7 +45,6 @@ body {
   justify-content: center;
   align-items: center;
   background: var(--body-color);
-  
 }
 
 .warpper {
@@ -91,10 +90,12 @@ body {
   border: none;
   margin-top: 10px;
 }
-.span-text{
+
+.span-text {
   font-size: 14px;
   margin-bottom: 5px;
 }
+
 .input-box input::placeholder {
   font-size: small;
   color: var(--text-color);
@@ -176,10 +177,12 @@ body {
   font-weight: 500;
   font-size: 14px;
 }
-.warpper .register p{
+
+.warpper .register p {
   font-size: 14px;
   font-weight: 300;
 }
+
 .register p a:hover {
   text-decoration: underline;
 }
@@ -214,4 +217,12 @@ body {
 
 .google_btn span {
   display: inline-block;
+}
+
+.password-toggle-icon {
+  cursor: pointer;
+  color: black;
+}
+.password-toggle-icon.hidden {
+  color: gray;
 }
