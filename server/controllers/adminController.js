@@ -238,6 +238,24 @@ exports.createAnnouncements = async (req, res, next) => {
     }
 };
 
+exports.deleteAnnouncement = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const result = await SystemAnnouncement.findByIdAndUpdate(
+            id,
+            { isDeleted: true, updatedAt: new Date() },
+            { new: true }
+        );
+        if (!result) {
+            return res.status(404).json({ success: false, message: 'ไม่พบประกาศนี้' });
+        }
+        res.json({ success: true, message: 'ลบประกาศเรียบร้อยแล้ว' });
+    } catch (error) {
+        console.error('Error deleting announcement:', error);
+        res.status(500).json({ success: false, message: 'เกิดข้อผิดพลาดในการลบประกาศ' });
+    }
+};
+
 exports.sendUnexpiredAnnouncementsToNewUser = async (userEmail) => {
     try {
         const activeAnnouncements = await SystemAnnouncement.find({
@@ -287,24 +305,6 @@ exports.sendUnexpiredAnnouncementsToNewUser = async (userEmail) => {
 
     } catch (error) {
         console.error('เกิดข้อผิดพลาดในการส่งอีเมล:', error);
-    }
-};
-
-exports.deleteAnnouncement = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const result = await SystemAnnouncement.findByIdAndUpdate(
-            id,
-            { isDeleted: true, updatedAt: new Date() },
-            { new: true }
-        );
-        if (!result) {
-            return res.status(404).json({ success: false, message: 'ไม่พบประกาศนี้' });
-        }
-        res.json({ success: true, message: 'ลบประกาศเรียบร้อยแล้ว' });
-    } catch (error) {
-        console.error('Error deleting announcement:', error);
-        res.status(500).json({ success: false, message: 'เกิดข้อผิดพลาดในการลบประกาศ' });
     }
 };
 

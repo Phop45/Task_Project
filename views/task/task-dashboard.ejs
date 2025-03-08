@@ -23,7 +23,24 @@
       </div>
     </div>
     <div class="countSection">
-      <div class="countCard" id="finishedTasksCard">
+      <div class="countCard" id="dueNextSevenDaysCard" data-space-id="<%= spaceId %>">
+        <div class="icon" style="background-color: #F9D7D3;">
+          <i class="fa-solid fa-calendar-days" style="color: #A1392C;"></i>
+        </div>
+        <div class="countText">
+          <p class="count">
+            <span class="countNumber" style="color: #A1392C;">
+              <%= dueNextSevenDaysCount %>
+            </span>
+           <span style="color: #A1392C; font-size: 16px;">
+            งาน
+           </span>
+          </p>
+          <p class="Text">กำหนดส่ง <br> ภายในอีก 7 วัน</p>
+        </div>
+      </div>
+
+      <div class="countCard" id="finishedTasksCard" data-space-id="<%= spaceId %>">
         <div class="icon" style="background-color: #73D26C;">
           <i class="fa-solid fa-check"></i>
         </div>
@@ -39,25 +56,8 @@
           <p class="Text">ที่เสร็จสิ้น <br> <%= periodText %></p>
         </div>
       </div>
-    
-      <div class="countCard" id="updatedTasksCard">
-        <div class="icon" style="background-color: #D0DFFC;">
-          <i class="fa-solid fa-pen" style="color: #1F55C5;"></i>
-        </div>
-        <div class="countText">
-          <p class="count">
-            <span class="countNumber" style="color: #1F55C5;">
-              <%= updatedTasksCount %>
-            </span>
-           <span style="color: #1F55C5; font-size: 16px;">
-            งาน
-           </span>
-          </p>
-          <p class="Text">ที่ถูกอัพเดต <br> <%= periodText %></p>
-        </div>
-      </div>
-    
-      <div class="countCard" id="recentTasksCard">
+
+      <div class="countCard" id="recentTasksCard" data-space-id="<%= spaceId %>">
         <div class="icon" style="background-color: #DED8FA;">
           <i class="fa-solid fa-plus" style="color: #5B4EAC;"></i>
         </div>
@@ -74,22 +74,22 @@
         </div>
       </div>
     
-      <div class="countCard" id="dueNextSevenDaysCard">
-        <div class="icon" style="background-color: #F9D7D3;">
-          <i class="fa-solid fa-calendar-days" style="color: #A1392C;"></i>
-        </div>
-        <div class="countText">
-          <p class="count">
-            <span class="countNumber" style="color: #A1392C;">
-              <%= dueNextSevenDaysCount %>
-            </span>
-           <span style="color: #A1392C; font-size: 16px;">
-            งาน
-           </span>
-          </p>
-          <p class="Text">กำหนดส่ง <br> ภายในอีก 7 วัน</p>
-        </div>
-      </div>
+      <div class="countCard" id="subTasksCard">
+          <div class="icon" style="background-color: #D0DFFC;">
+              <i class="fa-solid fa-list" style="color: #1F55C5;"></i>
+          </div>
+          <div class="countText">
+              <p class="count">
+                  <span class="countNumber" style="color: #1F55C5;">
+                      <%= subTasksCount %>
+                  </span>
+                  <span style="color: #1F55C5; font-size: 16px;">
+                      งานย่อย
+                  </span>
+              </p>
+              <p class="Text">ที่ถูกสร้าง <br> <%= periodText %></p>
+          </div>
+      </div>    
     </div>
 
     <div class="chartWrap">
@@ -124,31 +124,45 @@
             </tr>
           </thead>
           <tbody>
-            <% workloadChartData.forEach(item=> { %>
-              <tr class="workload-row" data-user-id="<%= item.user._id %>" data-space-id="<%= spaces._id %>">
-                <td id="userAvatar">
-                  <img src="<%= item.user.profileImage %>" class="user-avatar">
-                  <span class="user-name">
-                    <%= item.user.username %>
-                  </span>
-                </td>
-                <td id="progressBar">
-                  <div class="perWrap">
-                    <div class="progress-bar-container">
-                      <div class="progress-bar"
-                        style="width: <%= item.percentage %>%; background-color: <%= item.percentage > 40 ? '#f66' : '#6cc' %>;">
+            <% if (workloadChartData.length === 0) { %>
+              <% users.forEach(user => { %> <!-- Loop through all users to display default rows -->
+                <tr class="workload-row" data-user-id="<%= user._id %>" data-space-id="<%= spaces._id %>">
+                  <td id="userAvatar">
+                    <img src="<%= user.profileImage %>" class="user-avatar">
+                    <span class="user-name"><%= user.username %></span>
+                  </td>
+                  <td id="progressBar">
+                    <div class="perWrap">
+                      <div class="progress-bar-container">
+                        <div class="progress-bar" style="width: 0%; background-color: #6cc;"></div>
                       </div>
+                      <span class="percentage">0%</span>
                     </div>
-                    <span class="percentage">
-                      <%= item.percentage %>%
-                    </span>
-                  </div>
-                </td>
-                <td id="taskCount">
-                  <%= item.taskCount %>
-                </td>
-              </tr>
+                  </td>
+                  <td id="taskCount">0</td>
+                </tr>
               <% }); %>
+            <% } else { %>
+              <% workloadChartData.forEach(item => { %>
+                <tr class="workload-row" data-user-id="<%= item.user._id %>" data-space-id="<%= spaces._id %>">
+                  <td id="userAvatar">
+                    <img src="<%= item.user.profileImage %>" class="user-avatar">
+                    <span class="user-name"><%= item.user.username %></span>
+                  </td>
+                  <td id="progressBar">
+                    <div class="perWrap">
+                      <div class="progress-bar-container">
+                        <div class="progress-bar"
+                          style="width: <%= item.percentage %>%; background-color: <%= item.percentage > 40 ? '#f66' : '#6cc' %>;">
+                        </div>
+                      </div>
+                      <span class="percentage"><%= item.percentage %>%</span>
+                    </div>
+                  </td>
+                  <td id="taskCount"><%= item.taskCount %></td>
+                </tr>
+              <% }); %>
+            <% } %>
           </tbody>
         </table>
       </div>
@@ -158,19 +172,98 @@
 </div>
 
 
-<div id="tasksModal" class="modal">
+
+<div class="tasksModal modal" id="tasksModal" >
   <div class="modal-content">
-    <span class="close">&times;</span>
-    <h2 id="modalTitle"></h2>
+      <div class="topModal">
+          <div class="nameSearch">
+              <h2 id="modalTitle"></h2>
+              <div class="searchContainer">
+                <i class='bx bx-search searchIcon'></i>
+                <input type="search" placeholder="ค้นหางาน..." id="searchInput">
+              </div>
+          </div>
+          <span class="close">&times;</span>
+      </div>
     <table id="tasksTable">
       <thead>
         <tr>
-          <th>Task Name</th>
-          <th>Detail</th>
-          <th>Status</th>
-          <th>Priority</th>
-          <th>Due Date</th>
-          <th>Assigned Users</th>
+          <th>ชื่องาน</th>
+          <th>
+              <div class="tableHead">
+                <i class='bx bxs-detail'></i>
+                รายละเอียด
+              </div>
+          </th>
+          <th>
+              <div class="tableHead">
+                <i class="fa-solid fa-circle-arrow-right"></i> 
+                สถานะ
+              </div>
+          </th>
+          <th>
+              <div class="tableHead">
+                <i class="fa-solid fa-flag"></i> 
+                ความสำคัญ
+              </div>
+          </th>
+          <th>
+            <div class="tableHead">
+              <i class="fa-solid fa-calendar-days"></i>
+              วันที่สร้าง
+              <i class="fa-solid fa-arrow-down" id="createdAtSortIcon" style="cursor: pointer;"
+                title="Sorted newest -> oldest"></i>
+            </div>
+          </th>
+          <th>
+            <div class="tableHead">
+                <i class="fa-solid fa-calendar-check"></i> 
+                วันครบกำหนด
+                <i class="fa-solid fa-arrow-down" id="dueDateSortIcon" style="cursor: pointer;" title="เรียงลำดับใหม่สุด -> เก่าสุด"></i>
+            </div>
+          </th>
+          <th>
+              <div class="tableHead">
+                <i class="fa-solid fa-user-tag"></i> ผู้รับผิดชอบ
+              </div>
+          </th>
+        </tr>
+      </thead>
+      <div style="max-height: 400px; overflow-y: auto;">
+          <tbody>
+          </tbody>
+      </div>
+    </table>
+
+    <div class="formFooter">
+      <div class="showAfterForm">
+          <p>+ เพิ่มงานที่คุณต้องจัดการ</p>
+        </div>
+        <form action="" class="addForm">
+          <input type="text" placeholder="ใส่ชื่องาน" id="addFormInput">
+          <button type="submit" id="enterBtn">
+            + สร้าง
+            <div class="formIcon">
+              <i class="fa-solid fa-turn-down"></i>
+            </div>
+          </button>
+        </form>
+    </div>
+  </div>
+</div>
+
+<div id="subTasksModal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h2 id="modalTitle"></h2>
+    <table id="subtasksTable">
+      <thead>
+        <tr>
+          <th>ชื่องานย่อย</th>
+          <th>งานหลัก</th>
+          <th>สถานะ</th>
+          <th>วันครบกำหนด</th>
+          <th>ผู้รับผิดชอบ</th>
         </tr>
       </thead>
       <tbody>
@@ -183,97 +276,413 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 <script>
+  // Filter section
   document.getElementById('filter').addEventListener('change', function() {
     const selectedPeriod = this.value;
     const spaceId = '<%= spaces._id %>'; 
     window.location.href = `/space/item/${spaceId}/dashboard?period=${selectedPeriod}`;
   });
   
-  // count cards
-  document.addEventListener('DOMContentLoaded', function() {
+  //search Input section
+  document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById("searchInput");
+    const searchIcon = document.querySelector(".searchIcon");
+
+    searchInput.addEventListener("focus", () => {
+        searchIcon.style.color = "var(--btn)"; // Change to your desired color
+    });
+
+    searchInput.addEventListener("blur", () => {
+        searchIcon.style.color = "gray"; // Revert to the default color
+    });
+  });
+
+  // form dispaly section
+  document.addEventListener('DOMContentLoaded', () => {
+    const showAfterForm = document.querySelector(".showAfterForm");
+    const addForm = document.querySelector(".addForm");
+    const formFooter = document.querySelector(".formFooter");
+
+    showAfterForm.addEventListener("click", () => {
+      showAfterForm.style.display = "none"; 
+      addForm.style.display = "flex"; 
+      formFooter.classList.add("formFooter-active");
+    });
+
+    document.addEventListener("click", (event) => {
+        // Check if the click is outside the formFooter
+        if (!formFooter.contains(event.target)) {
+          // Add fade-out animation
+          addForm.classList.add("hide");
+    
+          // Wait for animation to complete before hiding
+          setTimeout(() => {
+            showAfterForm.style.display = "flex"; // Show the `showAfterForm`
+            addForm.style.display = "none"; // Hide the form
+            addForm.classList.remove("hide"); // Remove the hide class
+            formFooter.classList.remove("formFooter-active"); // Remove the active class
+          }, 500); // Match the duration of the fadeOut animation (0.5s)
+        }
+    });
+    const addFormInput = document.querySelector("#addFormInput");
+    const enterBtn = document.querySelector("#enterBtn");
+    const updateButtonStyles = () => {
+        if (addFormInput.value.trim() === "") {
+        enterBtn.style.backgroundColor = "white";
+        enterBtn.style.color = "#5C54E5";
+        enterBtn.style.opacity = "0.7";
+        } else {
+        enterBtn.style.backgroundColor = "var(--btn)";
+        enterBtn.style.border = "none";
+        enterBtn.style.color = "white";
+        enterBtn.style.opacity = "1";
+        }
+    };
+    addFormInput.addEventListener("input", updateButtonStyles);
+    updateButtonStyles();
+  });
+
+  // count cards section
+  document.addEventListener('DOMContentLoaded', function () {
     const tasks = <%- JSON.stringify(tasks) %>;
-
+  
+    let isSortedNewestToOldestDueDate = true; // Default for due date (newest -> oldest)
+    let isSortedNewestToOldestCreatedAt = true; // Default for created date (newest -> oldest)
+  
+    const dueDateSortIcon = document.getElementById("dueDateSortIcon");
+    const createdAtSortIcon = document.getElementById("createdAtSortIcon");
+    const searchInput = document.getElementById("searchInput");
+  
+    function formatThaiDate(date) {
+      const options = { year: 'numeric', month: 'long', day: 'numeric' };
+      return new Date(date).toLocaleDateString('th-TH', options);
+    }
+  
+    const statusMapping = {
+      toDo: { color: '#DFE1E6', text: 'ยังไม่ทำ' },
+      inProgress: { color: '#2684FF', text: 'กำลังทำ' },
+      fix: { color: '#FF7452', text: 'แก้ไข' },
+      finished: { color: '#57D9A3', text: 'เสร็จสิ้น' },
+    };
+  
+    const priorityMapping = {
+      urgent: { color: '#DE350B', icon: 'fa-angles-up', text: 'ด่วน', textColor: '#DE350B' },
+      normal: { color: '#FFAB00', icon: 'fa-grip-lines', text: 'ปกติ', textColor: '#FFAB00' },
+      low: { color: '#4C9AFF', icon: 'fa-angle-down', text: 'ต่ำ', textColor: '#4C9AFF' },
+    };
+  
+    function checkDueDateWarning(element, dueDate) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Normalize today's time to midnight
+      const diffInTime = new Date(dueDate) - today;
+      const diffInDays = Math.floor(diffInTime / (1000 * 60 * 60 * 24));
+  
+      if (diffInDays < 0) {
+        element.style.color = '#FF5733'; // Red for overdue tasks
+      } else if (diffInDays === 0) {
+        element.style.color = '#FF5733'; // Red for due today
+      } else if (diffInDays > 0 && diffInDays <= 3) {
+        element.style.color = '#FFA500'; // Orange for tasks due in 3 days or less
+      } else {
+        element.style.color = 'black'; // Black for tasks with due dates far away
+      }
+    }
+  
     const modal = document.getElementById("tasksModal");
-    const span = document.getElementsByClassName("close")[0];
     const modalTitle = document.getElementById("modalTitle");
-    const tasksTableBody = document.getElementById("tasksTable").getElementsByTagName("tbody")[0];
-
+    const tasksTableBody = document.getElementById("tasksTable")?.getElementsByTagName("tbody")[0];
+  
     function showModal(title, filteredTasks) {
+      if (!modal || !tasksTableBody) return;
+  
       modalTitle.textContent = title;
       tasksTableBody.innerHTML = '';
-
       filteredTasks.forEach(task => {
-        const row = tasksTableBody.insertRow();
-        row.onclick = function() {
+        const row = document.createElement('tr');
+        row.onclick = function () {
           window.location.href = `/task/${task._id}/detail?spaceId=<%= spaces._id %>`;
         };
-        row.style.cursor = 'pointer';
-
-        row.insertCell(0).textContent = task.taskName;
-        row.insertCell(1).textContent = task.taskDetail;
-        row.insertCell(2).textContent = task.taskStatus;
-        row.insertCell(3).textContent = task.taskPriority;
-        row.insertCell(4).textContent = task.dueDate ? new Date(task.dueDate).toLocaleDateString() : '';
-        const assignedUsersCell = row.insertCell(5);
-        task.assignedUsers.forEach(user => {
-          const img = document.createElement('img');
-          img.src = user.profileImage;
-          img.alt = user.displayName;
-          img.style.width = '30px';
-          img.style.height = '30px';
-          img.style.borderRadius = '50%';
-          img.style.marginRight = '5px';
-          assignedUsersCell.appendChild(img);
-        });
+        row.classList.add('taskItem');
+  
+        const status = statusMapping[task.taskStatus] || {};
+        const statusDiv = `<div class="statusItem" style="background-color: ${status.color || '#FFF'};">${status.text || ''}</div>`;
+  
+        const priority = priorityMapping[task.taskPriority] || {};
+        const priorityDiv = `
+            <div class="priorityItem" style="color: ${priority.textColor || '#000'};">
+                <i class="fas ${priority.icon || ''}" style="color: ${priority.color || '#000'};"></i> ${priority.text || ''}
+            </div>
+        `;
+  
+        row.innerHTML = `
+            <td id="taskNameModal">${highlightSearchTerm(task.taskName)}</td>
+            <td id="detailModal">${task.taskDetail || '-'}</td>
+            <td id="statusModal">${statusDiv}</td>
+            <td id="priorityModal">${priorityDiv}</td>
+            <td id="createAtModal">${formatThaiDate(new Date(task.createdAt))}</td>
+            <td id="dueDateModal">
+                ${task.dueDate ? formatThaiDate(new Date(task.dueDate)) : '-'}
+            </td>
+            <td id="profileModal">
+                ${task.assignedUsers
+                  .map(
+                    user => `<img src="${user.profileImage || '/public/img/profileImage/userDefalt.jpg'}" class="proImg" title="${user.username}">`
+                  )
+                  .join('')}
+            </td>
+        `;
+        const dueDateElement = row.querySelector('#dueDateModal');
+        if (task.dueDate) {
+          checkDueDateWarning(dueDateElement, task.dueDate);
+        }
+  
+        tasksTableBody.appendChild(row);
       });
-
-      modal.style.display = "block";
+      modal.style.display = "flex";
+    }
+  
+    // Sorting tasks by due date
+    function sortTasksByDueDate(tasks, isNewestToOldest) {
+      return tasks.sort((a, b) => {
+        const dueDateA = new Date(a.dueDate);
+        const dueDateB = new Date(b.dueDate);
+  
+        if (isNaN(dueDateA)) return 1;
+        if (isNaN(dueDateB)) return -1;
+  
+        return isNewestToOldest ? dueDateB - dueDateA : dueDateA - dueDateB;
+      });
+    }
+  
+    // Sorting tasks by created date
+    function sortTasksByCreatedAt(tasks, isNewestToOldest) {
+      return tasks.sort((a, b) => {
+        const createdAtA = new Date(a.createdAt);
+        const createdAtB = new Date(b.createdAt);
+  
+        return isNewestToOldest ? createdAtB - createdAtA : createdAtA - createdAtB;
+      });
+    }
+  
+    // Function to filter tasks by search term
+    function filterTasksBySearch(searchTerm) {
+      const filteredTasks = tasks.filter(task => task.taskName.toLowerCase().includes(searchTerm.toLowerCase()));
+      showModal('ค้นหางาน...', filteredTasks); // Show filtered tasks
+    }
+  
+    // Function to highlight search term in task name
+    function highlightSearchTerm(taskName) {
+      const searchTerm = searchInput?.value.trim();
+      if (!searchTerm) return taskName; // Return original task name if no search term
+  
+      const regex = new RegExp(`(${searchTerm})`, 'gi'); // Case insensitive search
+      return taskName.replace(regex, '<span class="highlight">$1</span>'); // Wrap the matched term with a span
+    }
+  
+    // Event listeners
+    if (searchInput) {
+      searchInput.addEventListener("input", function () {
+        const searchTerm = searchInput.value.trim();
+        filterTasksBySearch(searchTerm);
+      });
+    }
+  
+    if (dueDateSortIcon) {
+      dueDateSortIcon.addEventListener("click", function () {
+        isSortedNewestToOldestDueDate = !isSortedNewestToOldestDueDate;
+        const sortedTasks = sortTasksByDueDate(tasks, isSortedNewestToOldestDueDate);
+        showModal("งานทั้งหมด", sortedTasks);
+      });
+    }
+  
+    if (createdAtSortIcon) {
+      createdAtSortIcon.addEventListener("click", function () {
+        isSortedNewestToOldestCreatedAt = !isSortedNewestToOldestCreatedAt;
+        const sortedTasks = sortTasksByCreatedAt(tasks, isSortedNewestToOldestCreatedAt);
+        showModal("งานทั้งหมด", sortedTasks);
+      });
+    }
+  
+    const finishedTasksCard = document.getElementById("finishedTasksCard");
+    if (finishedTasksCard) {
+      finishedTasksCard.onclick = function () {
+        const filteredTasks = tasks.filter(task => task.taskStatus === 'finished');
+        showModal('งานที่เสร็จสิ้น', filteredTasks);
+      };
+    }
+  
+    const updatedTasksCard = document.getElementById("updatedTasksCard");
+    if (updatedTasksCard) {
+      updatedTasksCard.onclick = function () {
+        const filteredTasks = tasks.filter(task => new Date(task.updatedAt) > new Date(task.createdAt));
+        showModal('Updated Tasks', filteredTasks);
+      };
     }
 
-    document.getElementById("finishedTasksCard").onclick = function() {
-      const filteredTasks = tasks.filter(task => task.taskStatus === 'finished');
-      showModal('Finished Tasks', filteredTasks);
-    };
+    const recentTasksCard = document.getElementById("recentTasksCard");
+    if (recentTasksCard) {
+      recentTasksCard.onclick = function () {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
 
-    document.getElementById("updatedTasksCard").onclick = function() {
-      const filteredTasks = tasks.filter(task => {
-        const lastUpdated = new Date(task.updatedAt);
-        const createdAt = new Date(task.createdAt);
-        return lastUpdated > createdAt;
-      });
-      showModal('Updated Tasks', filteredTasks);
-    };
+        const period = '<%- selectedPeriod %>';
+        let startDate;
 
-    document.getElementById("recentTasksCard").onclick = function() {
-      const sevenDaysAgo = new Date();
-      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-      const filteredTasks = tasks.filter(task => new Date(task.createdAt) >= sevenDaysAgo);
-      showModal('Recent Tasks', filteredTasks);
-    };
+        switch (period) {
+          case 'today':
+            startDate = today; // Only tasks created today
+            break;
+          case '7day':
+            startDate = new Date();
+            startDate.setDate(today.getDate() - 7); // Tasks from last 7 days
+            break;
+          case '1month':
+            startDate = new Date();
+            startDate.setMonth(today.getMonth() - 1); // Tasks from last month
+            break;
+          case 'sinceCreate':
+            startDate = new Date(0); // Tasks since the beginning
+            break;
+          default:
+            startDate = new Date();
+            startDate.setDate(today.getDate() - 7); // Default to last 7 days
+        }
 
-    document.getElementById("dueNextSevenDaysCard").onclick = function() {
-      const today = new Date();
-      const nextSevenDays = new Date();
-      nextSevenDays.setDate(today.getDate() + 7);
-      const filteredTasks = tasks.filter(task => task.dueDate && new Date(task.dueDate) >= today && new Date(task.dueDate) <= nextSevenDays);
-      showModal('Tasks Due in Next 7 Days', filteredTasks);
-    };
+        // Filter tasks created within the selected period
+        const filteredTasks = tasks.filter(task => new Date(task.createdAt) >= startDate);
+        showModal('งานที่สร้างขึ้นในช่วงเวลา', filteredTasks);
+      };
+    }
 
-    span.onclick = function() {
-      modal.style.display = "none";
-    };
+    const dueNextSevenDaysCard = document.getElementById("dueNextSevenDaysCard");
+    if (dueNextSevenDaysCard) {
+      dueNextSevenDaysCard.onclick = function () {
+        const today = new Date();
+        const nextSevenDays = new Date();
+        nextSevenDays.setDate(today.getDate() + 7);
+        const filteredTasks = tasks.filter(task => task.dueDate && new Date(task.dueDate) >= today && new Date(task.dueDate) <= nextSevenDays);
+        showModal('Tasks Due in Next 7 Days', filteredTasks);
+      };
+    }
 
-    window.onclick = function(event) {
-      if (event.target == modal) {
+    const span = document.getElementsByClassName("close")[0];
+    if (span) {
+      span.onclick = function () {
+        modal.style.display = "none";
+      };
+    }
+  
+    window.onclick = function (event) {
+      if (event.target === modal) {
         modal.style.display = "none";
       }
     };
   });
+  
+  // subtask section
+  document.addEventListener('DOMContentLoaded', function() {
+    const tasks = <%- JSON.stringify(tasks) %>;
 
-  // Status chart
+    const modal = document.getElementById("subTasksModal");
+    const span = document.getElementsByClassName("close")[0];
+    const modalTitle = document.getElementById("modalTitle");
+    const subtasksTableBody = document.getElementById("subtasksTable").getElementsByTagName("tbody")[0];
+
+    function showSubtasksModal(title, filteredTasks) {
+        modalTitle.textContent = title;
+        subtasksTableBody.innerHTML = ''; // Clear previous content
+
+        filteredTasks.forEach(task => {
+            // Ensure 'subtasks' exists and is an array
+            if (task.subtasks && Array.isArray(task.subtasks)) {
+                task.subtasks.forEach(subtask => {
+                    const row = subtasksTableBody.insertRow(); // Create a new row
+                    row.style.cursor = 'pointer';
+
+                    // Insert cells into the row
+                    row.insertCell(0).textContent = subtask.subtask_Name || ''; 
+                    row.insertCell(1).textContent = task.taskName || ''; 
+                    row.insertCell(2).textContent = subtask.subTask_status || ''; // Subtask status
+                    row.insertCell(3).textContent = subtask.subTask_dueDate ? new Date(subtask.subTask_dueDate).toLocaleDateString() : ''; // Due date
+
+                    const assignedUsersCell = row.insertCell(4); 
+
+                    // Check if 'assignedUsers' exists and is an array
+                    if (subtask.assignee && subtask.assignee.profileImage && subtask.assignee.username) {
+                      const img = document.createElement('img');
+                      img.src = subtask.assignee.profileImage || ''; // Use assignee's profile image
+                      img.alt = subtask.assignee.username || ''; // Use assignee's username
+                      img.style.width = '30px';
+                      img.style.height = '30px';
+                      img.style.borderRadius = '50%';
+                      img.style.marginRight = '5px';
+                      assignedUsersCell.appendChild(img);
+                    } else {
+                        assignedUsersCell.textContent = 'No assignee'; // Fallback if no assignee
+                    }
+                });
+            }
+        });
+
+        modal.style.display = "block"; // Show the modal
+    }
+
+    document.getElementById("subTasksCard").onclick = function() {
+        const filteredTasks = tasks.filter(task => task.subtasks && task.subtasks.length > 0);
+        showSubtasksModal('Subtask Details', filteredTasks);
+    };
+
+    span.onclick = function() {
+        modal.style.display = "none";
+    };
+
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    };
+});
+
+  // Status chart section
   document.addEventListener('DOMContentLoaded', function () {
     const tasks = <%- JSON.stringify(tasks) %>;
     const statusCounts = <%- JSON.stringify(statusCounts) %>;
+    const startDate = new Date("<%= startDate.toISOString() %>");
+
+    function formatThaiDate(date) {
+      const options = { year: 'numeric', month: 'long', day: 'numeric' };
+      return new Date(date).toLocaleDateString('th-TH', options);
+    }
+
+    const statusMapping = {
+      toDo: { color: '#DFE1E6', text: 'ยังไม่ทำ' },
+      inProgress: { color: '#2684FF', text: 'กำลังทำ' },
+      fix: { color: '#FF7452', text: 'แก้ไข' },
+      finished: { color: '#57D9A3', text: 'เสร็จสิ้น' },
+    };
+
+    const priorityMapping = {
+      urgent: { color: '#DE350B', icon: 'fa-angles-up', text: 'ด่วน', textColor: '#DE350B' },
+      normal: { color: '#FFAB00', icon: 'fa-grip-lines', text: 'ปกติ', textColor: '#FFAB00' },
+      low: { color: '#4C9AFF', icon: 'fa-angle-down', text: 'ต่ำ', textColor: '#4C9AFF' },
+    };
+
+    function checkDueDateWarning(element, dueDate) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Normalize today's time to midnight
+      const diffInTime = new Date(dueDate) - today;
+      const diffInDays = Math.floor(diffInTime / (1000 * 60 * 60 * 24));
+
+      if (diffInDays < 0) {
+        element.style.color = '#FF5733'; // Red for overdue tasks
+      } else if (diffInDays === 0) {
+        element.style.color = '#FF5733'; // Red for due today
+      } else if (diffInDays > 0 && diffInDays <= 3) {
+        element.style.color = '#FFA500'; // Orange for tasks due in 3 days or less
+      } else {
+        element.style.color = 'black'; // Black for tasks with due dates far away
+      }
+    }
 
     // Calculate total tasks
     const totalTasks =
@@ -402,7 +811,7 @@
       if (elements.length) {
         const index = elements[0].index;
         const count = statusChart.data.datasets[0].data[index];
-        const percentage = totalTasks > 0 ? ((count / totalTasks) * 100).toFixed(1) : 0;
+        const percentage = totalTasks > 0 ? Math.round((count / totalTasks) * 100) : 0;
         const label = statusChart.data.labels[index];
         const colors = ['#44546F', '#0065ff', '#ff7452', '#36b37e']; // Colors for each status
     
@@ -444,52 +853,92 @@
           'เสร็จสิ้น': 'finished',
         };
         const status = statusMap[statusChart.data.labels[index]];
-        const filteredTasks = tasks.filter(task => task.taskStatus === status);
-  
-        showModal(`${statusChart.data.labels[index]} งาน`, filteredTasks);
+    
+        // Filter tasks by status and within the selected date range
+        const filteredTasks = tasks.filter((task) => {
+          const createdAt = new Date(task.createdAt);
+          return (
+            task.taskStatus === status &&
+            createdAt >= startDate // `startDate` is determined in the backend
+          );
+        });
+    
+        // Show modal with filtered tasks
+        showModal(`งานที่${statusChart.data.labels[index]}`, filteredTasks);
       }
     });
 
-    // Function to show modal with filtered tasks
-    function showModal(title, filteredTasks) {
-      const modal = document.getElementById('tasksModal');
-      const modalTitle = document.getElementById('modalTitle');
-      const tasksTableBody = document
-        .getElementById('tasksTable')
-        .getElementsByTagName('tbody')[0];
+    const modal = document.getElementById("tasksModal");
+    const modalTitle = document.getElementById("modalTitle");
+    const tasksTableBody = document.getElementById("tasksTable").getElementsByTagName("tbody")[0];
+    const searchInput = document.getElementById("searchInput");
 
+    function showModal(title, filteredTasks) {
       modalTitle.textContent = title;
       tasksTableBody.innerHTML = '';
-
       filteredTasks.forEach(task => {
-        const row = tasksTableBody.insertRow();
+        const row = document.createElement('tr');
         row.onclick = function () {
           window.location.href = `/task/${task._id}/detail?spaceId=<%= spaces._id %>`;
         };
-        row.style.cursor = 'pointer';
+        row.classList.add('taskItem');
 
-        row.insertCell(0).textContent = task.taskName;
-        row.insertCell(1).textContent = task.taskDetail;
-        row.insertCell(2).textContent = task.taskStatus;
-        row.insertCell(3).textContent = task.taskPriority;
-        row.insertCell(4).textContent = task.dueDate
-          ? new Date(task.dueDate).toLocaleDateString()
-          : '';
+        const status = statusMapping[task.taskStatus] || {};
+        const statusDiv = `<div class="statusItem" style="background-color: ${status.color || '#FFF'};">${status.text || ''}</div>`;
 
-        const assignedUsersCell = row.insertCell(5);
-        task.assignedUsers.forEach(user => {
-          const img = document.createElement('img');
-          img.src = user.profileImage;
-          img.alt = user.displayName;
-          img.style.width = '30px';
-          img.style.height = '30px';
-          img.style.borderRadius = '50%';
-          img.style.marginRight = '5px';
-          assignedUsersCell.appendChild(img);
-        });
+        const priority = priorityMapping[task.taskPriority] || {};
+        const priorityDiv = `
+              <div class="priorityItem" style="color: ${priority.textColor || '#000'};">
+                  <i class="fas ${priority.icon || ''}" style="color: ${priority.color || '#000'};"></i> ${priority.text || ''}
+              </div>
+          `;
+
+        row.innerHTML = `
+                <td id="taskNameModal">${highlightSearchTerm(task.taskName)}</td>
+                <td id="detailModal">${task.taskDetail || '-'}</td>
+                <td id="statusModal">${statusDiv}</td>
+                <td id="priorityModal">${priorityDiv}</td>
+                <td id="createAtModal">${formatThaiDate(new Date(task.createdAt))}</td>
+                <td id="dueDateModal">
+                    ${task.dueDate ? formatThaiDate(new Date(task.dueDate)) : '-'}
+                </td>
+                <td id="profileModal">
+                    ${task.assignedUsers
+                        .map(
+                            user => `<img src="${user.profileImage || '/public/img/profileImage/userDefalt.jpg'}" class="proImg" title="${user.username}">`
+                        )
+                        .join('')}
+                </td>
+            `;
+        const dueDateElement = row.querySelector('#dueDateModal');
+        if (task.dueDate) {
+          checkDueDateWarning(dueDateElement, task.dueDate);
+        }
+
+        tasksTableBody.appendChild(row);
       });
+      modal.style.display = "flex";
+    }
+    
+    // Function to filter tasks by search term
+    function filterTasksBySearch(searchTerm) {
+      const filteredTasks = tasks.filter(task => task.taskName.toLowerCase().includes(searchTerm.toLowerCase()));
+      showModal('ค้นหางาน...', filteredTasks); // Show filtered tasks
+    }
 
-      modal.style.display = "block";
+    // Event listener for search input
+    searchInput.addEventListener("input", function () {
+      const searchTerm = searchInput.value.trim();
+      filterTasksBySearch(searchTerm); // Filter and update tasks based on search
+    });
+
+    // Function to highlight search term in task name
+    function highlightSearchTerm(taskName) {
+      const searchTerm = searchInput.value.trim();
+      if (!searchTerm) return taskName; // Return original task name if no search term
+
+      const regex = new RegExp(`(${searchTerm})`, 'gi'); // Case insensitive search
+      return taskName.replace(regex, '<span class="highlight">$1</span>'); // Wrap the matched term with a span
     }
 
     // Close modal
@@ -507,10 +956,46 @@
     };
   });
 
-  // Priority chart
+  // Priority chart section
   document.addEventListener('DOMContentLoaded', function () {
     const tasks = <%- JSON.stringify(tasks) %>;
     const priorityCounts = <%- JSON.stringify(priorityCounts) %>;
+    const startDate = new Date("<%= startDate.toISOString() %>");
+
+    function formatThaiDate(date) {
+      const options = { year: 'numeric', month: 'long', day: 'numeric' };
+      return new Date(date).toLocaleDateString('th-TH', options);
+    }
+
+    const statusMapping = {
+      toDo: { color: '#DFE1E6', text: 'ยังไม่ทำ' },
+      inProgress: { color: '#2684FF', text: 'กำลังทำ' },
+      fix: { color: '#FF7452', text: 'แก้ไข' },
+      finished: { color: '#57D9A3', text: 'เสร็จสิ้น' },
+    };
+
+    const priorityMapping = {
+      urgent: { color: '#DE350B', icon: 'fa-angles-up', text: 'ด่วน', textColor: '#DE350B' },
+      normal: { color: '#FFAB00', icon: 'fa-grip-lines', text: 'ปกติ', textColor: '#FFAB00' },
+      low: { color: '#4C9AFF', icon: 'fa-angle-down', text: 'ต่ำ', textColor: '#4C9AFF' },
+    };
+
+    function checkDueDateWarning(element, dueDate) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Normalize today's time to midnight
+      const diffInTime = new Date(dueDate) - today;
+      const diffInDays = Math.floor(diffInTime / (1000 * 60 * 60 * 24));
+
+      if (diffInDays < 0) {
+        element.style.color = '#FF5733'; // Red for overdue tasks
+      } else if (diffInDays === 0) {
+        element.style.color = '#FF5733'; // Red for due today
+      } else if (diffInDays > 0 && diffInDays <= 3) {
+        element.style.color = '#FFA500'; // Orange for tasks due in 3 days or less
+      } else {
+        element.style.color = 'black'; // Black for tasks with due dates far away
+      }
+    }
 
     // Priority data for the chart
     const priorityData = {
@@ -622,47 +1107,82 @@
         };
         const priority = priorityMap[index];
         const filteredTasks = tasks.filter(task => task.taskPriority === priority);
-        showModal(`${priorityData.labels[index]} Tasks`, filteredTasks);
+        showModal(`งานที่ ${priorityData.labels[index]} Tasks`, filteredTasks);
       }
     });
 
-    // Function to show modal with filtered tasks
-    function showModal(title, filteredTasks) {
-      const modal = document.getElementById("tasksModal");
-      const modalTitle = document.getElementById("modalTitle");
-      const tasksTableBody = document.getElementById("tasksTable").getElementsByTagName("tbody")[0];
+    const modal = document.getElementById("tasksModal");
+    const modalTitle = document.getElementById("modalTitle");
+    const tasksTableBody = document.getElementById("tasksTable").getElementsByTagName("tbody")[0];
+    const searchInput = document.getElementById("searchInput");
 
+    function showModal(title, filteredTasks) {
       modalTitle.textContent = title;
       tasksTableBody.innerHTML = '';
-
       filteredTasks.forEach(task => {
-        const row = tasksTableBody.insertRow();
-        row.onclick = function() {
+        const row = document.createElement('tr');
+        row.onclick = function () {
           window.location.href = `/task/${task._id}/detail?spaceId=<%= spaces._id %>`;
         };
-        row.style.cursor = 'pointer';
+        row.classList.add('taskItem');
 
-        row.insertCell(0).textContent = task.taskName;
-        row.insertCell(1).textContent = task.taskDetail;
-        row.insertCell(2).textContent = task.taskStatus;
-        row.insertCell(3).textContent = task.taskPriority;
-        row.insertCell(4).textContent = task.dueDate ? new Date(task.dueDate).toLocaleDateString() : '';
-        const assignedUsersCell = row.insertCell(5);
-        task.assignedUsers.forEach(user => {
-          const img = document.createElement('img');
-          img.src = user.profileImage;
-          img.alt = user.displayName;
-          img.style.width = '30px';
-          img.style.height = '30px';
-          img.style.borderRadius = '50%';
-          img.style.marginRight = '5px';
-          assignedUsersCell.appendChild(img);
-        });
+        const status = statusMapping[task.taskStatus] || {};
+        const statusDiv = `<div class="statusItem" style="background-color: ${status.color || '#FFF'};">${status.text || ''}</div>`;
+
+        const priority = priorityMapping[task.taskPriority] || {};
+        const priorityDiv = `
+              <div class="priorityItem" style="color: ${priority.textColor || '#000'};">
+                  <i class="fas ${priority.icon || ''}" style="color: ${priority.color || '#000'};"></i> ${priority.text || ''}
+              </div>
+          `;
+
+        row.innerHTML = `
+                <td id="taskNameModal">${highlightSearchTerm(task.taskName)}</td>
+                <td id="detailModal">${task.taskDetail || '-'}</td>
+                <td id="statusModal">${statusDiv}</td>
+                <td id="priorityModal">${priorityDiv}</td>
+                <td id="createAtModal">${formatThaiDate(new Date(task.createdAt))}</td>
+                <td id="dueDateModal">
+                    ${task.dueDate ? formatThaiDate(new Date(task.dueDate)) : '-'}
+                </td>
+                <td id="profileModal">
+                    ${task.assignedUsers
+            .map(
+              user => `<img src="${user.profileImage || '/public/img/profileImage/userDefalt.jpg'}" class="proImg" title="${user.username}">`
+            )
+            .join('')}
+                </td>
+            `;
+        const dueDateElement = row.querySelector('#dueDateModal');
+        if (task.dueDate) {
+          checkDueDateWarning(dueDateElement, task.dueDate);
+        }
+
+        tasksTableBody.appendChild(row);
       });
-
-      modal.style.display = "block";
+      modal.style.display = "flex";
     }
 
+    // Function to filter tasks by search term
+    function filterTasksBySearch(searchTerm) {
+      const filteredTasks = tasks.filter(task => task.taskName.toLowerCase().includes(searchTerm.toLowerCase()));
+      showModal('ค้นหางาน...', filteredTasks); // Show filtered tasks
+    }
+
+    // Event listener for search input
+    searchInput.addEventListener("input", function () {
+      const searchTerm = searchInput.value.trim();
+      filterTasksBySearch(searchTerm); // Filter and update tasks based on search
+    });
+
+    // Function to highlight search term in task name
+    function highlightSearchTerm(taskName) {
+      const searchTerm = searchInput.value.trim();
+      if (!searchTerm) return taskName; // Return original task name if no search term
+
+      const regex = new RegExp(`(${searchTerm})`, 'gi'); // Case insensitive search
+      return taskName.replace(regex, '<span class="highlight">$1</span>'); // Wrap the matched term with a span
+    }
     // Close modal
     const span = document.getElementsByClassName("close")[0];
     span.onclick = function() {
@@ -678,7 +1198,7 @@
     };
   });
 
-  // Workload chart
+  // Workload chart section
   document.addEventListener('DOMContentLoaded', function () {
     const tasks = <%- JSON.stringify(tasks) %>;
 
@@ -697,7 +1217,7 @@
     });
 
     // Function to populate the modal and display it
-    function showModal(title, tasks) {
+    function showModal(title, filteredTasks) {
       const modal = document.getElementById('tasksModal');
       const modalTitle = document.getElementById('modalTitle');
       const tasksTableBody = document.querySelector('#tasksTable tbody');
@@ -709,32 +1229,50 @@
       tasksTableBody.innerHTML = '';
 
       // Populate tasks in the modal
-      if (tasks.length > 0) {
-        tasks.forEach(task => {
-          const taskRow = document.createElement('tr');
-          taskRow.innerHTML = `
-            <td>${task.taskName || 'N/A'}</td>
-            <td>${task.taskDetail || 'No details provided'}</td>
-            <td>${task.taskStatus || 'Unspecified'}</td>
-            <td>${task.taskPriority || 'Unspecified'}</td>
-            <td>${task.dueDate ? new Date(task.dueDate).toLocaleDateString() : 'No due date'}</td>
-            <td>
-                ${task.assignedUsers.map(user => `
-                    <img src="${user.profileImage}" alt="${user.displayName || 'User'}" class="user-avatar" style="width: 30px; height: 30px; border-radius: 50%; margin-right: 5px;">
-                `).join('')}
-            </td>
+      filteredTasks.forEach(task => {
+        const row = document.createElement('tr');
+        row.onclick = function () {
+          window.location.href = `/task/${task._id}/detail?spaceId=<%= spaces._id %>`;
+        };
+        row.classList.add('taskItem');
+
+        const status = statusMapping[task.taskStatus] || {};
+        const statusDiv = `<div class="statusItem" style="background-color: ${status.color || '#FFF'};">${status.text || ''}</div>`;
+
+        const priority = priorityMapping[task.taskPriority] || {};
+        const priorityDiv = `
+              <div class="priorityItem" style="color: ${priority.textColor || '#000'};">
+                  <i class="fas ${priority.icon || ''}" style="color: ${priority.color || '#000'};"></i> ${priority.text || ''}
+              </div>
           `;
-          tasksTableBody.appendChild(taskRow);
-        });
-      } else {
-        // Show a message if there are no tasks for the selected user
-        const emptyRow = document.createElement('tr');
-        emptyRow.innerHTML = `<td colspan="6">No tasks assigned to this user.</td>`;
-        tasksTableBody.appendChild(emptyRow);
-      }
+
+        row.innerHTML = `
+                <td id="taskNameModal">${highlightSearchTerm(task.taskName)}</td>
+                <td id="detailModal">${task.taskDetail || '-'}</td>
+                <td id="statusModal">${statusDiv}</td>
+                <td id="priorityModal">${priorityDiv}</td>
+                <td id="createAtModal">${formatThaiDate(new Date(task.createdAt))}</td>
+                <td id="dueDateModal">
+                    ${task.dueDate ? formatThaiDate(new Date(task.dueDate)) : '-'}
+                </td>
+                <td id="profileModal">
+                    ${task.assignedUsers
+            .map(
+              user => `<img src="${user.profileImage || '/public/img/profileImage/userDefalt.jpg'}" class="proImg" title="${user.username}">`
+            )
+            .join('')}
+                </td>
+            `;
+        const dueDateElement = row.querySelector('#dueDateModal');
+        if (task.dueDate) {
+          checkDueDateWarning(dueDateElement, task.dueDate);
+        }
+
+        tasksTableBody.appendChild(row);
+      });
 
       // Display the modal
-      modal.style.display = 'block';
+      modal.style.display = 'flex';
     }
 
     // Close modal when clicking the close button

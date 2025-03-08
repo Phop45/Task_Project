@@ -1,5 +1,6 @@
 // subtask controller
 const SubTask = require("../models/SubTask");
+const Task = require("../models/Task"); 
 const Notification = require('../models/Noti');
 const mongoose = require('mongoose');
 
@@ -21,6 +22,12 @@ exports.createSubTask = async (req, res) => {
         });
 
         await newSubTask.save();
+
+        await Task.findByIdAndUpdate(
+            taskId,
+            { $push: { subtasks: newSubTask._id } }, 
+            { new: true }
+        );
 
         const notification = new Notification({
             user: assignee,
